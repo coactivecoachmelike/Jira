@@ -1,0 +1,423 @@
+{
+  "project": {
+    "title": "BNext Yol Haritası (örnek)",
+    "url": null
+  },
+  "view": {
+    "name": "Geliştirmeler",
+    "filter": "",
+    "layout": "TABLE_LAYOUT"
+  },
+  "statusField": "Status",
+  "statusOptions": [
+    {
+      "name": "Todo",
+      "color": "GRAY",
+      "description": "Planlandı, başlanmadı"
+    },
+    {
+      "name": "In Progress",
+      "color": "YELLOW",
+      "description": "Geliştirmede"
+    },
+    {
+      "name": "In Review",
+      "color": "PURPLE",
+      "description": "Kod incelemesi / test"
+    },
+    {
+      "name": "Blocked",
+      "color": "RED",
+      "description": "Engelli"
+    },
+    {
+      "name": "Done",
+      "color": "GREEN",
+      "description": "Tamamlandı"
+    }
+  ],
+  "numberFields": [
+    {
+      "name": "Original Estimate",
+      "databaseId": 402706858
+    }
+  ],
+  "items": [
+    {
+      "title": "Motosikletlerde \"12 Taksit\" Badge'inin Satıcı, BNext Satıcısı ve Limit Bazlı Dinamik Yönetimi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/100",
+      "number": 100,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "canb"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Progress",
+        "Original Estimate": 3
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Üstü Çizili Fiyat Kurgusu",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/101",
+      "number": 101,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 2
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Borusan Next Yetkili Satıcı Deeplink Ekleme Hk.",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/102",
+      "number": 102,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Progress",
+        "Original Estimate": 2
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Yükleme (Loading) Sürecinde Sekme Geçişlerinin Kilitlenmesi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/103",
+      "number": 103,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "canb"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Todo",
+        "Original Estimate": 8
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Kayıtlı Filtrelerimde Hata Sonrası Düzenleme",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/104",
+      "number": 104,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Todo"
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Yeni Satın Alma Ekranları, Marj Güncelleme ve Satın Alma Müdürü Ek Bütçe Ekleme",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/105",
+      "number": 105,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Blocked",
+        "Original Estimate": 2
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Borusan Next Servis - Tıklanabilir Banner Alanları Yönetimi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/106",
+      "number": 106,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext - Jarvis Ekspertiz Kaydı İptal Sebepleri Geliştirme Talebi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/107",
+      "number": 107,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Blocked",
+        "Original Estimate": 8
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Model Listesini Alfabetik Sıraya Göre Dizmek",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/108",
+      "number": 108,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 2
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Karşılaştırma ekranında Motor Gücü satırı bulunmuyor",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/109",
+      "number": 109,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Progress",
+        "Original Estimate": 3
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Jarvis \"Kampanya Yönetimi\" modülünün \"Pazarlama Link Oluşturma\" olarak yeniden adlandırılması",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/110",
+      "number": 110,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Blocked",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Ekspertiz Krokisnin Hedef Tasarıma Göre Güncellenmesi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/111",
+      "number": 111,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Todo",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "BNext | Ön Değerleme Açıklamasının Sıfır Satış Danışmanı Mailine Eklenmesi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/112",
+      "number": 112,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Progress",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "İletişim Sayfası UX ve Müşteri İletişim Formu İyileştirmeleri",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/113",
+      "number": 113,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Blocked"
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Kampanya Linklerinde Araç Tipine Göre Araç Listeleme ve Filtreleme Yapılması",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/114",
+      "number": 114,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "canb"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Review",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Araba Al sayfasında seçim yapılmadan değişen marka/model bilgisinin düzeltilmesi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/115",
+      "number": 115,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "canb"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 8
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Araba Geçmişi ekranında Mekanik Ekspertiz dipnotunun kaldırılması",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/116",
+      "number": 116,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "ahmetk"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "In Progress",
+        "Original Estimate": 3
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Next Kullanıcı Bazlı Araç Önerilerinin Listelenmesi ve Yedek Öneri Planının Oluşturulması",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/117",
+      "number": 117,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 3
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "FE 01_Kullanıcı Bazlı Araç Listeleme API Entegrasyonu",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/118",
+      "number": 118,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "OPEN",
+      "archived": false,
+      "assignees": [
+        "canb"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Blocked",
+        "Original Estimate": 13
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "FE 02_Size Özel Araçlar Alanı Geliştirmesi Ana Sayfa ve Araba Al Sayfası",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/119",
+      "number": 119,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "zeynepd"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 8
+      },
+      "fieldIds": {}
+    },
+    {
+      "title": "Jarvis > AI Aramaları için Aktivite Geçmişinin Görüntülenmesi",
+      "url": "https://github.com/borusanotomotiv/bnext/issues/120",
+      "number": 120,
+      "repo": "borusanotomotiv/bnext",
+      "type": "ISSUE",
+      "state": "CLOSED",
+      "archived": false,
+      "assignees": [
+        "melikeaksahin"
+      ],
+      "labels": [],
+      "fields": {
+        "Status": "Done",
+        "Original Estimate": 2
+      },
+      "fieldIds": {}
+    }
+  ]
+}
