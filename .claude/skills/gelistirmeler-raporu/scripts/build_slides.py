@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Geliştirmeler raporunu 16:9 (1920x1080) iki slayt olarak üretir.
 
-Slayt 1: Metrikler — iş adedi ve Original Estimate bazında planlanan vs. tamamlanan,
-         statü dağılımı ve kişi bazında ilerleme.
+Slayt 1: Metrikler — her grafik iki versiyonlu (İş adedi | Original Estimate):
+         tamamlanma oranı, statü dağılımı, kişi bazında planlanan vs. tamamlanan,
+         iş tipi kırılımı (User Story / Proje işi / Bug / Task) ve lead time histogramı.
 Slayt 2: Maddeler — statü renkli bullet'lı iş listesi (yazı boyutu sığana kadar küçülür).
 
 Veri kaynağı seçenekleri build_report.py ile aynıdır. PNG için:
@@ -15,83 +16,125 @@ import datetime as dt
 import json
 import os
 import re
+import statistics
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_report import (COUNT_FIELD, DEFAULT_DONE, NO_STATUS, NO_STATUS_COLOR,  # noqa: E402
+from build_report import (COUNT_FIELD, DEFAULT_DONE, NO_STATUS_COLOR,  # noqa: E402
                           apply_filter, build_model, esc, fetch_project, fmt, load_export,
                           normalize, pick_estimate_field)
 
+TYPES = ["User Story", "Proje işi", "Bug", "Task"]
+DEFAULT_TASK_KEYWORDS = ["işlemler", "toplantı", "takvim", "kurulum", "inceleme", "migration",
+                         "dependabot", "destek süreci", "deployment"]
+LEAD_BINS = [(0, 1, "<1 gün"), (1, 3, "1–3"), (3, 7, "3–7"), (7, 14, "7–14"),
+             (14, 21, "14–21"), (21, 30, "21–30"), (30, None, "30+")]
 
-def pct(m: dict) -> float:
-    return m["completed"] / m["planned"] * 100 if m["planned"] else 0.0
+
+# --------------------------------------------------------------------------- hesap
+
+def tr_lower(s: str) -> str:
+    return s.replace("İ", "i").replace("I", "ı").lower()
 
 
-def metric_panel(title: str, m: dict | None, unit: str, empty_msg: str) -> str:
-    if m is None:
-        return (f'<div class="panel empty"><div class="ptitle">{esc(title)}</div>'
-                f'<div class="emptymsg">{empty_msg}</div></div>')
-    u = f" {unit}" if unit else ""
-    used = [o for o in m["options"] if o["estimate"] > 0]
-    total = sum(o["estimate"] for o in used) or 1
-    segs = "".join(f'<div class="seg" style="flex:{o["estimate"]};--c:{o["hex"]}"></div>' for o in used)
-    table = "".join(
-        f'<tr><td><span class="dot" style="--c:{o["hex"]}"></span>{esc(o["name"])}{" ✓" if o["done"] else ""}</td>'
-        f'<td class="n">{fmt(o["estimate"])}<small>{esc(u)}</small></td>'
-        f'<td class="n m">%{o["estimate"] / total * 100:.0f}</td></tr>' for o in used)
-    note = ""
-    if m.get("missing_estimate") and m.get("is_est"):
-        note = f'<div class="pnote">{m["missing_estimate"]} işin tahmini boş (0 sayıldı)</div>'
+def classify(it: dict, project_field: str, task_kw: list[str]) -> str:
+    """İş tipi: GitHub issue type varsa o; yoksa başlık/alan kuralları.
+    Sıra: Bug > Proje işi (proje alanı dolu) > Task > User Story."""
+    t = (it.get("issueType") or "").lower()
+    title = tr_lower(it["title"])
+    if t == "bug" or "[bug]" in title:
+        return "Bug"
+    if (it["fields"].get(project_field) or "").strip():
+        return "Proje işi"
+    if t in ("task", "görev"):
+        return "Task"
+    if t in ("user story", "story", "feature"):
+        return "User Story"
+    if any(k in title for k in task_kw):
+        return "Task"
+    return "User Story"
+
+
+def parse_ts(s):
+    if not s:
+        return None
+    try:
+        return dt.datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
+def lead_days(it: dict):
+    c, d = parse_ts(it.get("created")), parse_ts(it.get("closed"))
+    if c and d and d >= c:
+        return (d - c).total_seconds() / 86400
+    return None
+
+
+def pct(done: float, total: float) -> float:
+    return done / total * 100 if total else 0.0
+
+
+# --------------------------------------------------------------------------- bileşenler
+
+def completion_block(label: str, done: float, total: float, unit: str, note: str = "") -> str:
+    p = pct(done, total)
+    u = f"<small>{esc(unit)}</small>" if unit else ""
     return f"""
-<div class="panel">
-  <div class="ptitle">{esc(title)}</div>
-  <div class="prow">
-    <div class="hero"><span class="hv">%{pct(m):.0f}</span><span class="hl">tamamlandı</span></div>
-    <div class="kpis">
-      <div><span class="kl">Planlanan</span><span class="kv">{fmt(m["planned"])}<small>{esc(u)}</small></span></div>
-      <div><span class="kl">Tamamlanan</span><span class="kv">{fmt(m["completed"])}<small>{esc(u)}</small></span></div>
-      <div><span class="kl">Kalan</span><span class="kv">{fmt(m["planned"] - m["completed"])}<small>{esc(u)}</small></span></div>
-    </div>
+<div class="comp">
+  <div class="clabel">{esc(label)}</div>
+  <div class="chero">%{p:.0f}</div>
+  <div class="bar"><i style="width:{min(p, 100):.2f}%"></i></div>
+  <div class="cnums">
+    <div><span>Planlanan</span><b>{fmt(total)}{u}</b></div>
+    <div><span>Tamamlanan</span><b>{fmt(done)}{u}</b></div>
+    <div><span>Kalan</span><b>{fmt(total - done)}{u}</b></div>
   </div>
-  <div class="bar"><i style="width:{min(pct(m), 100):.2f}%"></i></div>
-  <div class="stitle">Statü dağılımı</div>
-  <div class="strip">{segs}</div>
-  <table class="stab"><tbody>{table}</tbody></table>
-  {note}
+  <div class="cnote">{note or '&nbsp;'}</div>
 </div>"""
 
 
-def people_panel(mc: dict, me: dict | None, unit: str) -> str:
-    est = {p["name"]: p for p in me["people"]} if me else {}
-    cmax = max([p["planned"] for p in mc["people"]] + [1])
-    emax = max([p["planned"] for p in me["people"]] + [1]) if me else 1
-    rows = []
-    for p in mc["people"]:
-        e = est.get(p["name"])
-        ebar = ""
-        if me:
-            ep, ed = (e["planned"], e["done"]) if e else (0, 0)
-            ebar = (f'<div class="pb est"><div class="tr" style="width:{ep / emax * 100:.2f}%"></div>'
-                    f'<div class="fi" style="width:{ed / emax * 100:.2f}%"></div></div>'
-                    f'<div class="pv">{fmt(ed)}/{fmt(ep)}</div>')
-        rows.append(
-            f'<div class="person"><div class="pn">{esc(p["name"])}</div>'
-            f'<div class="pb"><div class="tr" style="width:{p["planned"] / cmax * 100:.2f}%"></div>'
-            f'<div class="fi" style="width:{p["done"] / cmax * 100:.2f}%"></div></div>'
-            f'<div class="pv">{fmt(p["done"])}/{fmt(p["planned"])}</div>'
-            + (f'<div></div>{ebar}' if me else "") + "</div>")
-    u = f" ({unit})" if unit else ""
-    key = ('<span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span>')
-    sub = (f"Üst çubuk: iş adedi · alt çubuk: Original Estimate{esc(u)}" if me
-           else "İş adedi bazında")
-    return f"""
-<div class="panel people">
-  <div class="ptitle">Kişi bazında planlanan vs. tamamlanan</div>
-  <div class="psub">{sub}</div>
-  <div class="pkey">{key}</div>
-  {''.join(rows)}
-</div>"""
+def dual_table(rows: list[dict], with_done: bool, est_label: str) -> str:
+    """Her satır: etiket | adet çubuğu + değer | estimate çubuğu + değer.
+    İki ölçü ayrı ölçekte (yan yana iki küçük grafik), satırlar hizalı."""
+    cmax = max([r["c"] for r in rows] + [1])
+    emax = max([r["e"] for r in rows] + [1])
 
+    def cell(total, done, mx, color, tip):
+        if with_done:
+            bar = (f'<div class="tr" style="width:{total / mx * 100:.2f}%"></div>'
+                   f'<div class="fi" style="width:{done / mx * 100:.2f}%"></div>')
+            val = f'{fmt(done)}<span>/{fmt(total)}</span>'
+        else:
+            bar = f'<div class="fi" style="width:{total / mx * 100:.2f}%;background:{color}"></div>'
+            val = fmt(total)
+        return f'<div class="db" title="{esc(tip)}">{bar}</div><div class="dv">{val}</div>'
+
+    out = [f'<div class="dhead"><span></span><span>İş adedi</span><span></span>'
+           f'<span>{esc(est_label)}</span><span></span></div>']
+    for r in rows:
+        dot = f'<span class="dot" style="--c:{r["color"]}"></span>' if r.get("color") else ""
+        out.append(
+            f'<div class="drow"><div class="dl" title="{esc(r["label"])}">{dot}{esc(r["label"])}</div>'
+            + cell(r["c"], r.get("cd", 0), cmax, r.get("color"), f'{r["label"]}: {fmt(r["c"])} iş')
+            + cell(r["e"], r.get("ed", 0), emax, r.get("color"), f'{r["label"]}: {fmt(r["e"])} {est_label}')
+            + "</div>")
+    return '<div class="dual">' + "".join(out) + "</div>"
+
+
+def histogram(bins: list[dict], key: str, title: str, color: str) -> str:
+    mx = max([b[key] for b in bins] + [1])
+    cols = "".join(
+        f'<div class="hcol" title="{esc(b["label"])} gün: {fmt(b[key])}">'
+        f'<div class="hval">{fmt(b[key]) if b[key] else ""}</div>'
+        f'<div class="hbar" style="height:{b[key] / mx * 82:.2f}%;background:{color}"></div></div>'
+        for b in bins)
+    labels = "".join(f'<div>{esc(b["label"])}</div>' for b in bins)
+    return (f'<div class="hist"><div class="htitle">{esc(title)}</div>'
+            f'<div class="hplot">{cols}</div><div class="hx">{labels}</div></div>')
+
+
+# --------------------------------------------------------------------------- build
 
 def build(a) -> None:
     if a.from_json:
@@ -112,55 +155,123 @@ def build(a) -> None:
             it["title"] = re.sub(r"^\s*\d{6,}\s*-\s*", "", it["title"])
             it["title"] = re.sub(r"\[BUG\]:\s*", "[BUG] ", it["title"]).strip()
 
-    done = a.done_status or DEFAULT_DONE
+    done_names = a.done_status or DEFAULT_DONE
+    est_field = pick_estimate_field(data, a.estimate_field, a.estimate_field_id)
+    if not est_field:
+        warnings.append(f"'{a.estimate_field}' alanı veride yok; estimate grafikleri 0 görünür")
     for it in items:
         it["fields"][COUNT_FIELD] = 1
-    mc = build_model(data, items, COUNT_FIELD, done, a.closed_as_done)
-    est_field = pick_estimate_field(data, a.estimate_field, a.estimate_field_id)
-    me = build_model(data, items, est_field, done, a.closed_as_done) if est_field else None
-    if me:
-        me["is_est"] = True
+    mc = build_model(data, items, COUNT_FIELD, done_names, a.closed_as_done)
+    task_kw = [tr_lower(k) for k in (a.task_keyword or DEFAULT_TASK_KEYWORDS)]
+
+    rows = mc["rows"]
+    for r in rows:
+        v = r["fields"].get(est_field) if est_field else None
+        r["est"] = float(v) if isinstance(v, (int, float)) else 0.0
+        r["kind"] = classify(r, a.project_field, task_kw)
+        r["lead"] = lead_days(r)
+    est_label = a.estimate_label
+    unit = a.unit
+
+    # Planlanan vs tamamlanan
+    e_total = sum(r["est"] for r in rows)
+    e_done = sum(r["est"] for r in rows if r["done"])
+    missing = sum(1 for r in rows if not r["est"])
+    comp = (completion_block("İş adedi", mc["count_done"], mc["count"], "iş")
+            + completion_block(est_label, e_done, e_total, unit,
+                               f"{missing} işin estimate'i boş (0 sayıldı)" if missing else ""))
+
+    # Statü
+    status_rows = []
+    for o in mc["options"]:
+        if not o["count"]:
+            continue
+        mem = [r for r in rows if r["status"] == o["name"]]
+        status_rows.append({"label": o["name"] + (" ✓" if o["done"] else ""), "color": o["hex"],
+                            "c": len(mem), "e": sum(r["est"] for r in mem)})
+
+    # Kişi
+    people = {}
+    for r in rows:
+        for p in r["assignees"] or ["Atanmamış"]:
+            d = people.setdefault(p, {"label": p, "c": 0, "cd": 0, "e": 0.0, "ed": 0.0})
+            d["c"] += 1
+            d["e"] += r["est"]
+            if r["done"]:
+                d["cd"] += 1
+                d["ed"] += r["est"]
+    people_rows = sorted(people.values(), key=lambda d: (-d["c"], -d["e"], d["label"]))
+
+    # İş tipi
+    type_rows = []
+    for t in TYPES:
+        mem = [r for r in rows if r["kind"] == t]
+        type_rows.append({"label": t, "c": len(mem), "cd": sum(1 for r in mem if r["done"]),
+                          "e": sum(r["est"] for r in mem), "ed": sum(r["est"] for r in mem if r["done"])})
+    projects = {}
+    for r in rows:
+        if r["kind"] == "Proje işi":
+            n = r["fields"].get(a.project_field)
+            projects[n] = projects.get(n, 0) + 1
+    proj_txt = " · ".join(f"{esc(n)} <b>{c}</b>" for n, c in sorted(projects.items(), key=lambda x: -x[1]))
+
+    # Lead time
+    closed = [r for r in rows if r["lead"] is not None]
+    bins = []
+    for lo, hi, label in LEAD_BINS:
+        mem = [r for r in closed if r["lead"] >= lo and (hi is None or r["lead"] < hi)]
+        bins.append({"label": label, "c": len(mem), "e": sum(r["est"] for r in mem)})
+    while len(bins) > 4 and not bins[-1]["c"]:
+        bins.pop()
+    leads = [r["lead"] for r in closed]
+    est_closed = [r for r in closed if r["est"]]
+    if leads:
+        lead_stats = (f'<div><span>Kapanan iş</span><b>{len(leads)}</b></div>'
+                      f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
+                      f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
+                      f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
+        hists = (histogram(bins, "c", "İş adedi", "var(--ink)")
+                 + histogram(bins, "e", f"{est_label} toplamı ({len(est_closed)}/{len(leads)} işte dolu)",
+                             "var(--accent)"))
     else:
-        warnings.append(f"'{a.estimate_field}' alanı veride yok")
+        lead_stats, hists = "", '<div class="emptymsg">Created / Closed verisi yok.</div>'
 
     legend = "".join(
         f'<li><span class="dot" style="--c:{o["hex"]}"></span>{esc(o["name"])}'
         f'{" ✓" if o["done"] else ""}<span class="muted">{o["count"]}</span></li>'
         for o in mc["options"] if o["count"])
 
-    rows = sorted(mc["rows"], key=lambda r: (mc["order"].get(r["status"], 999), r["title"].lower()))
-    est_vals = {}
-    if me:
-        est_vals = {(r["title"], r.get("url")): r["estimate"] for r in me["rows"]}
+    # Slayt 2
     hexes = {o["name"]: o["hex"] for o in mc["options"]}
-    unit = a.unit
     lis = []
-    for r in rows:
-        badge = ""
-        if me:
-            v = est_vals.get((r["title"], r.get("url")), 0)
-            badge = f'<span class="est">{fmt(v)}{(" " + esc(unit)) if unit else ""}</span>' if v else ""
+    for r in sorted(rows, key=lambda r: (mc["order"].get(r["status"], 999), r["title"].lower())):
+        badge = f'<span class="est">{fmt(r["est"])}{(" " + esc(unit)) if unit else ""}</span>' if r["est"] else ""
         lis.append(f'<li><span class="dot" style="--c:{hexes.get(r["status"], NO_STATUS_COLOR)}"></span>'
                    f'<span class="t">{esc(r["title"])}</span>{badge}</li>')
 
-    empty_msg = (f"<b>{esc(a.estimate_field)}</b> verisi yok.<br>"
-                 "Proje görünümüne bu alanı sütun olarak ekleyip veriyi yeniden dışa aktarın "
-                 "(veya API ile çekin); bu panel otomatik dolar.")
     proj = data.get("project") or {}
     subtitle = " · ".join(x for x in [proj.get("title"), view.get("name"),
                                       dt.date.today().strftime("%d.%m.%Y")] if x)
     page = TEMPLATE.format(
-        title=esc(a.title), subtitle=esc(subtitle), legend=legend,
-        count_panel=metric_panel("İş adedi bazında", mc, "iş", ""),
-        est_panel=metric_panel(f"{a.estimate_field} bazında", me, unit, empty_msg),
-        people=people_panel(mc, me, unit), items="\n".join(lis), n=len(rows),
+        title=esc(a.title), subtitle=esc(subtitle), legend=legend, comp=comp,
+        status=dual_table(status_rows, False, est_label),
+        people=dual_table(people_rows, True, est_label),
+        types=dual_table(type_rows, True, est_label), projects=proj_txt or "—",
+        lead_stats=lead_stats, hists=hists, items="\n".join(lis), n=len(rows),
+        est_label=esc(est_label), pfield=esc(a.project_field),
     )
     with open(a.output, "w", encoding="utf-8") as fh:
         fh.write(page)
-    est_txt = (f"estimate %{pct(me):.0f} ({fmt(me['completed'])}/{fmt(me['planned'])})"
-               if me else "estimate verisi yok")
-    print(f"{a.output} yazıldı: {len(rows)} iş · adet %{pct(mc):.0f} "
-          f"({mc['count_done']}/{mc['count']}) · {est_txt}")
+
+    print(f"{a.output} yazıldı: {len(rows)} iş")
+    print(f"  adet: %{pct(mc['count_done'], mc['count']):.0f} ({mc['count_done']}/{mc['count']}) · "
+          f"estimate: %{pct(e_done, e_total):.0f} ({fmt(e_done)}/{fmt(e_total)}), {missing} iş boş")
+    print("  tip: " + ", ".join(f"{t['label']} {t['c']} ({fmt(t['e'])})" for t in type_rows))
+    for t in TYPES:
+        print(f"    {t}: " + " | ".join(r["title"][:50] for r in rows if r["kind"] == t))
+    if leads:
+        print(f"  lead time: {len(leads)} kapanan iş, medyan {statistics.median(leads):.1f} gün · "
+              + ", ".join(f"{b['label']}: {b['c']}/{fmt(b['e'])}" for b in bins))
     for w in warnings:
         print("uyarı:", w, file=sys.stderr)
 
@@ -182,58 +293,65 @@ body {{ margin:0; background:var(--bg); color:var(--ink);
 .deck {{ display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0; }}
 .frame {{ width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); overflow:hidden;
   box-shadow:0 2px 12px rgba(11,31,58,.12); }}
-.slide {{ width:1920px; height:1080px; background:var(--slide); padding:64px 88px 56px;
+.slide {{ width:1920px; height:1080px; background:var(--slide); padding:44px 60px 36px;
   transform:scale(var(--s)); transform-origin:0 0; display:flex; flex-direction:column; }}
-header {{ display:flex; align-items:flex-end; flex-wrap:nowrap; justify-content:space-between; gap:32px; margin-bottom:36px; }}
-h1 {{ white-space:nowrap; font-size:72px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1; }}
+header {{ display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:22px; }}
+h1 {{ white-space:nowrap; font-size:58px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1; }}
 h1 span {{ color:var(--accent); font-weight:600; }}
-.sub {{ color:var(--muted); font-size:20px; margin-top:12px; }}
-.legend {{ list-style:none; margin:0; padding:14px 20px; display:flex; flex-wrap:wrap; gap:8px 26px;
-  border:1px solid var(--rule); border-radius:12px; font-size:19px; color:var(--ink-2); flex:0 1 auto; justify-content:flex-end; }}
+.sub {{ color:var(--muted); font-size:19px; margin-top:10px; }}
+.legend {{ list-style:none; margin:0; padding:12px 18px; display:flex; flex-wrap:wrap; gap:6px 24px;
+  border:1px solid var(--rule); border-radius:12px; font-size:18px; color:var(--ink-2); justify-content:flex-end; }}
 .legend li {{ display:flex; align-items:center; }}
 .legend .muted {{ margin-left:8px; color:var(--muted); font-variant-numeric:tabular-nums; }}
-.dot {{ display:inline-block; width:14px; height:14px; border-radius:50%; background:var(--c); margin-right:10px; flex:none; }}
+.dot {{ display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--c); margin-right:9px; flex:none; }}
 /* metrikler */
-.grid {{ flex:1; display:grid; grid-template-columns:1fr 1fr 640px; gap:28px; min-height:0; }}
-.panel {{ border:1px solid var(--rule); border-radius:16px; padding:30px 32px; display:flex; flex-direction:column; }}
-.ptitle {{ font-size:22px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }}
-.prow {{ display:flex; flex-direction:column; gap:22px; margin-top:22px; }}
-.hero {{ display:flex; align-items:baseline; gap:14px; }}
-.hv {{ font-size:120px; font-weight:800; line-height:1; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }}
-.hl {{ font-size:26px; color:var(--ink-2); }}
-.kpis {{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }}
-.kpis > div {{ border-top:2px solid var(--rule); padding-top:10px; display:flex; flex-direction:column; }}
-.kl {{ font-size:18px; color:var(--muted); }}
-.kv {{ font-size:44px; font-weight:800; font-variant-numeric:tabular-nums; }}
-.kv small {{ font-size:20px; font-weight:500; color:var(--muted); }}
-.bar {{ height:18px; border-radius:9px; background:var(--track); overflow:hidden; margin-top:26px; }}
-.bar i {{ display:block; height:100%; background:var(--accent); border-radius:9px; }}
-.stitle {{ font-size:18px; color:var(--muted); margin-top:34px; margin-bottom:10px; }}
-.strip {{ display:flex; gap:3px; height:30px; }}
-.seg {{ background:var(--c); min-width:4px; }}
-.seg:first-child {{ border-radius:6px 0 0 6px; }} .seg:last-child {{ border-radius:0 6px 6px 0; }}
-.stab {{ width:100%; border-collapse:collapse; margin-top:14px; font-size:19px; }}
-.stab td {{ padding:7px 0; border-top:1px solid var(--rule); color:var(--ink); }}
-.stab .dot {{ width:12px; height:12px; vertical-align:0; }}
-.stab .n {{ text-align:right; font-weight:600; font-variant-numeric:tabular-nums; width:90px; }}
-.stab .n small {{ font-weight:400; color:var(--muted); font-size:15px; }}
-.stab .m {{ color:var(--muted); font-weight:400; width:70px; }}
-.pnote {{ font-size:16px; color:var(--muted); margin-top:12px; }}
-.panel.empty {{ background:repeating-linear-gradient(135deg, transparent 0 14px, rgba(11,31,58,.03) 14px 28px); }}
-.emptymsg {{ margin:auto 0; font-size:24px; line-height:1.45; color:var(--ink-2); }}
-.psub {{ font-size:17px; color:var(--muted); margin-top:8px; }}
-.pkey {{ display:flex; gap:22px; font-size:17px; color:var(--ink-2); margin:16px 0 8px; }}
-.pkey span::before {{ content:""; display:inline-block; width:16px; height:10px; border-radius:3px; margin-right:8px; background:var(--k); }}
-.person {{ display:grid; grid-template-columns:170px 1fr 92px; column-gap:14px; row-gap:6px; align-items:center;
-  padding:12px 0; border-top:1px solid var(--rule); }}
-.pn {{ font-size:19px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
-.pb {{ position:relative; height:16px; }}
-.pb.est {{ height:10px; margin-top:-2px; }}
+.grid {{ flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr); gap:18px; }}
+.panel {{ border:1px solid var(--rule); border-radius:14px; padding:18px 22px; display:flex; flex-direction:column; min-height:0; }}
+.panel.wide {{ grid-column:span 2; }}
+.ptitle {{ font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }}
+.pfoot {{ font-size:14px; color:var(--muted); margin-top:auto; padding-top:10px; line-height:1.45; }}
+.pfoot b {{ color:var(--ink); }}
+.comps {{ display:grid; grid-template-columns:1fr 1fr; gap:22px; flex:1; }}
+.comp {{ display:flex; flex-direction:column; }}
+.clabel {{ font-size:17px; color:var(--ink-2); font-weight:600; }}
+.chero {{ font-size:84px; font-weight:800; line-height:1.05; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }}
+.bar {{ height:14px; border-radius:7px; background:var(--track); overflow:hidden; margin:10px 0 auto; }}
+.bar i {{ display:block; height:100%; background:var(--accent); border-radius:6px; }}
+.cnums {{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }}
+.cnums div {{ display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:6px; }}
+.cnums span {{ font-size:14px; color:var(--muted); }}
+.cnums b {{ font-size:28px; font-variant-numeric:tabular-nums; white-space:nowrap; }}
+.cnums small, .lstats small {{ font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }}
+.cnote {{ font-size:14px; color:var(--muted); margin-top:8px; }}
+.dual {{ display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }}
+.dhead, .drow {{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 64px minmax(0,1fr) 76px;
+  column-gap:10px; align-items:center; }}
+.dhead {{ font-size:14px; color:var(--muted); padding-bottom:5px; }}
+.drow {{ border-top:1px solid var(--rule); padding:6px 0; font-size:18px; flex:1; max-height:64px; }}
+.dl {{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-2); display:flex; align-items:center; }}
+.db {{ position:relative; height:14px; }}
 .tr, .fi {{ position:absolute; left:0; top:0; height:100%; border-radius:0 4px 4px 0; }}
-.tr {{ background:var(--plan); }}
-.fi {{ background:var(--ink); }}
-.pb.est .tr {{ background:#D6EEF1; }} .pb.est .fi {{ background:var(--accent); }}
-.pv {{ text-align:right; font-size:18px; color:var(--muted); font-variant-numeric:tabular-nums; }}
+.tr {{ background:var(--plan); }} .fi {{ background:var(--ink); }}
+.dv {{ text-align:right; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }}
+.dv span {{ color:var(--muted); font-weight:400; }}
+.pkey {{ display:flex; gap:18px; font-size:14px; color:var(--ink-2); margin:-2px 0 8px; }}
+.pkey span::before {{ content:""; display:inline-block; width:14px; height:9px; border-radius:2px; margin-right:6px; background:var(--k); }}
+.lead {{ display:grid; grid-template-columns:170px 1fr 1fr; gap:32px; flex:1; min-height:0; }}
+.lstats {{ display:flex; flex-direction:column; gap:8px; }}
+.lstats div {{ display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }}
+.lstats span {{ font-size:14px; color:var(--muted); }}
+.lstats b {{ font-size:28px; font-variant-numeric:tabular-nums; }}
+.hist {{ display:flex; flex-direction:column; min-height:0; }}
+.htitle {{ font-size:15px; color:var(--ink-2); font-weight:600; margin-bottom:4px; }}
+.hplot {{ flex:1; min-height:100px; display:flex; align-items:flex-end; gap:8px; border-bottom:1px solid var(--plan); }}
+.hcol {{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }}
+.hval {{ text-align:center; font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:4px; }}
+.hbar {{ border-radius:4px 4px 0 0; }}
+.hx {{ display:flex; gap:8px; font-size:14px; color:var(--muted); margin-top:6px; }}
+.hx div {{ flex:1; text-align:center; white-space:nowrap; }}
+.hunit {{ font-size:13px; color:var(--muted); text-align:right; margin-top:2px; }}
+.emptymsg {{ margin:auto; font-size:20px; color:var(--ink-2); }}
 /* maddeler */
 .list {{ flex:1; min-height:0; list-style:none; margin:0; padding:0; columns:3; column-gap:56px;
   column-fill:auto; column-rule:1px solid var(--accent); --fs:22px; overflow:hidden; }}
@@ -257,15 +375,25 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <ul class="legend" aria-label="Statü lejantı">{legend}</ul>
   </header>
   <div class="grid">
-    {count_panel}
-    {est_panel}
-    {people}
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div>
+      <div class="comps">{comp}</div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı</div>{status}</div>
+    <div class="panel"><div class="ptitle">Kişi bazında</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      {people}</div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      {types}
+      <div class="pfoot">Proje işleri ({pfield}): {projects}<br>
+      Bug = başlıkta [BUG] · Task = operasyonel işler · diğerleri User Story</div></div>
+    <div class="panel wide"><div class="ptitle">Lead time histogramı (Created → Closed, gün)</div>
+      <div class="lead"><div class="lstats">{lead_stats}</div>{hists}</div></div>
   </div>
 </section></div>
 
 <div class="frame"><section class="slide" id="s2" aria-label="Maddeler">
   <header>
-    <div><h1>{title}</h1><div class="sub">{subtitle} · {n} iş · ✓ = tamamlandı</div></div>
+    <div><h1>{title}</h1><div class="sub">{subtitle} · {n} iş · ✓ = tamamlandı · rozet = {est_label}</div></div>
     <ul class="legend" aria-label="Statü lejantı">{legend}</ul>
   </header>
   <ul class="list">
@@ -305,6 +433,11 @@ def main() -> None:
     ap.add_argument("--status-field", default="Status")
     ap.add_argument("--estimate-field", default="Original Estimate")
     ap.add_argument("--estimate-field-id", type=int, default=None)
+    ap.add_argument("--estimate-label", default="Original Estimate", help="Grafiklerde estimate başlığı")
+    ap.add_argument("--project-field", default="DD Project Name",
+                    help="Doluysa işi 'Proje işi' sayan alan")
+    ap.add_argument("--task-keyword", action="append",
+                    help="Başlıkta geçerse Task sayılır (tekrarlanabilir; varsayılan listeyi değiştirir)")
     ap.add_argument("--done-status", action="append")
     ap.add_argument("--closed-as-done", action="store_true")
     ap.add_argument("--include-archived", action="store_true")

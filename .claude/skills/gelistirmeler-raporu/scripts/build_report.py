@@ -78,10 +78,10 @@ query($org: String!, $number: Int!, $cursor: String, $view: Int!, $withView: Boo
           type
           content {
             __typename
-            ... on Issue { title url number state repository { nameWithOwner }
+            ... on Issue { title url number state createdAt closedAt issueType { name } repository { nameWithOwner }
                            assignees(first: 10) { nodes { login name } }
                            labels(first: 20) { nodes { name } } }
-            ... on PullRequest { title url number state repository { nameWithOwner }
+            ... on PullRequest { title url number state createdAt closedAt repository { nameWithOwner }
                                  assignees(first: 10) { nodes { login name } }
                                  labels(first: 20) { nodes { name } } }
             ... on DraftIssue { title assignees(first: 10) { nodes { login name } } }
@@ -191,6 +191,9 @@ def normalize(project: dict, status_field: str) -> dict:
             "archived": it.get("isArchived", False),
             "assignees": [a["login"] for a in (c.get("assignees") or {}).get("nodes", [])],
             "labels": [l["name"] for l in (c.get("labels") or {}).get("nodes", [])],
+            "created": c.get("createdAt"),
+            "closed": c.get("closedAt"),
+            "issueType": (c.get("issueType") or {}).get("name"),
             "fields": vals,
             "fieldIds": ids,
         })
@@ -317,7 +320,7 @@ def load_export(path: str, status_field: str) -> dict:
         fh.seek(0)
         delim = "\t" if path.lower().endswith(".tsv") or "\t" in sample.splitlines()[0] else ","
         rows = list(csv.DictReader(fh, delimiter=delim))
-    core = {"Title", "URL", "Assignees", "Labels", "Repository", "Closed"}
+    core = {"Title", "URL", "Assignees", "Labels", "Repository", "Closed", "Created"}
     extra = [c for c in (rows[0].keys() if rows else []) if c and c not in core]
 
     def num(v):
@@ -349,6 +352,9 @@ def load_export(path: str, status_field: str) -> dict:
             "archived": False,
             "assignees": [a.strip() for a in (r.get("Assignees") or "").split(",") if a.strip()],
             "labels": [l.strip() for l in (r.get("Labels") or "").split(",") if l.strip()],
+            "created": (r.get("Created") or "").strip() or None,
+            "closed": (r.get("Closed") or "").strip() or None,
+            "issueType": (r.get("Type") or r.get("Issue Type") or "").strip() or None,
             "fields": fields,
         })
     name = os.path.splitext(os.path.basename(path))[0]

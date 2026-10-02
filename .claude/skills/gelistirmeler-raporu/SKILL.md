@@ -102,10 +102,16 @@ python3 $D/build_slides.py --from-export veri.tsv --clean-titles --unit SP -o sl
 node $D/export_png.mjs slaytlar.html slayt     # -> slayt-1.png, slayt-2.png (1920x1080)
 ```
 
-- **Slayt 1 – Metrikler:** iş adedi bazında ve Original Estimate bazında yan yana
-  tamamlanma oranı, planlanan/tamamlanan/kalan, statü dağılımı; sağda kişi bazında
-  planlanan vs. tamamlanan (üst çubuk adet, alt çubuk estimate). Estimate verisi yoksa
-  o panel "veri yok" durumunu gösterir.
+- **Slayt 1 – Metrikler:** her grafik iki versiyonlu (İş adedi | Original Estimate):
+  planlanan vs. tamamlanan oranı, statü dağılımı, kişi bazında, iş tipi kırılımı ve
+  lead time histogramı (Created → Closed, gün; medyan/ortalama/en uzun).
+- **İş tipi kuralı** (GitHub issue type yoksa): başlıkta `[BUG]` → Bug; `DD Project Name`
+  dolu → Proje işi; başlıkta operasyonel anahtar kelime (işlemler, toplantı, takvim,
+  kurulum, inceleme, migration, dependabot, destek süreci, deployment) → Task; kalanlar
+  User Story. Export'a `Type` sütunu eklenirse o kullanılır. Anahtar kelimeler
+  `--task-keyword`, proje alanı `--project-field` ile değiştirilebilir. Betik her tipe
+  düşen başlıkları konsola yazar — kullanıcıya bu sınıflandırmayı doğrulat.
+- Lead time için export'ta `Created` ve `Closed` sütunları gerekir.
 - **Slayt 2 – Maddeler:** statü sırasına göre renkli bullet'lı 3 kolon liste; yazı
   boyutu tüm maddeler sığana kadar otomatik küçülür (`export_png.mjs` son boyutu yazar;
   ~14px altına inerse kullanıcıya listeyi filtrelemeyi öner).
