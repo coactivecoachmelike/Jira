@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geliştirmeler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#ffffff; --surface:#ffffff; --ink:#0B1F3A; --ink-2:#3B4A5E; --muted:#6B7788;
+  --rule:#DCE6EE; --accent:#1FA3B5; --track:#E8EDF2; --plan:#C9D5E1; --done:#0B1F3A;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0E1622; --surface:#0E1622; --ink:#EEF3F8; --ink-2:#C3CDD8; --muted:#8C99A8;
+    --rule:#243244; --accent:#3CC3D4; --track:#1C2838; --plan:#34465C; --done:#EEF3F8;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#0E1622; --surface:#0E1622; --ink:#EEF3F8; --ink-2:#C3CDD8; --muted:#8C99A8;
+  --rule:#243244; --accent:#3CC3D4; --track:#1C2838; --plan:#34465C; --done:#EEF3F8;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font:15px/1.4 "Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width:1280px; margin:0 auto; padding:32px 40px 48px; }
+header { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 24px; }
+h1 { font-size:44px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1; }
+.sub { color:var(--muted); font-size:13px; margin-top:8px; }
+.legend { list-style:none; margin:0; padding:10px 14px; display:flex; flex-wrap:wrap; gap:6px 18px;
+  border:1px solid var(--rule); border-radius:10px; font-size:13px; color:var(--ink-2); }
+.legend-title { font-weight:600; color:var(--ink); margin-right:4px; }
+.dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--c);
+  margin-right:8px; flex:none; }
+.muted { color:var(--muted); }
+section { margin-top:28px; }
+h2 { font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 12px; }
+.kpis { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; }
+.kpi { border:1px solid var(--rule); border-radius:10px; padding:14px 16px; }
+.kpi .l { font-size:12px; color:var(--muted); }
+.kpi .v { font-size:28px; font-weight:800; margin-top:4px; font-variant-numeric:tabular-nums; }
+.kpi .v small { font-size:14px; font-weight:500; color:var(--muted); }
+.progress { margin-top:14px; }
+.bar { height:14px; border-radius:7px; background:var(--track); overflow:hidden; position:relative; }
+.bar > i { display:block; height:100%; width:28.00%; background:var(--accent); border-radius:7px; }
+.bar-lbl { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px; }
+.charts { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.card { border:1px solid var(--rule); border-radius:10px; padding:16px 18px; }
+.card h3 { margin:0 0 12px; font-size:15px; font-weight:600; }
+.strip { display:flex; gap:2px; height:22px; }
+.seg { background:var(--c); min-width:3px; }
+.seg:first-child { border-radius:4px 0 0 4px; } .seg:last-child { border-radius:0 4px 4px 0; }
+.seg:hover, .ptrack:hover { filter:brightness(1.08); }
+table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+td { padding:5px 0; border-top:1px solid var(--rule); color:var(--ink-2); }
+td:first-child { color:var(--ink); }
+td .dot { vertical-align:-1px; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.pkey { display:flex; gap:16px; font-size:12px; color:var(--ink-2); margin-bottom:10px; }
+.pkey span::before { content:""; display:inline-block; width:12px; height:8px; border-radius:2px;
+  margin-right:6px; background:var(--k); }
+.prow { display:grid; grid-template-columns:120px 1fr 80px; gap:10px; align-items:center; margin:7px 0; font-size:13px; }
+.pname { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-2); }
+.ptrack { position:relative; height:12px; }
+.pplan, .pdone { position:absolute; left:0; top:0; height:100%; border-radius:0 4px 4px 0; }
+.pplan { background:var(--plan); }
+.pdone { background:var(--done); height:6px; top:3px; }
+.pval { text-align:right; color:var(--muted); font-variant-numeric:tabular-nums; }
+.list { list-style:none; margin:0; padding:0; columns:3; column-gap:40px;
+  column-rule:1px solid var(--accent); }
+.list li { break-inside:avoid; display:flex; align-items:flex-start; gap:4px; padding:12px 0;
+  border-bottom:1px solid var(--rule); font-size:15px; font-weight:500; color:var(--ink); }
+.list .dot { margin-top:6px; }
+.list .t { flex:1; }
+.list a { color:inherit; text-decoration:none; }
+.list a:hover { text-decoration:underline; }
+.est { font-size:11px; color:var(--muted); border:1px solid var(--rule); border-radius:999px;
+  padding:1px 7px; margin-top:2px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.notes { margin-top:18px; font-size:12px; color:var(--muted); }
+#tip { position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12px;
+  padding:6px 9px; border-radius:6px; opacity:0; transition:opacity .1s; z-index:9; max-width:280px; }
+@media (max-width: 900px) {
+  .wrap { padding:20px 16px 32px; } h1 { font-size:32px; }
+  .kpis { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  .charts { grid-template-columns:1fr; } .list { columns:1; }
+}
+@media print { .est { border-color:#bbb; } #tip { display:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>Geliştirmeler</h1>
+    <div class="sub">BOD Project - Retail Sprints 1 · 02.10.2026</div>
+  </div>
+  <ul class="legend" aria-label="Statü lejantı"><li class="legend-title">Statüler:</li><li title=""><span class="dot" style="--c:#8C959F"></span>Backlog<span class="muted"> · 7</span></li><li title=""><span class="dot" style="--c:#218BFF"></span>Todo<span class="muted"> · 5</span></li><li title=""><span class="dot" style="--c:#D4A72C"></span>In Progress<span class="muted"> · 5</span></li><li title=""><span class="dot" style="--c:#FB8F44"></span>Test<span class="muted"> · 9</span></li><li title=""><span class="dot" style="--c:#E85AAD"></span>UAT<span class="muted"> · 10</span></li><li title=""><span class="dot" style="--c:#2DA44E"></span>Done ✓<span class="muted"> · 14</span></li><li class="muted">✓ = tamamlandı sayılır · sayı = iş adedi</li></ul>
+</header>
+
+<section aria-label="Efor özeti">
+  <h2>Planlanan vs. tamamlanan iş</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="l">Toplam planlanan</div><div class="v">50<small> iş</small></div></div>
+    <div class="kpi"><div class="l">Tamamlanan</div><div class="v">14<small> iş</small></div></div>
+    <div class="kpi"><div class="l">Kalan</div><div class="v">36<small> iş</small></div></div>
+    <div class="kpi"><div class="l">Tamamlanma oranı</div><div class="v">%28 <small>· 14/50 iş</small></div></div>
+  </div>
+  <div class="progress" data-tip="Tamamlanan 14 iş / Planlanan 50 iş">
+    <div class="bar" role="img" aria-label="Tamamlanma %28"><i></i></div>
+    <div class="bar-lbl"><span>0</span><span>Tamamlanan %28</span><span>50 iş</span></div>
+  </div>
+</section>
+
+<section class="charts">
+  <div class="card">
+    <h3>Statü bazında efor dağılımı</h3>
+    <div class="strip" role="img" aria-label="Statü bazında efor dağılımı"><div class="seg" style="flex:7.0;--c:#8C959F" data-tip="Backlog: 7 iş (14%) · 7 iş"></div><div class="seg" style="flex:5.0;--c:#218BFF" data-tip="Todo: 5 iş (10%) · 5 iş"></div><div class="seg" style="flex:5.0;--c:#D4A72C" data-tip="In Progress: 5 iş (10%) · 5 iş"></div><div class="seg" style="flex:9.0;--c:#FB8F44" data-tip="Test: 9 iş (18%) · 9 iş"></div><div class="seg" style="flex:10.0;--c:#E85AAD" data-tip="UAT: 10 iş (20%) · 10 iş"></div><div class="seg" style="flex:14.0;--c:#2DA44E" data-tip="Done: 14 iş (28%) · 14 iş"></div></div>
+    <table><tbody><tr><td><span class="dot" style="--c:#8C959F"></span>Backlog</td><td class="num">7</td><td class="num">7 iş</td><td class="num">14%</td></tr><tr><td><span class="dot" style="--c:#218BFF"></span>Todo</td><td class="num">5</td><td class="num">5 iş</td><td class="num">10%</td></tr><tr><td><span class="dot" style="--c:#D4A72C"></span>In Progress</td><td class="num">5</td><td class="num">5 iş</td><td class="num">10%</td></tr><tr><td><span class="dot" style="--c:#FB8F44"></span>Test</td><td class="num">9</td><td class="num">9 iş</td><td class="num">18%</td></tr><tr><td><span class="dot" style="--c:#E85AAD"></span>UAT</td><td class="num">10</td><td class="num">10 iş</td><td class="num">20%</td></tr><tr><td><span class="dot" style="--c:#2DA44E"></span>Done</td><td class="num">14</td><td class="num">14 iş</td><td class="num">28%</td></tr></tbody></table>
+  </div>
+  <div class="card">
+    <h3>Kişi bazında planlanan vs. tamamlanan</h3>
+    <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--done)">Tamamlanan</span></div>
+    <div class="prow"><div class="pname" title="mrcosgun9">mrcosgun9</div><div class="ptrack" data-tip="mrcosgun9 · Planlanan 15 iş · Tamamlanan 6 iş · 15 iş"><div class="pplan" style="width:100.00%"></div><div class="pdone" style="width:40.00%"></div></div><div class="pval">6 / 15</div></div><div class="prow"><div class="pname" title="alkocman">alkocman</div><div class="ptrack" data-tip="alkocman · Planlanan 11 iş · Tamamlanan 2 iş · 11 iş"><div class="pplan" style="width:73.33%"></div><div class="pdone" style="width:13.33%"></div></div><div class="pval">2 / 11</div></div><div class="prow"><div class="pname" title="hakcaliskan">hakcaliskan</div><div class="ptrack" data-tip="hakcaliskan · Planlanan 8 iş · Tamamlanan 3 iş · 8 iş"><div class="pplan" style="width:53.33%"></div><div class="pdone" style="width:20.00%"></div></div><div class="pval">3 / 8</div></div><div class="prow"><div class="pname" title="sedatates">sedatates</div><div class="ptrack" data-tip="sedatates · Planlanan 8 iş · Tamamlanan 2 iş · 8 iş"><div class="pplan" style="width:53.33%"></div><div class="pdone" style="width:13.33%"></div></div><div class="pval">2 / 8</div></div><div class="prow"><div class="pname" title="Atanmamış">Atanmamış</div><div class="ptrack" data-tip="Atanmamış · Planlanan 7 iş · Tamamlanan 0 iş · 7 iş"><div class="pplan" style="width:46.67%"></div><div class="pdone" style="width:0.00%"></div></div><div class="pval">0 / 7</div></div><div class="prow"><div class="pname" title="ualyaz">ualyaz</div><div class="ptrack" data-tip="ualyaz · Planlanan 3 iş · Tamamlanan 1 iş · 3 iş"><div class="pplan" style="width:20.00%"></div><div class="pdone" style="width:6.67%"></div></div><div class="pval">1 / 3</div></div><div class="prow"><div class="pname" title="hakankayakaya">hakankayakaya</div><div class="ptrack" data-tip="hakankayakaya · Planlanan 1 iş · Tamamlanan 0 iş · 1 iş"><div class="pplan" style="width:6.67%"></div><div class="pdone" style="width:0.00%"></div></div><div class="pval">0 / 1</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>İş listesi</h2>
+  <ul class="list">
+<li title="Backlog · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/429" target="_blank" rel="noopener">[BUG] Rezer İhalede Araç Görseli Tam Ekranda Sonraki Fotoğrafa İlerletirken Sonraki Araca Geçmemesi</a></span></li>
+<li title="Backlog · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/450" target="_blank" rel="noopener">[BUG] Satın ALma Statüsünde Olan Aracın Ekspertiznin Tamamlanmama Senaryosu</a></span></li>
+<li title="Backlog · hakankayakaya · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/451" target="_blank" rel="noopener">Agentless Call Center Projesi Analiz Test Toplantı</a></span></li>
+<li title="Backlog · hakcaliskan · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/393" target="_blank" rel="noopener">BE &gt; BNext - Toplu Araç Satışı - Dijital Plaftorm</a></span></li>
+<li title="Backlog · hakcaliskan · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/374" target="_blank" rel="noopener">BE Araba Sat Başvurusu &gt; OCR ile Ruhsat Okuma Entegrasyon Revizesi</a></span></li>
+<li title="Backlog · alkocman, sedatates · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/415" target="_blank" rel="noopener">Dependabot ve Critical Code Geliştirmeleri</a></span></li>
+<li title="Backlog · 1 iş"><span class="dot" style="--c:#8C959F"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/452" target="_blank" rel="noopener">Kişiselleştirme Projesi FE - Aydınlatma Metni Gösterimi &gt; Login Olan kullanıcılarda Gösterim Zorunluluğu</a></span></li>
+<li title="Todo · 1 iş"><span class="dot" style="--c:#218BFF"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/229" target="_blank" rel="noopener">Analiz İşlemleri</a></span></li>
+<li title="Todo · 1 iş"><span class="dot" style="--c:#218BFF"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/232" target="_blank" rel="noopener">Deployment İşlemleri</a></span></li>
+<li title="Todo · 1 iş"><span class="dot" style="--c:#218BFF"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/230" target="_blank" rel="noopener">Operasyonel İşlemler</a></span></li>
+<li title="Todo · mrcosgun9 · 1 iş"><span class="dot" style="--c:#218BFF"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/402" target="_blank" rel="noopener">SEO Maddeleri Teknik İnceleme</a></span></li>
+<li title="Todo · 1 iş"><span class="dot" style="--c:#218BFF"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/231" target="_blank" rel="noopener">Toplantı Takvimi</a></span></li>
+<li title="In Progress · hakcaliskan · 1 iş"><span class="dot" style="--c:#D4A72C"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/373" target="_blank" rel="noopener">App bff BNext | Araç Alım Kriterlerinin App Tarafında Dinamik Olarak Yönetilmesi</a></span></li>
+<li title="In Progress · sedatates · 1 iş"><span class="dot" style="--c:#D4A72C"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/371" target="_blank" rel="noopener">BE Franchise Şube Araçlarına Ait “Sizi Arayalım” Taleplerinin BOD Kuyruğuna Aktarılması</a></span></li>
+<li title="In Progress · ualyaz · 1 iş"><span class="dot" style="--c:#D4A72C"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/396" target="_blank" rel="noopener">Ekspertiz Tasarım Düzenlemelerinin Canlı Geçişi &gt; Migration</a></span></li>
+<li title="In Progress · alkocman · 1 iş"><span class="dot" style="--c:#D4A72C"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/392" target="_blank" rel="noopener">FE &gt; BNext - Toplu Araç Satışı - Dijital Plaftorm</a></span></li>
+<li title="In Progress · mrcosgun9 · 1 iş"><span class="dot" style="--c:#D4A72C"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/362" target="_blank" rel="noopener">FE Ardışık satın alma ekspertizlerinin Kaporta-Boya bilgilerinin karşılaştırılması</a></span></li>
+<li title="Test · alkocman, sedatates · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/503" target="_blank" rel="noopener">[BUG] IOS 27 Sürümünde Crash Durumunun İncelenmesi</a></span></li>
+<li title="Test · alkocman · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/307" target="_blank" rel="noopener">App Araba Sat Akışının Yeni UX/UI Tasarımına Uyarlanması</a></span></li>
+<li title="Test · mrcosgun9 · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/367" target="_blank" rel="noopener">App BNext | Web Araç Detay – Ekspertiz Sekmesinin Sadeleştirilmesi ve Rapor İndirme Akışının Güncellenmesi</a></span></li>
+<li title="Test · hakcaliskan · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/207" target="_blank" rel="noopener">BE - Elastic v2 üzerinden araç bazlı üstü çizili fiyat hesaplaması - BCF-1648</a></span></li>
+<li title="Test · mrcosgun9 · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/352" target="_blank" rel="noopener">BNext App | Araba Geçmişi – Ekspertiz Hasar Fotoğraflarının Büyütülmesi</a></span></li>
+<li title="Test · mrcosgun9 · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/361" target="_blank" rel="noopener">BNext App | ASO – Mağazada Görünen Uygulama Dil Bilgisinin Düzeltilmesi ! Bu iş 4me de Yok</a></span></li>
+<li title="Test · sedatates · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/355" target="_blank" rel="noopener">BNext | Servis Anasayfa – Check-up ve Mobil Uygulama/QR Kart Blokları Frontend Geliştirmesi</a></span></li>
+<li title="Test · alkocman, mrcosgun9 · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/506" target="_blank" rel="noopener">Değerleme Uzmanı Notlar Alanının Eklenmesi ve Yönetici Teklif Butonunun Ek Statülerde Gösterimi</a></span></li>
+<li title="Test · sedatates · 1 iş"><span class="dot" style="--c:#FB8F44"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/353" target="_blank" rel="noopener">Mobil FE : CMS kaynaklı servis alanlarının tasarıma uygun gösterilmesi</a></span></li>
+<li title="UAT · alkocman · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/410" target="_blank" rel="noopener">[BUG] BNext | iOS – JSI kaynaklı uygulama çökmesi (EXC_BAD_ACCESS)</a></span></li>
+<li title="UAT · mrcosgun9 · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/434" target="_blank" rel="noopener">[BUG] Masterpass Ödeme Akışında Popup Sorunu</a></span></li>
+<li title="UAT · alkocman · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/454" target="_blank" rel="noopener">App | Android Mobil Web – Uygulama İndirme Yönlendirmesinin Entegrasyonu</a></span></li>
+<li title="UAT · hakcaliskan · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/459" target="_blank" rel="noopener">BE - Değerleme Verilerinin Fiyat Teklifi Sekmesine Aktarılması ve CT Limit Süreçlerine Entegre Edilmesi</a></span></li>
+<li title="UAT · sedatates · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/364" target="_blank" rel="noopener">BNext | Tamamlanan Satın Alma Kaydında Lokasyon ve Satın Alma Tipinin Eş Zamanlı Güncellenmesi</a></span></li>
+<li title="UAT · alkocman · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/460" target="_blank" rel="noopener">FE - Değerleme Verilerinin Fiyat Teklifi Sekmesine Aktarılması ve CT Limit Süreçlerine Entegre Edilmesi</a></span></li>
+<li title="UAT · alkocman · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/423" target="_blank" rel="noopener">FE - Görüntülenen Araçlarda Size Özel ve Fırsat Araçlar flag inin tutulması</a></span></li>
+<li title="UAT · mrcosgun9 · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/360" target="_blank" rel="noopener">FE | Kampanya Ekleme ve Düzenleme Ekranına Zorunlu Araç Tipi Alanı Eklenmesi</a></span></li>
+<li title="UAT · ualyaz · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/419" target="_blank" rel="noopener">Görüntülenen Araçlarda Size Özel ve Fırsat Araçlar flag inin tutulması</a></span></li>
+<li title="UAT · mrcosgun9 · 1 iş"><span class="dot" style="--c:#E85AAD"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/368" target="_blank" rel="noopener">Web - BNext | Web Araç Detay – Ekspertiz Sekmesinin Sadeleştirilmesi ve Rapor İndirme Akışının Güncellenmesi ! 4me talebi yok. canceled</a></span></li>
+<li title="Done · alkocman · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/413" target="_blank" rel="noopener">[BUG] BNext | Web ilan detayında sabit sekme çubuğu breadcrumb ile üst üste biniyor</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/474" target="_blank" rel="noopener">[BUG] Motosiklet Sayfasında Temizle Butonuna Tıkladığımızda Araba Listeleme Sorunu</a></span></li>
+<li title="Done · ualyaz · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/475" target="_blank" rel="noopener">[BUG] Satın Alma Kaydı Ekspertiz Tamamlanamadığı için İlerlemiyor</a></span></li>
+<li title="Done · alkocman · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/414" target="_blank" rel="noopener">[BUG] Web Araba Sat Aışında Konum İzni Sonrası Lokasyon Sıralamasının Kontrolü</a></span></li>
+<li title="Done · hakcaliskan · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/427" target="_blank" rel="noopener">Agentless Call Center &gt; Mevcut Servise createdDate Alanının Eklenmesi</a></span></li>
+<li title="Done · hakcaliskan · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/394" target="_blank" rel="noopener">Agentless Call Center Canlı Geçiş</a></span></li>
+<li title="Done · hakcaliskan · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/428" target="_blank" rel="noopener">Agentless Call Center Canlı Geçiş Sonrası Destek Süreci</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/365" target="_blank" rel="noopener">BE - BNext | “Kodu Tekrar Gönder” İşlemi Sonrası Toastr Bilgilendirmesi</a></span></li>
+<li title="Done · sedatates · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/398" target="_blank" rel="noopener">BNext MCP Entegrasyonu — İç API Uç Noktası Geliştirmesi ve Erişim Talebi</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/359" target="_blank" rel="noopener">BNext | Sosyal Medya Bağlantılarına Rel ve Target Niteliklerinin Eklenmesi</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/369" target="_blank" rel="noopener">FE - BNext | Araba Sat – Satış Zamanı Yanıtının Özet Bilgiler ve Arama Filtresine Eklenmesi</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/366" target="_blank" rel="noopener">SEO | Viewport Item&#x27;ının Güncellenmesi</a></span></li>
+<li title="Done · mrcosgun9 · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/395" target="_blank" rel="noopener">Web_BNext | Web Araç Detay – Ekspertiz Sekmesinin Sadeleştirilmesi ve Rapor İndirme Akışının Güncellenmesi</a></span></li>
+<li title="Done · sedatates · 1 iş"><span class="dot" style="--c:#2DA44E"></span><span class="t"><a href="https://github.com/borusanotomotiv/bod-tasks/issues/310" target="_blank" rel="noopener">Xiaomi App Kurulumu</a></span></li>
+  </ul>
+  <div class="notes">Efor alanı yok: oranlar <b>iş adedi</b> üzerinden</div>
+</section>
+</div>
+<div id="tip" role="tooltip"></div>
+<script>
+(() => {
+  const tip = document.getElementById('tip');
+  document.addEventListener('mousemove', e => {
+    const el = e.target.closest('[data-tip]');
+    if (!el) { tip.style.opacity = 0; return; }
+    tip.textContent = el.dataset.tip;
+    const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px'; tip.style.opacity = 1;
+  });
+})();
+</script>
+</body>
+</html>

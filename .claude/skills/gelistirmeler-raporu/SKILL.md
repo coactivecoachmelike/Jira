@@ -63,6 +63,9 @@ python3 $S --filter 'status:Done,"In Progress" -label:bug' -o rapor.html
 # Kapalı issue'ları statüden bağımsız tamamlandı say, özel "done" statüleri
 python3 $S --closed-as-done --done-status "Done" --done-status "Canlıya Alındı"
 
+# GitHub'dan indirilen tablo (Projects > görünüm menüsü > Export view data, TSV/CSV)
+python3 $S --from-export "BOD Project - Retail Sprints.tsv" --clean-titles -o gelistirmeler.html
+
 # Ağ olmadan, daha önce kaydedilmiş veriden
 python3 $S --from-json proje.json -o gelistirmeler.html
 ```
@@ -87,6 +90,18 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
    (1400px genişlik, `fullPage: true`) ya da tarayıcıdan yazdır.
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
+
+## Dışa aktarılan TSV/CSV ile çalışma
+
+Kullanıcı GitHub'dan indirdiği bir `.tsv`/`.csv` verirse `--from-export` kullan; API
+erişimi gerekmez. Dikkat edilecekler:
+- Dosyada renk bilgisi yoktur; statü renkleri isimden tahmin edilir (Backlog gri,
+  Todo mavi, In Progress sarı, Test turuncu, UAT pembe, Blocked kırmızı, Done yeşil;
+  bilinmeyenler gri). Statü sırası dosyadaki ilk görülme sırasıdır.
+- Yalnızca görünümde açık olan sütunlar dışa aktarılır. `Original Estimate` sütunu
+  yoksa grafikler **iş adedi** üzerinden çizilir ve raporda not düşülür — kullanıcıya
+  eforlu oran için alanı görünüme ekleyip yeniden dışa aktarmasını öner.
+- `--clean-titles` baştaki talep numaralarını (`82237192 - `) siler, `[BUG]:` → `[BUG]`.
 
 ## Filtre desteği
 

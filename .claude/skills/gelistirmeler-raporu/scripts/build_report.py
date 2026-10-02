@@ -16,6 +16,7 @@ HTML raporu üretir. Yalnızca Python standart kütüphanesini kullanır.
 from __future__ import annotations
 
 import argparse
+import csv
 import datetime as dt
 import html
 import json
@@ -40,6 +41,16 @@ GITHUB_COLORS = {
 }
 NO_STATUS = "Statüsüz"
 NO_STATUS_COLOR = "#C4CAD2"
+
+# Dışa aktarılan TSV/CSV'de renk bilgisi olmadığından bilinen statü adları için renkler
+DEFAULT_STATUS_COLORS = {
+    "backlog": "GRAY", "todo": "BLUE", "to do": "BLUE", "yapılacak": "BLUE",
+    "in progress": "YELLOW", "devam ediyor": "YELLOW", "geliştirmede": "YELLOW",
+    "in review": "PURPLE", "review": "PURPLE", "code review": "PURPLE",
+    "test": "ORANGE", "qa": "ORANGE", "uat": "PINK", "blocked": "RED", "engelli": "RED",
+    "done": "GREEN", "tamamlandı": "GREEN", "closed": "GREEN", "canlıda": "GREEN",
+}
+COUNT_FIELD = "__count__"
 
 DEFAULT_DONE = ["done", "tamamlandı", "tamamlandi", "completed", "closed",
                 "kapandı", "kapandi", "canlıda", "canlida", "released", "yayında"]
@@ -296,7 +307,61 @@ def pick_estimate_field(data: dict, name: str | None, field_id: int | None) -> s
     for f in nf:
         if "estimate" in f["name"].lower() or "tahmin" in f["name"].lower():
             return f["name"]
-    return name
+    return None
+
+
+def load_export(path: str, status_field: str) -> dict:
+    """GitHub Projects tablo görünümünden dışa aktarılan TSV/CSV'yi normalize eder."""
+    with open(path, encoding="utf-8-sig", newline="") as fh:
+        sample = fh.read(4096)
+        fh.seek(0)
+        delim = "\t" if path.lower().endswith(".tsv") or "\t" in sample.splitlines()[0] else ","
+        rows = list(csv.DictReader(fh, delimiter=delim))
+    core = {"Title", "URL", "Assignees", "Labels", "Repository", "Closed"}
+    extra = [c for c in (rows[0].keys() if rows else []) if c and c not in core]
+
+    def num(v):
+        try:
+            return float(v.replace(",", "."))
+        except (ValueError, AttributeError):
+            return None
+    number_fields = [c for c in extra
+                     if any((r.get(c) or "").strip() for r in rows)
+                     and all(num(r[c]) is not None for r in rows if (r.get(c) or "").strip())]
+
+    items, seen = [], []
+    for r in rows:
+        url = (r.get("URL") or "").strip()
+        fields = {}
+        for c in extra:
+            v = (r.get(c) or "").strip()
+            if v:
+                fields[c] = num(v) if c in number_fields else v
+        st = fields.get(status_field)
+        if st and st not in seen:
+            seen.append(st)
+        items.append({
+            "title": re.sub(r"\s+", " ", r.get("Title") or "").strip() or "(başlıksız)",
+            "url": url or None,
+            "repo": (r.get("Repository") or "").strip() or None,
+            "type": "PULL_REQUEST" if "/pull/" in url else ("ISSUE" if "/issues/" in url else "DRAFT_ISSUE"),
+            "state": "CLOSED" if (r.get("Closed") or "").strip() else ("OPEN" if url else "DRAFT"),
+            "archived": False,
+            "assignees": [a.strip() for a in (r.get("Assignees") or "").split(",") if a.strip()],
+            "labels": [l.strip() for l in (r.get("Labels") or "").split(",") if l.strip()],
+            "fields": fields,
+        })
+    name = os.path.splitext(os.path.basename(path))[0]
+    return {
+        "project": {"title": re.sub(r"^[0-9a-f]{8}-", "", name).replace("_", " "), "url": None},
+        "view": None,
+        "statusField": status_field,
+        # TSV sütun sırası pano kolon sırasını izler; renkler isimden tahmin edilir
+        "statusOptions": [{"name": n, "color": DEFAULT_STATUS_COLORS.get(n.lower(), "GRAY"),
+                           "description": ""} for n in seen],
+        "numberFields": [{"name": c, "databaseId": None} for c in number_fields],
+        "items": items,
+    }
 
 
 def build_model(data: dict, items: list[dict], estimate_field: str | None,
@@ -417,7 +482,7 @@ def render(model: dict, title: str, subtitle: str, unit: str, sort: str, columns
         name = esc(r["title"])
         if r.get("url"):
             name = f'<a href="{esc(r["url"])}" target="_blank" rel="noopener">{name}</a>'
-        meta = f'{fmt(r["estimate"])}{u}' if r["estimate"] else ""
+        meta = f"{fmt(r['estimate'])}{u}" if r["estimate"] and estimate_field != COUNT_FIELD else ""
         tip = f'{r["status"]}' + (f' · {", ".join(r["assignees"])}' if r["assignees"] else "") + \
               (f' · {fmt(r["estimate"])}{u}' if r["estimate"] else "")
         items.append(
@@ -426,11 +491,13 @@ def render(model: dict, title: str, subtitle: str, unit: str, sort: str, columns
             + (f'<span class="est">{meta}</span>' if meta else "") + "</li>")
 
     note_bits = []
-    if estimate_field:
+    if estimate_field == COUNT_FIELD:
+        note_bits.append("Efor alanı yok: oranlar <b>iş adedi</b> üzerinden")
+    elif estimate_field:
         note_bits.append(f'Efor alanı: <b>{esc(estimate_field)}</b>')
-    if model["missing_estimate"]:
+    if model["missing_estimate"] and estimate_field != COUNT_FIELD:
         note_bits.append(f'{model["missing_estimate"]} işin tahmini boş (0 sayıldı)')
-    note_bits += [esc(w) for w in warnings]
+    note_bits += [esc(w) for w in warnings if "alanı veride yok" not in w]
     notes = " · ".join(note_bits)
     today = dt.date.today().strftime("%d.%m.%Y")
 
@@ -607,6 +674,7 @@ def main() -> None:
     src.add_argument("--project", type=int, default=34, help="Proje numarası")
     src.add_argument("--view", type=int, default=11, help="Filtresi uygulanacak görünüm numarası (0 = yok)")
     src.add_argument("--from-json", help="GitHub yerine bu normalize JSON dosyasını kullan")
+    src.add_argument("--from-export", help="GitHub Projects'ten indirilen TSV/CSV dosyasını kullan")
     src.add_argument("--dump-json", help="Çekilen normalize veriyi bu dosyaya da yaz")
     flt = ap.add_argument_group("filtre / hesap")
     flt.add_argument("--filter", help="Görünüm filtresi yerine kullanılacak filtre (GitHub sözdizimi)")
@@ -626,12 +694,16 @@ def main() -> None:
     out.add_argument("--title", default="Geliştirmeler")
     out.add_argument("--unit", default="", help="Efor birimi etiketi (ör. 'sa', 'gün', 'SP')")
     out.add_argument("--sort", choices=["status", "title", "none"], default="status")
+    out.add_argument("--clean-titles", action="store_true",
+                     help="Başlıktaki baştaki talep numaralarını (ör. '82237192 - ') kaldır")
     out.add_argument("--columns", type=int, default=3)
     a = ap.parse_args()
 
     if a.from_json:
         with open(a.from_json, encoding="utf-8") as fh:
             data = json.load(fh)
+    elif a.from_export:
+        data = load_export(a.from_export, a.status_field)
     else:
         data = normalize(fetch_project(a.org, a.project, a.view or None), a.status_field)
     if a.dump_json:
@@ -645,6 +717,18 @@ def main() -> None:
     items, warnings = apply_filter(items, expr, a.me)
 
     est_field = pick_estimate_field(data, a.estimate_field, a.estimate_field_id)
+    if est_field is None:
+        # Efor alanı yoksa her iş 1 birim sayılır: oranlar iş adedi üzerinden hesaplanır
+        warnings.append(f"'{a.estimate_field}' alanı veride yok; grafikler iş adedi üzerinden")
+        print(f"uyarı: '{a.estimate_field}' alanı bulunamadı, iş adedi kullanılıyor", file=sys.stderr)
+        for it in items:
+            it["fields"][COUNT_FIELD] = 1
+        est_field = COUNT_FIELD
+        a.unit = a.unit or "iş"
+    if a.clean_titles:
+        for it in items:
+            it["title"] = re.sub(r"^\s*\d{6,}\s*-\s*", "", it["title"])
+            it["title"] = re.sub(r"\[BUG\]:\s*", "[BUG] ", it["title"]).strip()
     model = build_model(data, items, est_field, a.done_status or DEFAULT_DONE, a.closed_as_done)
 
     proj = data.get("project") or {}
