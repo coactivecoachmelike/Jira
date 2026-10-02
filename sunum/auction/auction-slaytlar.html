@@ -47,7 +47,7 @@ h1 span { color:var(--accent); font-weight:600; }
 .cnums small, .lstats small { font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }
 .cnote { font-size:14px; color:var(--muted); margin-top:8px; }
 .dual { display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }
-.dhead, .drow { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 64px minmax(0,1fr) 76px;
+.dhead, .drow { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 64px minmax(0,1fr) 88px;
   column-gap:10px; align-items:center; }
 .dhead { font-size:14px; color:var(--muted); padding-bottom:5px; }
 .drow { border-top:1px solid var(--rule); padding:6px 0; font-size:18px; flex:1; max-height:64px; }
@@ -209,6 +209,9 @@ h1 span { color:var(--accent); font-weight:600; }
   const fits = () => list.scrollWidth <= list.clientWidth + 1 && list.scrollHeight <= list.clientHeight + 1;
   list.style.setProperty('--fs', fs + 'px');
   while (!fits() && fs > 11) { fs -= 0.5; list.style.setProperty('--fs', fs + 'px'); }
+  // Sığdıysa kolonları dengele; dengeli hali taşarsa geri al
+  list.style.columnFill = 'balance';
+  if (!fits()) list.style.columnFill = 'auto';
   document.body.dataset.fitted = fs;
   const scale = () => document.documentElement.style.setProperty('--s',
     Math.min(1, (innerWidth - 32) / 1920).toFixed(4));

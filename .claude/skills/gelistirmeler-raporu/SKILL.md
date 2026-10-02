@@ -128,6 +128,8 @@ erişimi gerekmez. Dikkat edilecekler:
   Done/Released yeşil; bilinmeyenler gri). Bilinen statüler iş akışı sırasına dizilir
   (Backlog → Todo → In Progress → Review → Test → UAT → Done → Released).
 - Takım başına ayrı export gelirse her biri için ayrı klasöre (`sunum/<takım>/`) üret.
+  Export'ta başka board'lardan satır varsa (`Board` sütununa bak) takımın board'una
+  filtrele, ör. `--filter 'board:"Back Office"'`, ve dışarıda kalanları kullanıcıya söyle.
 - Yalnızca görünümde açık olan sütunlar dışa aktarılır. `Original Estimate` sütunu
   yoksa grafikler **iş adedi** üzerinden çizilir ve raporda not düşülür — kullanıcıya
   eforlu oran için alanı görünüme ekleyip yeniden dışa aktarmasını öner.
