@@ -91,6 +91,27 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
+## 16:9 sunum slaytları (2 slayt, HTML + PNG)
+
+Kullanıcı slayt / sunum / 16:9 / PNG isterse `build_slides.py` kullan (veri kaynağı
+seçenekleri aynı):
+
+```bash
+D=.claude/skills/gelistirmeler-raporu/scripts
+python3 $D/build_slides.py --from-export veri.tsv --clean-titles --unit SP -o slaytlar.html
+node $D/export_png.mjs slaytlar.html slayt     # -> slayt-1.png, slayt-2.png (1920x1080)
+```
+
+- **Slayt 1 – Metrikler:** iş adedi bazında ve Original Estimate bazında yan yana
+  tamamlanma oranı, planlanan/tamamlanan/kalan, statü dağılımı; sağda kişi bazında
+  planlanan vs. tamamlanan (üst çubuk adet, alt çubuk estimate). Estimate verisi yoksa
+  o panel "veri yok" durumunu gösterir.
+- **Slayt 2 – Maddeler:** statü sırasına göre renkli bullet'lı 3 kolon liste; yazı
+  boyutu tüm maddeler sığana kadar otomatik küçülür (`export_png.mjs` son boyutu yazar;
+  ~14px altına inerse kullanıcıya listeyi filtrelemeyi öner).
+- PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF
+  (her slayt ayrı sayfa) kullanılabilir.
+
 ## Dışa aktarılan TSV/CSV ile çalışma
 
 Kullanıcı GitHub'dan indirdiği bir `.tsv`/`.csv` verirse `--from-export` kullan; API
