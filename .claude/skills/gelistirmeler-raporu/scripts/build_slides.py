@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Geliştirmeler raporunu 16:9 (1920x1080) iki slayt olarak üretir.
 
-Slayt 1: Metrikler — her grafik iki versiyonlu (İş adedi | Original Estimate):
+Slayt 1: Metrikler — grafikler iki versiyonlu (İş adedi | Original Estimate):
          tamamlanma oranı, statü dağılımı, kişi bazında planlanan vs. tamamlanan,
-         iş tipi kırılımı (User Story / Proje işi / Bug / Task) ve lead time histogramı.
+         iş tipi kırılımı (User Story / Proje işi / Bug / Task); lead time histogramı yalnız adet.
 Slayt 2: Maddeler — statü renkli bullet'lı iş listesi (yazı boyutu sığana kadar küçülür).
 
 Veri kaynağı seçenekleri build_report.py ile aynıdır. PNG için:
@@ -25,8 +25,10 @@ from build_report import (COUNT_FIELD, DEFAULT_DONE, NO_STATUS_COLOR,  # noqa: E
                           normalize, pick_estimate_field)
 
 TYPES = ["User Story", "Proje işi", "Bug", "Task"]
-DEFAULT_TASK_KEYWORDS = ["işlemler", "toplantı", "takvim", "kurulum", "inceleme", "migration",
-                         "dependabot", "destek süreci", "deployment"]
+# Düzenli ifade; başlığın küçük harfli halinde aranır
+DEFAULT_TASK_KEYWORDS = [r"işlemler(i)?\b", "toplantı", "takvim", "kurulum", "incele", "migration",
+                         "dependabot", "destek süreci", "deployment", "task", "dönüşleri",
+                         "modelbuilder", "dwh"]
 LEAD_BINS = [(0, 1, "<1 gün"), (1, 3, "1–3"), (3, 7, "3–7"), (7, 14, "7–14"),
              (14, 21, "14–21"), (21, 30, "21–30"), (30, None, "30+")]
 
@@ -50,7 +52,7 @@ def classify(it: dict, project_field: str, task_kw: list[str]) -> str:
         return "Task"
     if t in ("user story", "story", "feature"):
         return "User Story"
-    if any(k in title for k in task_kw):
+    if any(re.search(k, title) for k in task_kw):
         return "Task"
     return "User Story"
 
@@ -224,15 +226,12 @@ def build(a) -> None:
     while len(bins) > 4 and not bins[-1]["c"]:
         bins.pop()
     leads = [r["lead"] for r in closed]
-    est_closed = [r for r in closed if r["est"]]
     if leads:
         lead_stats = (f'<div><span>Kapanan iş</span><b>{len(leads)}</b></div>'
                       f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
-        hists = (histogram(bins, "c", "İş adedi", "var(--ink)")
-                 + histogram(bins, "e", f"{est_label} toplamı ({len(est_closed)}/{len(leads)} işte dolu)",
-                             "var(--accent)"))
+        hists = histogram(bins, "c", "İş adedi", "var(--ink)")
     else:
         lead_stats, hists = "", '<div class="emptymsg">Created / Closed verisi yok.</div>'
 
@@ -271,7 +270,7 @@ def build(a) -> None:
         print(f"    {t}: " + " | ".join(r["title"][:50] for r in rows if r["kind"] == t))
     if leads:
         print(f"  lead time: {len(leads)} kapanan iş, medyan {statistics.median(leads):.1f} gün · "
-              + ", ".join(f"{b['label']}: {b['c']}/{fmt(b['e'])}" for b in bins))
+              + ", ".join(f"{b['label']}: {b['c']}" for b in bins))
     for w in warnings:
         print("uyarı:", w, file=sys.stderr)
 
@@ -298,9 +297,9 @@ body {{ margin:0; background:var(--bg); color:var(--ink);
 header {{ display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:22px; }}
 h1 {{ white-space:nowrap; font-size:58px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1; }}
 h1 span {{ color:var(--accent); font-weight:600; }}
-.sub {{ color:var(--muted); font-size:19px; margin-top:10px; }}
+.sub {{ color:var(--muted); font-size:19px; margin-top:10px; white-space:nowrap; }}
 .legend {{ list-style:none; margin:0; padding:12px 18px; display:flex; flex-wrap:wrap; gap:6px 24px;
-  border:1px solid var(--rule); border-radius:12px; font-size:18px; color:var(--ink-2); justify-content:flex-end; }}
+  border:1px solid var(--rule); border-radius:12px; font-size:18px; color:var(--ink-2); justify-content:flex-end; min-width:0; flex:0 1 auto; }}
 .legend li {{ display:flex; align-items:center; }}
 .legend .muted {{ margin-left:8px; color:var(--muted); font-variant-numeric:tabular-nums; }}
 .dot {{ display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--c); margin-right:9px; flex:none; }}
@@ -337,7 +336,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .dv span {{ color:var(--muted); font-weight:400; }}
 .pkey {{ display:flex; gap:18px; font-size:14px; color:var(--ink-2); margin:-2px 0 8px; }}
 .pkey span::before {{ content:""; display:inline-block; width:14px; height:9px; border-radius:2px; margin-right:6px; background:var(--k); }}
-.lead {{ display:grid; grid-template-columns:170px 1fr 1fr; gap:32px; flex:1; min-height:0; }}
+.lead {{ display:grid; grid-template-columns:170px 1fr; gap:32px; flex:1; min-height:0; }}
 .lstats {{ display:flex; flex-direction:column; gap:8px; }}
 .lstats div {{ display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }}
 .lstats span {{ font-size:14px; color:var(--muted); }}

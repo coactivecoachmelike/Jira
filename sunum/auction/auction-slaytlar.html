@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geliştirmeler Slaytları</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#E9EDF2; --slide:#FFFFFF; --ink:#0B1F3A; --ink-2:#3B4A5E; --muted:#6B7788;
+  --rule:#DCE6EE; --accent:#1FA3B5; --track:#E8EDF2; --plan:#C9D5E1; --s:1; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.deck { display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0; }
+.frame { width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); overflow:hidden;
+  box-shadow:0 2px 12px rgba(11,31,58,.12); }
+.slide { width:1920px; height:1080px; background:var(--slide); padding:44px 60px 36px;
+  transform:scale(var(--s)); transform-origin:0 0; display:flex; flex-direction:column; }
+header { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:22px; }
+h1 { white-space:nowrap; font-size:58px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1; }
+h1 span { color:var(--accent); font-weight:600; }
+.sub { color:var(--muted); font-size:19px; margin-top:10px; white-space:nowrap; }
+.legend { list-style:none; margin:0; padding:12px 18px; display:flex; flex-wrap:wrap; gap:6px 24px;
+  border:1px solid var(--rule); border-radius:12px; font-size:18px; color:var(--ink-2); justify-content:flex-end; min-width:0; flex:0 1 auto; }
+.legend li { display:flex; align-items:center; }
+.legend .muted { margin-left:8px; color:var(--muted); font-variant-numeric:tabular-nums; }
+.dot { display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--c); margin-right:9px; flex:none; }
+/* metrikler */
+.grid { flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+.panel { border:1px solid var(--rule); border-radius:14px; padding:18px 22px; display:flex; flex-direction:column; min-height:0; }
+.panel.wide { grid-column:span 2; }
+.ptitle { font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
+.pfoot { font-size:14px; color:var(--muted); margin-top:auto; padding-top:10px; line-height:1.45; }
+.pfoot b { color:var(--ink); }
+.comps { display:grid; grid-template-columns:1fr 1fr; gap:22px; flex:1; }
+.comp { display:flex; flex-direction:column; }
+.clabel { font-size:17px; color:var(--ink-2); font-weight:600; }
+.chero { font-size:84px; font-weight:800; line-height:1.05; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+.bar { height:14px; border-radius:7px; background:var(--track); overflow:hidden; margin:10px 0 auto; }
+.bar i { display:block; height:100%; background:var(--accent); border-radius:6px; }
+.cnums { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.cnums div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:6px; }
+.cnums span { font-size:14px; color:var(--muted); }
+.cnums b { font-size:28px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.cnums small, .lstats small { font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }
+.cnote { font-size:14px; color:var(--muted); margin-top:8px; }
+.dual { display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }
+.dhead, .drow { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 64px minmax(0,1fr) 76px;
+  column-gap:10px; align-items:center; }
+.dhead { font-size:14px; color:var(--muted); padding-bottom:5px; }
+.drow { border-top:1px solid var(--rule); padding:6px 0; font-size:18px; flex:1; max-height:64px; }
+.dl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-2); display:flex; align-items:center; }
+.db { position:relative; height:14px; }
+.tr, .fi { position:absolute; left:0; top:0; height:100%; border-radius:0 4px 4px 0; }
+.tr { background:var(--plan); } .fi { background:var(--ink); }
+.dv { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.dv span { color:var(--muted); font-weight:400; }
+.pkey { display:flex; gap:18px; font-size:14px; color:var(--ink-2); margin:-2px 0 8px; }
+.pkey span::before { content:""; display:inline-block; width:14px; height:9px; border-radius:2px; margin-right:6px; background:var(--k); }
+.lead { display:grid; grid-template-columns:170px 1fr; gap:32px; flex:1; min-height:0; }
+.lstats { display:flex; flex-direction:column; gap:8px; }
+.lstats div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }
+.lstats span { font-size:14px; color:var(--muted); }
+.lstats b { font-size:28px; font-variant-numeric:tabular-nums; }
+.hist { display:flex; flex-direction:column; min-height:0; }
+.htitle { font-size:15px; color:var(--ink-2); font-weight:600; margin-bottom:4px; }
+.hplot { flex:1; min-height:100px; display:flex; align-items:flex-end; gap:8px; border-bottom:1px solid var(--plan); }
+.hcol { flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+.hval { text-align:center; font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:4px; }
+.hbar { border-radius:4px 4px 0 0; }
+.hx { display:flex; gap:8px; font-size:14px; color:var(--muted); margin-top:6px; }
+.hx div { flex:1; text-align:center; white-space:nowrap; }
+.hunit { font-size:13px; color:var(--muted); text-align:right; margin-top:2px; }
+.emptymsg { margin:auto; font-size:20px; color:var(--ink-2); }
+/* maddeler */
+.list { flex:1; min-height:0; list-style:none; margin:0; padding:0; columns:3; column-gap:56px;
+  column-fill:auto; column-rule:1px solid var(--accent); --fs:22px; overflow:hidden; }
+.list li { break-inside:avoid; display:flex; align-items:flex-start; gap:2px; padding:calc(var(--fs) * .42) 0;
+  border-bottom:1px solid var(--rule); font-size:var(--fs); line-height:1.28; font-weight:500; }
+.list .dot { width:calc(var(--fs) * .55); height:calc(var(--fs) * .55); margin-top:calc(var(--fs) * .38); }
+.list .t { flex:1; }
+.est { font-size:calc(var(--fs) * .7); color:var(--muted); border:1px solid var(--rule); border-radius:999px;
+  padding:1px 8px; margin:2px 0 0 8px; white-space:nowrap; }
+@media print {
+  @page { size:1920px 1080px; margin:0; }
+  body { background:none; } .deck { padding:0; gap:0; } .frame { box-shadow:none; break-after:page; }
+}
+</style>
+</head>
+<body>
+<div class="deck">
+<div class="frame"><section class="slide" id="s1" aria-label="Metrikler">
+  <header>
+    <div><h1>Geliştirmeler <span>· Metrikler</span></h1><div class="sub">BOD Project - Auction Sprints · 02.10.2026</div></div>
+    <ul class="legend" aria-label="Statü lejantı"><li><span class="dot" style="--c:#8C959F"></span>Backlog<span class="muted">1</span></li><li><span class="dot" style="--c:#218BFF"></span>Todo<span class="muted">6</span></li><li><span class="dot" style="--c:#D4A72C"></span>In Progress<span class="muted">4</span></li><li><span class="dot" style="--c:#A475F9"></span>Review<span class="muted">3</span></li><li><span class="dot" style="--c:#FB8F44"></span>Test<span class="muted">5</span></li><li><span class="dot" style="--c:#E85AAD"></span>UAT<span class="muted">13</span></li><li><span class="dot" style="--c:#2DA44E"></span>Done ✓<span class="muted">24</span></li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓<span class="muted">1</span></li></ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div>
+      <div class="comps">
+<div class="comp">
+  <div class="clabel">İş adedi</div>
+  <div class="chero">%44</div>
+  <div class="bar"><i style="width:43.86%"></i></div>
+  <div class="cnums">
+    <div><span>Planlanan</span><b>57<small>iş</small></b></div>
+    <div><span>Tamamlanan</span><b>25<small>iş</small></b></div>
+    <div><span>Kalan</span><b>32<small>iş</small></b></div>
+  </div>
+  <div class="cnote">&nbsp;</div>
+</div>
+<div class="comp">
+  <div class="clabel">Original Estimate</div>
+  <div class="chero">%19</div>
+  <div class="bar"><i style="width:18.80%"></i></div>
+  <div class="cnums">
+    <div><span>Planlanan</span><b>234</b></div>
+    <div><span>Tamamlanan</span><b>44</b></div>
+    <div><span>Kalan</span><b>190</b></div>
+  </div>
+  <div class="cnote">23 işin estimate'i boş (0 sayıldı)</div>
+</div></div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı</div><div class="dual"><div class="dhead"><span></span><span>İş adedi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow"><div class="dl" title="Backlog"><span class="dot" style="--c:#8C959F"></span>Backlog</div><div class="db" title="Backlog: 1 iş"><div class="fi" style="width:4.17%;background:#8C959F"></div></div><div class="dv">1</div><div class="db" title="Backlog: 0 Original Estimate"><div class="fi" style="width:0.00%;background:#8C959F"></div></div><div class="dv">0</div></div><div class="drow"><div class="dl" title="Todo"><span class="dot" style="--c:#218BFF"></span>Todo</div><div class="db" title="Todo: 6 iş"><div class="fi" style="width:25.00%;background:#218BFF"></div></div><div class="dv">6</div><div class="db" title="Todo: 29 Original Estimate"><div class="fi" style="width:43.28%;background:#218BFF"></div></div><div class="dv">29</div></div><div class="drow"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress: 4 iş"><div class="fi" style="width:16.67%;background:#D4A72C"></div></div><div class="dv">4</div><div class="db" title="In Progress: 62 Original Estimate"><div class="fi" style="width:92.54%;background:#D4A72C"></div></div><div class="dv">62</div></div><div class="drow"><div class="dl" title="Review"><span class="dot" style="--c:#A475F9"></span>Review</div><div class="db" title="Review: 3 iş"><div class="fi" style="width:12.50%;background:#A475F9"></div></div><div class="dv">3</div><div class="db" title="Review: 9 Original Estimate"><div class="fi" style="width:13.43%;background:#A475F9"></div></div><div class="dv">9</div></div><div class="drow"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test: 5 iş"><div class="fi" style="width:20.83%;background:#FB8F44"></div></div><div class="dv">5</div><div class="db" title="Test: 23 Original Estimate"><div class="fi" style="width:34.33%;background:#FB8F44"></div></div><div class="dv">23</div></div><div class="drow"><div class="dl" title="UAT"><span class="dot" style="--c:#E85AAD"></span>UAT</div><div class="db" title="UAT: 13 iş"><div class="fi" style="width:54.17%;background:#E85AAD"></div></div><div class="dv">13</div><div class="db" title="UAT: 67 Original Estimate"><div class="fi" style="width:100.00%;background:#E85AAD"></div></div><div class="dv">67</div></div><div class="drow"><div class="dl" title="Done ✓"><span class="dot" style="--c:#2DA44E"></span>Done ✓</div><div class="db" title="Done ✓: 24 iş"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">24</div><div class="db" title="Done ✓: 44 Original Estimate"><div class="fi" style="width:65.67%;background:#2DA44E"></div></div><div class="dv">44</div></div><div class="drow"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓: 1 iş"><div class="fi" style="width:4.17%;background:#2DA44E"></div></div><div class="dv">1</div><div class="db" title="Released ✓: 0 Original Estimate"><div class="fi" style="width:0.00%;background:#2DA44E"></div></div><div class="dv">0</div></div></div></div>
+    <div class="panel"><div class="ptitle">Kişi bazında</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead"><span></span><span>İş adedi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow"><div class="dl" title="grknksbr">grknksbr</div><div class="db" title="grknksbr: 22 iş"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:72.73%"></div></div><div class="dv">16<span>/22</span></div><div class="db" title="grknksbr: 101 Original Estimate"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:31.68%"></div></div><div class="dv">32<span>/101</span></div></div><div class="drow"><div class="dl" title="burakkarayakali">burakkarayakali</div><div class="db" title="burakkarayakali: 22 iş"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:22.73%"></div></div><div class="dv">5<span>/22</span></div><div class="db" title="burakkarayakali: 87 Original Estimate"><div class="tr" style="width:86.14%"></div><div class="fi" style="width:5.94%"></div></div><div class="dv">6<span>/87</span></div></div><div class="drow"><div class="dl" title="ualyaz">ualyaz</div><div class="db" title="ualyaz: 9 iş"><div class="tr" style="width:40.91%"></div><div class="fi" style="width:13.64%"></div></div><div class="dv">3<span>/9</span></div><div class="db" title="ualyaz: 42 Original Estimate"><div class="tr" style="width:41.58%"></div><div class="fi" style="width:5.94%"></div></div><div class="dv">6<span>/42</span></div></div><div class="drow"><div class="dl" title="bcakaner">bcakaner</div><div class="db" title="bcakaner: 2 iş"><div class="tr" style="width:9.09%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/2</span></div><div class="db" title="bcakaner: 0 Original Estimate"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow"><div class="dl" title="sedatates">sedatates</div><div class="db" title="sedatates: 1 iş"><div class="tr" style="width:4.55%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/1</span></div><div class="db" title="sedatates: 4 Original Estimate"><div class="tr" style="width:3.96%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/4</span></div></div><div class="drow"><div class="dl" title="Atanmamış">Atanmamış</div><div class="db" title="Atanmamış: 1 iş"><div class="tr" style="width:4.55%"></div><div class="fi" style="width:4.55%"></div></div><div class="dv">1<span>/1</span></div><div class="db" title="Atanmamış: 0 Original Estimate"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div></div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead"><span></span><span>İş adedi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow"><div class="dl" title="User Story">User Story</div><div class="db" title="User Story: 37 iş"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:27.03%"></div></div><div class="dv">10<span>/37</span></div><div class="db" title="User Story: 208 Original Estimate"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:9.62%"></div></div><div class="dv">20<span>/208</span></div></div><div class="drow"><div class="dl" title="Proje işi">Proje işi</div><div class="db" title="Proje işi: 0 iş"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div><div class="db" title="Proje işi: 0 Original Estimate"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow"><div class="dl" title="Bug">Bug</div><div class="db" title="Bug: 7 iş"><div class="tr" style="width:18.92%"></div><div class="fi" style="width:10.81%"></div></div><div class="dv">4<span>/7</span></div><div class="db" title="Bug: 0 Original Estimate"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow"><div class="dl" title="Task">Task</div><div class="db" title="Task: 13 iş"><div class="tr" style="width:35.14%"></div><div class="fi" style="width:29.73%"></div></div><div class="dv">11<span>/13</span></div><div class="db" title="Task: 26 Original Estimate"><div class="tr" style="width:12.50%"></div><div class="fi" style="width:11.54%"></div></div><div class="dv">24<span>/26</span></div></div></div>
+      <div class="pfoot">Proje işleri (DD Project Name): —<br>
+      Bug = başlıkta [BUG] · Task = operasyonel işler · diğerleri User Story</div></div>
+    <div class="panel wide"><div class="ptitle">Lead time histogramı (Created → Closed, gün)</div>
+      <div class="lead"><div class="lstats"><div><span>Kapanan iş</span><b>24</b></div><div><span>Medyan</span><b>17,9<small>gün</small></b></div><div><span>Ortalama</span><b>16,9<small>gün</small></b></div><div><span>En uzun</span><b>37<small>gün</small></b></div></div><div class="hist"><div class="htitle">İş adedi</div><div class="hplot"><div class="hcol" title="&lt;1 gün gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="1–3 gün: 3"><div class="hval">3</div><div class="hbar" style="height:22.36%;background:var(--ink)"></div></div><div class="hcol" title="3–7 gün: 2"><div class="hval">2</div><div class="hbar" style="height:14.91%;background:var(--ink)"></div></div><div class="hcol" title="7–14 gün: 2"><div class="hval">2</div><div class="hbar" style="height:14.91%;background:var(--ink)"></div></div><div class="hcol" title="14–21 gün: 11"><div class="hval">11</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div><div class="hcol" title="21–30 gün: 3"><div class="hval">3</div><div class="hbar" style="height:22.36%;background:var(--ink)"></div></div><div class="hcol" title="30+ gün: 3"><div class="hval">3</div><div class="hbar" style="height:22.36%;background:var(--ink)"></div></div></div><div class="hx"><div>&lt;1 gün</div><div>1–3</div><div>3–7</div><div>7–14</div><div>14–21</div><div>21–30</div><div>30+</div></div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" id="s2" aria-label="Maddeler">
+  <header>
+    <div><h1>Geliştirmeler</h1><div class="sub">BOD Project - Auction Sprints · 02.10.2026 · 57 iş · ✓ = tamamlandı · rozet = Original Estimate</div></div>
+    <ul class="legend" aria-label="Statü lejantı"><li><span class="dot" style="--c:#8C959F"></span>Backlog<span class="muted">1</span></li><li><span class="dot" style="--c:#218BFF"></span>Todo<span class="muted">6</span></li><li><span class="dot" style="--c:#D4A72C"></span>In Progress<span class="muted">4</span></li><li><span class="dot" style="--c:#A475F9"></span>Review<span class="muted">3</span></li><li><span class="dot" style="--c:#FB8F44"></span>Test<span class="muted">5</span></li><li><span class="dot" style="--c:#E85AAD"></span>UAT<span class="muted">13</span></li><li><span class="dot" style="--c:#2DA44E"></span>Done ✓<span class="muted">24</span></li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓<span class="muted">1</span></li></ul>
+  </header>
+  <ul class="list">
+<li><span class="dot" style="--c:#8C959F"></span><span class="t">NPS Kurgusunun İncelenmesi</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">[BUG] Canlı İhaledeki Araçların Satışlarının İptal Olması Hk.</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">DATA - Register Süreçleri Funnel Event Entegrasyonu FE - 4h</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi BE</span><span class="est">6</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi FE</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili BE</span><span class="est">10</span></li>
+<li><span class="dot" style="--c:#218BFF"></span><span class="t">Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili FE</span><span class="est">5</span></li>
+<li><span class="dot" style="--c:#D4A72C"></span><span class="t">[BUG] OCR ile Belge Okuma Hatası</span></li>
+<li><span class="dot" style="--c:#D4A72C"></span><span class="t">Critical CSS Uygulaması</span><span class="est">10</span></li>
+<li><span class="dot" style="--c:#D4A72C"></span><span class="t">One Click Auction - Araç Bilgilerinin SmartIq&#x27;dan Jarvise İletilmesi</span><span class="est">36</span></li>
+<li><span class="dot" style="--c:#D4A72C"></span><span class="t">One Click Auction - Araçların İhaleye Eklenmesi</span><span class="est">16</span></li>
+<li><span class="dot" style="--c:#A475F9"></span><span class="t">Araç Fotoğraflama Ekran Düzenlemeleri BE</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#A475F9"></span><span class="t">Birden Fazla Plakayı Aynı Anda Aratma</span><span class="est">5</span></li>
+<li><span class="dot" style="--c:#A475F9"></span><span class="t">Fetchpriority Düzenlemeleri</span></li>
+<li><span class="dot" style="--c:#FB8F44"></span><span class="t">[BUG] Ekspertiz Pointlerinin Çoklaması Hk.</span></li>
+<li><span class="dot" style="--c:#FB8F44"></span><span class="t">DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis İnceleme Taskı</span><span class="est">2</span></li>
+<li><span class="dot" style="--c:#FB8F44"></span><span class="t">Ekspertiz Krokisi Oluşmayan Kayıtlar İçin Jarviste Servisinin Oluşturulması</span><span class="est">8</span></li>
+<li><span class="dot" style="--c:#FB8F44"></span><span class="t">Satıcı İçin Dijital Üyelik Geliştirmesi BE</span><span class="est">5</span></li>
+<li><span class="dot" style="--c:#FB8F44"></span><span class="t">Satıcı İçin Dijital Üyelik Geliştirmesi FE</span><span class="est">8</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Araç Fotoğraflama Ekran Düzenlemeleri FE</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Bana Özel Satıştaki Araç Düzenleme Alanında Ekspertiz PDF İndirme</span><span class="est">6</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Hatalı Lazy Load Kurgusunun Düzeltilmesi</span><span class="est">9</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Hero Görsellerin Preload Edilmesi</span><span class="est">8</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">İhale Araç Liste Görünümünden &quot;Tramer Tutarı&quot; Kolonunun Kaldırılması</span><span class="est">2</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">İhale ekranları renk değişimi</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması BE</span><span class="est">8</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması FE</span><span class="est">2</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi BE</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi FE</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Trafik Sigortası için Onay Vermeyen Müşterilere Pop-up Açılması</span><span class="est">10</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">User_Data Bilgisinin Eklenmesi (NPS Kurgusu)</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#E85AAD"></span><span class="t">Yarı Römork İşlemlerinde Şasi Kısıtlaması - 8h</span><span class="est">8</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">[BUG] Canlı İhalede Teklif Adedinin Sayfa Büyütüldüğünde Kayması</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">[BUG] Hatalı Şasi Mailinin Gönderilmemesi Hk.</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">[BUG] İhale Listesinde Profil Fotoğrafının Gösterilmemesi Hk.</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">[BUG] İhaleye Eklenen Araçların Tramer Okuma Hatası</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Blurların Parametrik Yönetilmesi BNI Ekran Yönetimi</span><span class="est">4</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Blurların parametrik yönetilmesi Mobil ve Web Servislere Eklenmesi</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">BNI Ekspertiz Pdf ve İhalede Ekspertiz Açıklamasının Düzenlenmesi BE</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Canlı İhale Ekranında Ekspertiz fotoğraflarına Ek Olarak Hasar Görsellerinin de Gösterilmesi</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Canlı İhalede Ekspertiz Renklerinin Güncellenmesi</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">DWH Tablo Güncellemeler</span><span class="est">24</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz Dönüş Taskı FE</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz Dönüşleri BE</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz Talep Ekranı Test Dönüşleri</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">İhale Araç Kartında Hasar Fotoğraflarının Gösterimi Hk.</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">İhale Temel Metrikler Raporunun Jarviste Görüntülenmesi BE - 2h</span><span class="est">2</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">İhale Temel Metrikler Raporunun Jarviste Görüntülenmesi FE - 4h</span><span class="est">2</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;AuctionSummary&gt;().HasNoKey();</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;BAI_Recommendations&gt;().HasNoKey().ToView(&quot;vw_BAI_Recommendations&quot;, &quot;bod&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;CompletedBids&gt;().HasNoKey().ToView(&quot;vw_JARVIS_CompletedBids&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;CustomerMonthly&gt;().HasNoKey().ToView(&quot;vw_JARVIS_CustomerMonthly&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;CustomerSummary&gt;().HasNoKey().ToView(&quot;vw_JARVIS_CustomerSummary&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;FactSellerVehicleBid&gt;().HasNoKey().ToView(&quot;vw_JARVIS_FactSellerVehicleBid&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">modelBuilder.Entity&lt;LiveAuctionBid&gt;().HasNoKey().ToView(&quot;vw_JARVIS_LiveAuctionVehicleBid&quot;);</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">Satıcı Performans Listesi ve Excel Alanında Teklif Adedi Alanının Boş Gösterilmesi - 3h</span><span class="est">3</span></li>
+<li><span class="dot" style="--c:#2DA44E"></span><span class="t">deneme</span></li>
+  </ul>
+</section></div>
+</div>
+<script>
+(() => {
+  // Maddeler slaytına sığana kadar yazı boyutunu küçült
+  const list = document.querySelector('.list');
+  let fs = 22;
+  const fits = () => list.scrollWidth <= list.clientWidth + 1 && list.scrollHeight <= list.clientHeight + 1;
+  list.style.setProperty('--fs', fs + 'px');
+  while (!fits() && fs > 11) { fs -= 0.5; list.style.setProperty('--fs', fs + 'px'); }
+  document.body.dataset.fitted = fs;
+  const scale = () => document.documentElement.style.setProperty('--s',
+    Math.min(1, (innerWidth - 32) / 1920).toFixed(4));
+  scale(); addEventListener('resize', scale);
+})();
+</script>
+</body>
+</html>

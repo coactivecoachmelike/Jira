@@ -102,12 +102,13 @@ python3 $D/build_slides.py --from-export veri.tsv --clean-titles --unit SP -o sl
 node $D/export_png.mjs slaytlar.html slayt     # -> slayt-1.png, slayt-2.png (1920x1080)
 ```
 
-- **Slayt 1 – Metrikler:** her grafik iki versiyonlu (İş adedi | Original Estimate):
-  planlanan vs. tamamlanan oranı, statü dağılımı, kişi bazında, iş tipi kırılımı ve
-  lead time histogramı (Created → Closed, gün; medyan/ortalama/en uzun).
+- **Slayt 1 – Metrikler:** planlanan vs. tamamlanan oranı, statü dağılımı, kişi bazında
+  ve iş tipi kırılımı iki versiyonlu (İş adedi | Original Estimate). Lead time histogramı
+  (Created → Closed, gün; medyan/ortalama/en uzun) yalnızca iş adedi üzerinden.
 - **İş tipi kuralı** (GitHub issue type yoksa): başlıkta `[BUG]` → Bug; `DD Project Name`
-  dolu → Proje işi; başlıkta operasyonel anahtar kelime (işlemler, toplantı, takvim,
-  kurulum, inceleme, migration, dependabot, destek süreci, deployment) → Task; kalanlar
+  dolu → Proje işi; başlıkta operasyonel anahtar kelime (işlemler/işlemleri, toplantı,
+  takvim, kurulum, incele, migration, dependabot, destek süreci, deployment, task,
+  dönüşleri, modelbuilder, dwh — düzenli ifade, Türkçe küçük harfle aranır) → Task; kalanlar
   User Story. Export'a `Type` sütunu eklenirse o kullanılır. Anahtar kelimeler
   `--task-keyword`, proje alanı `--project-field` ile değiştirilebilir. Betik her tipe
   düşen başlıkları konsola yazar — kullanıcıya bu sınıflandırmayı doğrulat.
@@ -123,8 +124,10 @@ node $D/export_png.mjs slaytlar.html slayt     # -> slayt-1.png, slayt-2.png (19
 Kullanıcı GitHub'dan indirdiği bir `.tsv`/`.csv` verirse `--from-export` kullan; API
 erişimi gerekmez. Dikkat edilecekler:
 - Dosyada renk bilgisi yoktur; statü renkleri isimden tahmin edilir (Backlog gri,
-  Todo mavi, In Progress sarı, Test turuncu, UAT pembe, Blocked kırmızı, Done yeşil;
-  bilinmeyenler gri). Statü sırası dosyadaki ilk görülme sırasıdır.
+  Todo mavi, In Progress sarı, Review mor, Test turuncu, UAT pembe, Blocked kırmızı,
+  Done/Released yeşil; bilinmeyenler gri). Bilinen statüler iş akışı sırasına dizilir
+  (Backlog → Todo → In Progress → Review → Test → UAT → Done → Released).
+- Takım başına ayrı export gelirse her biri için ayrı klasöre (`sunum/<takım>/`) üret.
 - Yalnızca görünümde açık olan sütunlar dışa aktarılır. `Original Estimate` sütunu
   yoksa grafikler **iş adedi** üzerinden çizilir ve raporda not düşülür — kullanıcıya
   eforlu oran için alanı görünüme ekleyip yeniden dışa aktarmasını öner.

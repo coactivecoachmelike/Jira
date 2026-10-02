@@ -48,8 +48,14 @@ DEFAULT_STATUS_COLORS = {
     "in progress": "YELLOW", "devam ediyor": "YELLOW", "geliştirmede": "YELLOW",
     "in review": "PURPLE", "review": "PURPLE", "code review": "PURPLE",
     "test": "ORANGE", "qa": "ORANGE", "uat": "PINK", "blocked": "RED", "engelli": "RED",
+    "released": "GREEN", "yayında": "GREEN",
     "done": "GREEN", "tamamlandı": "GREEN", "closed": "GREEN", "canlıda": "GREEN",
 }
+# Export'ta pano sırası yok; bilinen statüler iş akışı sırasına dizilir
+STATUS_RANK = {"backlog": 0, "todo": 1, "to do": 1, "yapılacak": 1, "in progress": 2,
+               "geliştirmede": 2, "devam ediyor": 2, "blocked": 2.5, "engelli": 2.5,
+               "in review": 3, "review": 3, "code review": 3, "test": 4, "qa": 4, "uat": 5,
+               "done": 6, "tamamlandı": 6, "closed": 6, "released": 7, "canlıda": 7, "yayında": 7}
 COUNT_FIELD = "__count__"
 
 DEFAULT_DONE = ["done", "tamamlandı", "tamamlandi", "completed", "closed",
@@ -364,7 +370,8 @@ def load_export(path: str, status_field: str) -> dict:
         "statusField": status_field,
         # TSV sütun sırası pano kolon sırasını izler; renkler isimden tahmin edilir
         "statusOptions": [{"name": n, "color": DEFAULT_STATUS_COLORS.get(n.lower(), "GRAY"),
-                           "description": ""} for n in seen],
+                           "description": ""}
+                          for n in sorted(seen, key=lambda n: STATUS_RANK.get(n.lower(), 3.5))],
         "numberFields": [{"name": c, "databaseId": None} for c in number_fields],
         "items": items,
     }
