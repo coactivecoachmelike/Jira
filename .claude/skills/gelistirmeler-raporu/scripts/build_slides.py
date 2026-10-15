@@ -106,10 +106,37 @@ def parse_ts(s):
         return None
 
 
-def lead_days(it: dict):
-    c, d = parse_ts(it.get("created")), parse_ts(it.get("closed"))
-    if c and d and d >= c:
-        return (d - c).total_seconds() / 86400
+def sprint_starts(specs: list[str], days: int) -> callable:
+    """'Sprint 4=2026-10-05' tanımlarından sprint adı → başlangıç tarihi çözücü.
+    Tanımı olmayan sprint, numarası ve en yakın tanımlı sprint üzerinden sprint
+    uzunluğuyla hesaplanır (Sprint n = çapa + (n - çapa_n) × gün)."""
+    known: dict[int, dt.datetime] = {}
+    for sp in specs:
+        name, _, date = sp.partition("=")
+        m = re.search(r"(\d+)", name)
+        if not m or not date:
+            sys.exit(f"--sprint-start biçimi 'Sprint 4=2026-10-05' olmalı: {sp}")
+        known[int(m.group(1))] = dt.datetime.fromisoformat(date.strip()).replace(tzinfo=dt.timezone.utc)
+
+    def start(name: str):
+        m = re.search(r"(\d+)", name or "")
+        if not m or not known:
+            return None
+        n = int(m.group(1))
+        if n in known:
+            return known[n]
+        anchor = min(known, key=lambda k: abs(k - n))
+        return known[anchor] + dt.timedelta(days=(n - anchor) * days)
+    return start
+
+
+def lead_days(it: dict, start):
+    """Biten işin lead time'ı: Original Sprint doluysa o sprintin, değilse işin
+    sprintinin başlangıcından Closed tarihine kadar geçen gün."""
+    d = parse_ts(it.get("closed"))
+    s0 = start(it["origin"] or it["sprint"])
+    if it["done"] and d and s0:
+        return max((d - s0).total_seconds() / 86400, 0.0)
     return None
 
 
@@ -279,24 +306,36 @@ def build(a) -> None:
     task_kw = [tr_lower(k) for k in (a.task_keyword or DEFAULT_TASK_KEYWORDS)]
 
     rows = mc["rows"]
-    has_xfield = any(a.xurrent_field in r["fields"] for r in rows)
-    has_origin = any(a.origin_field in r["fields"] for r in rows)
+    cols = data.get("columns")
+    has_xfield = a.xurrent_field in cols if cols else any(a.xurrent_field in r["fields"] for r in rows)
+    has_origin = a.origin_field in cols if cols else any(a.origin_field in r["fields"] for r in rows)
+    start_of = sprint_starts(a.sprint_start or [], a.sprint_days)
+    title_fallback = []
     for r in rows:
         v = r["fields"].get(est_field) if est_field else None
         r["est"] = float(v) if isinstance(v, (int, float)) else 0.0
         xf = r["fields"].get(a.xurrent_field)
+        m = XNO_RE.match(r["raw_title"])
         if xf not in (None, ""):
             r["xno"] = re.sub(r"\.0$", "", str(xf)).strip()
         else:
-            m = XNO_RE.match(r["raw_title"])
+            # Sütun boşsa başlıktaki numara; sütun varsa bunu veri eksiği olarak raporla
             r["xno"] = m.group(1) if m else None
+            if m and has_xfield:
+                title_fallback.append(f'#{(r.get("url") or "").rsplit("/", 1)[-1]} → {m.group(1)}')
         r["origin"] = str(r["fields"].get(a.origin_field) or "").strip()
+        r["sprint"] = str(r["fields"].get(a.sprint_field) or "").strip()
         r["kind"] = classify(r, a.project_field, task_kw)
-        r["lead"] = lead_days(r)
+        r["lead"] = lead_days(r, start_of)
         r["mid"] = has_label(r, a.mid_label)
         r["tb"] = has_label(r, a.tb_label)
     if not has_xfield:
         warnings.append(f"'{a.xurrent_field}' sütunu yok; talep no başlıktaki numaradan alındı")
+    if title_fallback:
+        warnings.append(f"'{a.xurrent_field}' boş ama başlıkta numara olan işler başlıktaki numarayla "
+                        f"gruplandı: {', '.join(title_fallback)}")
+    if not a.sprint_start:
+        warnings.append("--sprint-start verilmedi; lead time hesaplanamadı")
     if not has_origin:
         warnings.append(f"'{a.origin_field}' sütunu yok; aktarılan iş belirteci gösterilemedi")
 
@@ -325,10 +364,10 @@ def build(a) -> None:
     # ---- Slayt 2: metrikler
     xg = [g for g in groups if g["xno"]]
     ek = [r for r in rows if not r["xno"]]
-    comp = (completion_block("Xurrent talepleri <small>(distinct)</small>", sum(g["done"] for g in xg),
-                             len(xg), "talep", "Talep, tüm GitHub işleri bitince tamamlanmış sayılır")
-            + completion_block("Ek talepler <small>(Xurrent no'suz)</small>", sum(r["done"] for r in ek),
-                               len(ek), "iş", "GitHub işi adedi"))
+    x_done, e_done_n = sum(g["done"] for g in xg), sum(r["done"] for r in ek)
+    comp = (mini_comp("Toplam <small>(Xurrent + ek)</small>", x_done + e_done_n, len(xg) + len(ek), "talep")
+            + mini_comp("Xurrent talepleri <small>(distinct)</small>", x_done, len(xg), "talep")
+            + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", e_done_n, len(ek), "talep"))
     status_rows = []
     for o in used_opts:
         mem = [r for r in rows if r["status"] == o["name"]]
@@ -369,13 +408,13 @@ def build(a) -> None:
         bins.pop()
     leads = [r["lead"] for r in closed]
     if leads:
-        lead_stats = (f'<div><span>Kapanan iş</span><b>{len(leads)}</b></div>'
+        lead_stats = (f'<div><span>Biten iş</span><b>{len(leads)}</b></div>'
                       f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
         hist = histogram(bins, "c", "var(--ink)")
     else:
-        lead_stats, hist = "", '<div class="emptymsg">Created / Closed verisi yok.</div>'
+        lead_stats, hist = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
 
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
@@ -512,6 +551,12 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .mlabel small {{ font-size:14px; font-weight:400; color:var(--muted); }}
 .mhero {{ font-size:64px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1; }}
 .mini .bar {{ margin:10px 0 10px; }}
+.grid:not(.one) .minis {{ gap:6px; }}
+.grid:not(.one) .mhero {{ font-size:44px; }}
+.grid:not(.one) .mlabel {{ font-size:17px; }}
+.grid:not(.one) .mini .bar {{ margin:6px 0 6px; height:12px; }}
+.grid:not(.one) .mnums {{ font-size:14px; gap:16px; }}
+.grid:not(.one) .mnums b {{ font-size:17px; }}
 .mnums {{ display:flex; gap:22px; font-size:16px; color:var(--muted); }}
 .mnums b {{ color:var(--ink); font-size:20px; font-variant-numeric:tabular-nums; }}
 .dual {{ display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }}
@@ -601,7 +646,8 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <ul class="legend">{legend}</ul>
   </header>
   <div class="grid">
-    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="comps">{comp}</div></div>
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{comp}</div>
+      <div class="pfoot">Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi</div></div>
     <div class="panel"><div class="ptitle">Statü dağılımı</div>{status}</div>
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
@@ -613,7 +659,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r">{tbp}</div>
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
-    <div class="panel"><div class="ptitle">Lead time (Created → Closed, gün)</div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -686,6 +732,9 @@ def main() -> None:
     ap.add_argument("--me")
     ap.add_argument("--status-field", default="Status")
     ap.add_argument("--sprint-field", default="Sprint")
+    ap.add_argument("--sprint-start", action="append",
+                    help="Sprint başlangıcı, ör. 'Sprint 4=2026-10-05' (tekrarlanabilir; eksikler --sprint-days ile türetilir)")
+    ap.add_argument("--sprint-days", type=int, default=14, help="Sprint uzunluğu (gün)")
     ap.add_argument("--estimate-field", default="Original Estimate")
     ap.add_argument("--estimate-field-id", type=int, default=None)
     ap.add_argument("--estimate-label", default="Original Estimate")

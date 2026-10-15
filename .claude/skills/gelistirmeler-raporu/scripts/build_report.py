@@ -44,12 +44,12 @@ NO_STATUS_COLOR = "#C4CAD2"
 
 # Dışa aktarılan TSV/CSV'de renk bilgisi olmadığından bilinen statü adları için renkler
 DEFAULT_STATUS_COLORS = {
-    "backlog": "GRAY", "todo": "BLUE", "to do": "BLUE", "yapılacak": "BLUE",
+    "backlog": "GRAY", "todo": "RED", "to do": "RED", "yapılacak": "RED",
     "in progress": "YELLOW", "devam ediyor": "YELLOW", "geliştirmede": "YELLOW",
     "in review": "PURPLE", "review": "PURPLE", "code review": "PURPLE",
     "test": "ORANGE", "qa": "ORANGE", "uat": "PINK", "blocked": "RED", "engelli": "RED",
     "released": "GREEN", "yayında": "GREEN",
-    "done": "GREEN", "tamamlandı": "GREEN", "closed": "GREEN", "canlıda": "GREEN",
+    "done": "BLUE", "tamamlandı": "BLUE", "closed": "BLUE", "canlıda": "GREEN",
 }
 # Export'ta pano sırası yok; bilinen statüler iş akışı sırasına dizilir
 STATUS_RANK = {"backlog": 0, "todo": 1, "to do": 1, "yapılacak": 1, "in progress": 2,
@@ -373,6 +373,7 @@ def load_export(path: str, status_field: str) -> dict:
                            "description": ""}
                           for n in sorted(seen, key=lambda n: STATUS_RANK.get(n.lower(), 3.5))],
         "numberFields": [{"name": c, "databaseId": None} for c in number_fields],
+        "columns": list(rows[0].keys()) if rows else [],
         "items": items,
     }
 

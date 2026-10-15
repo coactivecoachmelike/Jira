@@ -104,15 +104,17 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
    sağda **"N talep"** (grubun GitHub işi adedi). `Original Sprint` alanı dolu olan
    gruplar sarı **"↪ Aktarıldı: Sprint X"** etiketi ve sarı satır vurgusuyla işaretlenir.
 2. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
-   - Planlanan vs. tamamlanan: **distinct Xurrent talebi** (talep, tüm GitHub işleri
-     bitince tamamlanmış sayılır) ve ayrı oran olarak **ek talepler** (Xurrent no'suz
-     GitHub işleri).
+   - Planlanan vs. tamamlanan: **Toplam** (Xurrent + ek), **distinct Xurrent talebi**
+     (talep, tüm GitHub işleri bitince tamamlanmış sayılır) ve **ek talepler**
+     (Xurrent no'suz GitHub işleri) — üç ayrı oran.
    - Statü dağılımı: iki kolon — Xurrent talebi (grubun en geri statüsü) | GitHub işi.
    - İş tipi kırılımı: GitHub işi | Original Estimate (planlanan/tamamlanan).
    - Sprint ortasında gelen iş: `AddedMidSprint` etiketli ÷ ilk planlanan (etiketsiz),
      hem iş adedi hem OE; altında o işlerin tema adları.
    - Teknik borç payı: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
-   - Lead time histogramı (Created → Closed, yalnız adet).
+   - Lead time histogramı (yalnız adet): **biten** işlerde (Done/Released vb.) sprint
+     başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o sprintin,
+     boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır.
 3. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
    (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
    bazında planlanan vs. tamamlanan (GitHub işi | OE).
@@ -129,9 +131,12 @@ D=sunum/<takım>-<yyyy-mm-dd>
 python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --dump-themes $D/temalar-taslak.json -o $D/slaytlar.html
 # 2) temalar.json yaz: her grup anahtarı → iş biriminin anlayacağı tema adı
 # 3) Son hali üret ve PNG'ye çevir
-python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --themes $D/temalar.json -o $D/slaytlar.html
+python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --sprint-start "Sprint 4=2026-10-05" --themes $D/temalar.json -o $D/slaytlar.html
 node $S/export_png.mjs $D/slaytlar.html $D/slayt      # -> slayt-1..4.png (1920x1080)
 ```
+
+Önceki bir sprintin `temalar.json`'u varsa yeni taslaktaki başlıkları eskisininkilerle
+eşleştirerek adları taşı, yalnızca yeni temaları yaz.
 
 **Tema adları (2. adım) Claude'un işidir:** taslaktaki her grubun `titles` listesine
 bakıp müşterinin / iş biriminin anlayacağı kısa bir ad yaz — BE/FE/servis/Jarvis gibi
@@ -147,9 +152,10 @@ yeniden kullanılabilir).
 
 | Seçenek | Varsayılan | Not |
 |---|---|---|
-| `--xurrent-field` | `Xurrent Talep No` | Sütun yoksa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır |
+| `--xurrent-field` | `Xurrent Talep No` | Sütun esastır (başlıktaki numaradan farklı olabilir). Sütun yoksa ya da hücre boşsa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır; boş hücre için uyarı basılır — kullanıcıya bildir |
 | `--origin-field` | `Original Sprint` | Doluysa "aktarıldı" belirteci; sütun yoksa uyarı verir |
-| `--sprint-field` | `Sprint` | Alt başlıkta gösterilir |
+| `--sprint-field` | `Sprint` | Alt başlıkta gösterilir; lead time başlangıcı |
+| `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
 | `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Teknik borç |
 | `--ready-label` / `--ready-status` | `Ready For Release` / `Done` | Canlıya hazır |
@@ -171,9 +177,9 @@ Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok saya
 
 Kullanıcı GitHub'dan indirdiği bir `.tsv`/`.csv` verirse `--from-export` kullan; API
 erişimi gerekmez. Dikkat edilecekler:
-- Dosyada renk bilgisi yoktur; statü renkleri isimden tahmin edilir (Backlog gri,
-  Todo mavi, In Progress sarı, Review mor, Test turuncu, UAT pembe, Blocked kırmızı,
-  Done/Released yeşil; bilinmeyenler gri). Bilinen statüler iş akışı sırasına dizilir
+- Dosyada renk bilgisi yoktur; statü renkleri isimden atanır (Backlog gri,
+  **Todo kırmızı**, In Progress sarı, Review mor, Test turuncu, UAT pembe, Blocked kırmızı,
+  **Done mavi**, Released yeşil; bilinmeyenler gri). Bilinen statüler iş akışı sırasına dizilir
   (Backlog → Todo → In Progress → Review → Test → UAT → Done → Released).
 - Takım başına ayrı export gelirse her biri için ayrı klasöre (`sunum/<takım>/`) üret.
   Export'ta başka board'lardan satır varsa (`Board` sütununa bak) takımın board'una
