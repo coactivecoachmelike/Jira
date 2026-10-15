@@ -1,6 +1,6 @@
 ---
 name: gelistirmeler-raporu
-description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu üretir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
+description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu ve 4 slaytlık sprint sunumu (Sprint'te Odaklandığımız İşler, Metriklerimiz, Metriklerimiz (Takıma özel), Canlıya Çıkmaya Hazır Olan İşler) üretir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "sprint sunumu", "metriklerimiz", "canlıya hazır işler", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
 ---
 
 # Geliştirmeler Raporu
@@ -91,33 +91,81 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
-## 16:9 sunum slaytları (2 slayt, HTML + PNG)
+## Sprint sunumu (4 slayt, 16:9, HTML + PNG)
 
-Kullanıcı slayt / sunum / 16:9 / PNG isterse `build_slides.py` kullan (veri kaynağı
-seçenekleri aynı):
+Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
+(veri kaynağı seçenekleri `build_report.py` ile aynı). Çıktı her zaman şu 4 slayttır:
+
+1. **Sprint'te Odaklandığımız İşler** — işler **Xurrent Talep No**'ya göre gruplanır
+   (aynı talebin BE/FE/Jarvis işleri tek satır). Talep no'su olmayan işler, sade
+   başlıkları aynıysa (yalnızca BE/FE son eki farklı) birleşir. Her satırda:
+   statü renginde bullet (grubun **en geride** kalan işinin statüsü), kategori etiketi
+   (User Story / Bug / Task / Proje işi), iş birimi diliyle **tema adı**, küçük `#talep no`,
+   sağda **"N talep"** (grubun GitHub işi adedi). `Original Sprint` alanı dolu olan
+   gruplar sarı **"↪ Aktarıldı: Sprint X"** etiketi ve sarı satır vurgusuyla işaretlenir.
+2. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
+   - Planlanan vs. tamamlanan: **distinct Xurrent talebi** (talep, tüm GitHub işleri
+     bitince tamamlanmış sayılır) ve ayrı oran olarak **ek talepler** (Xurrent no'suz
+     GitHub işleri).
+   - Statü dağılımı: iki kolon — Xurrent talebi (grubun en geri statüsü) | GitHub işi.
+   - İş tipi kırılımı: GitHub işi | Original Estimate (planlanan/tamamlanan).
+   - Sprint ortasında gelen iş: `AddedMidSprint` etiketli ÷ ilk planlanan (etiketsiz),
+     hem iş adedi hem OE; altında o işlerin tema adları.
+   - Teknik borç payı: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
+   - Lead time histogramı (Created → Closed, yalnız adet).
+3. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
+   (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
+   bazında planlanan vs. tamamlanan (GitHub işi | OE).
+4. **Canlıya Çıkmaya Hazır Olan İşler** — statüsü `Done` **ve** `Ready For Release`
+   etiketli işler, slayt 1'deki gibi gruplanmış tema adlarıyla. Yanında ayrı başlıkla
+   "Bu sprintte canlıya alınanlar": aynı etiketli olup Released vb. bitmiş statüdeki işler.
+
+### Akış
 
 ```bash
-D=.claude/skills/gelistirmeler-raporu/scripts
-python3 $D/build_slides.py --from-export veri.tsv --clean-titles --unit SP -o slaytlar.html
-node $D/export_png.mjs slaytlar.html slayt     # -> slayt-1.png, slayt-2.png (1920x1080)
+S=.claude/skills/gelistirmeler-raporu/scripts
+D=sunum/<takım>-<yyyy-mm-dd>
+# 1) Grupları ve varsayılan adları çıkar
+python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --dump-themes $D/temalar-taslak.json -o $D/slaytlar.html
+# 2) temalar.json yaz: her grup anahtarı → iş biriminin anlayacağı tema adı
+# 3) Son hali üret ve PNG'ye çevir
+python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --themes $D/temalar.json -o $D/slaytlar.html
+node $S/export_png.mjs $D/slaytlar.html $D/slayt      # -> slayt-1..4.png (1920x1080)
 ```
 
-- **Slayt 1 – Metrikler:** planlanan vs. tamamlanan oranı, statü dağılımı, kişi bazında
-  ve iş tipi kırılımı iki versiyonlu (İş adedi | Original Estimate). Lead time histogramı
-  (Created → Closed, gün; medyan/ortalama/en uzun) yalnızca iş adedi üzerinden.
+**Tema adları (2. adım) Claude'un işidir:** taslaktaki her grubun `titles` listesine
+bakıp müşterinin / iş biriminin anlayacağı kısa bir ad yaz — BE/FE/servis/Jarvis gibi
+teknik ekleri, talep numarasını, "Hk." gibi kısaltmaları at; ne yapıldığını sonuç
+diliyle söyle (ör. "Yeni Üyelik | ... Hatırlatma Maili BE/FE" → "Evraklarını
+tamamlamayan yeni üyelere otomatik hatırlatma e-postası"). Başlıkta olmayan bilgi
+uydurma; emin değilsen başlığa sadık kal. Bug'larda sorunu anlat ("... yaşanan hata").
+`temalar.json` biçimi `{"<grup anahtarı>": "<ad>"}`; anahtarlar taslaktakiyle birebir
+aynı olmalı. Dosyayı çıktı klasöründe sakla (sonraki sprintte aynı talepler için
+yeniden kullanılabilir).
+
+### Alanlar ve etiketler
+
+| Seçenek | Varsayılan | Not |
+|---|---|---|
+| `--xurrent-field` | `Xurrent Talep No` | Sütun yoksa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır |
+| `--origin-field` | `Original Sprint` | Doluysa "aktarıldı" belirteci; sütun yoksa uyarı verir |
+| `--sprint-field` | `Sprint` | Alt başlıkta gösterilir |
+| `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
+| `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Teknik borç |
+| `--ready-label` / `--ready-status` | `Ready For Release` / `Done` | Canlıya hazır |
+| `--team` | proje adı | Alt başlıktaki takım adı |
+
+Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok sayar.
+
 - **İş tipi kuralı** (GitHub issue type yoksa): başlıkta `[BUG]` → Bug; `DD Project Name`
   dolu → Proje işi; başlıkta operasyonel anahtar kelime (işlemler/işlemleri, toplantı,
   takvim, kurulum, incele, migration, dependabot, destek süreci, deployment, task,
   dönüşleri, modelbuilder, dwh — düzenli ifade, Türkçe küçük harfle aranır) → Task; kalanlar
-  User Story. Export'a `Type` sütunu eklenirse o kullanılır. Anahtar kelimeler
-  `--task-keyword`, proje alanı `--project-field` ile değiştirilebilir. Betik her tipe
-  düşen başlıkları konsola yazar — kullanıcıya bu sınıflandırmayı doğrulat.
-- Lead time için export'ta `Created` ve `Closed` sütunları gerekir.
-- **Slayt 2 – Maddeler:** statü sırasına göre renkli bullet'lı 3 kolon liste; yazı
-  boyutu tüm maddeler sığana kadar otomatik küçülür (`export_png.mjs` son boyutu yazar;
-  ~14px altına inerse kullanıcıya listeyi filtrelemeyi öner).
-- PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF
-  (her slayt ayrı sayfa) kullanılabilir.
+  User Story. Grubun kategorisi, işlerinin çoğunluk tipidir. Export'a `Type` sütunu
+  eklenirse o kullanılır.
+- Konsol çıktısındaki özet sayıları (Xurrent / ek / sprint ortası / teknik borç /
+  canlıya hazır) ve uyarıları (eksik sütunlar) kullanıcıya aktar.
+- PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF.
 
 ## Dışa aktarılan TSV/CSV ile çalışma
 
