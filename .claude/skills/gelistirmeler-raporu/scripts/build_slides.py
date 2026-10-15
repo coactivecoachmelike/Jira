@@ -322,7 +322,7 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
         lane = next((l for l in lanes if st in l[1]), lanes[1])
         lane[2].append(g)
     # Kolon genişliği madde + alt başlık sayısıyla orantılı; geniş kolon kendi içinde sütunlara bölünür
-    subs = [max(len(l[2]) + len({g["kind"] for g in l[2]}) // 2, 3) for l in lanes]
+    subs = [max(len(l[2]) + len({g["kind"] for g in l[2]}) // 2, 4) if l[2] else 3 for l in lanes]
     out = []
     for (title, sts, gs), sub in zip(lanes, subs):
         # Tür grupları sabit sırada: Proje işi → User Story → Task → Bug
@@ -703,7 +703,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 /* kanban */
 .board {{ flex:1; min-height:0; display:grid; gap:16px; --kf:17px; }}
 .lane {{ display:flex; flex-direction:column; min-height:0; background:#F7F9FB; border-radius:14px; padding:12px 14px; }}
-.lhead {{ display:flex; align-items:baseline; gap:10px; padding:4px 4px 10px; margin-bottom:10px;
+.lhead {{ display:flex; flex-wrap:wrap; row-gap:2px; align-items:baseline; gap:10px; overflow:hidden; padding:4px 4px 10px; margin-bottom:10px;
   border-bottom:4px solid var(--c); font-size:21px; font-weight:700; }}
 .lhead b {{ font-size:15px; background:var(--c); color:#fff; border-radius:999px; padding:1px 10px; }}
 .lhead small {{ margin-left:auto; font-size:13px; font-weight:500; color:var(--muted); white-space:nowrap; }}
