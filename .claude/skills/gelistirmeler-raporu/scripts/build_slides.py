@@ -278,7 +278,7 @@ def histogram(bins: list[dict], key: str, color: str) -> str:
     return f'<div class="hist"><div class="hplot">{cols}</div><div class="hx">{labels}</div></div>'
 
 
-def group_li(g: dict, hexes: dict, origin_label: str) -> str:
+def group_li(g: dict, hexes: dict, origin_label: str, show_cat: bool = True) -> str:
     n = len(g["items"])
     carry = ""
     if g["carry"]:
@@ -288,9 +288,22 @@ def group_li(g: dict, hexes: dict, origin_label: str) -> str:
     xno = f'<span class="xno">#{esc(g["xno"])}</span>' if g["xno"] else ""
     return (f'<li class="{"carried" if g["carry"] else ""}" title="{esc(tip)}">'
             f'<span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
-            f'<span class="t"><span class="cat {CAT_CLASS[g["kind"]]}">{esc(g["kind"])}</span> '
-            f'{esc(g["name"])}{carry}{xno}</span>'
-            f'<span class="cnt">{n} talep</span></li>')
+            f'<span class="t">'
+            + (f'<span class="cat {CAT_CLASS[g["kind"]]}">{esc(g["kind"])}</span> ' if show_cat else "")
+            + f'{esc(g["name"])}{carry}{xno}</span>'
+            + (f'<span class="cnt">{n} talep</span>' if n > 1 else "") + '</li>')
+
+
+def grouped_list(groups: list[dict], hexes: dict, origin_label: str, empty: str) -> str:
+    """Liste maddelerini iş tipine göre Proje → User Story → Task → Bug alt başlıklarıyla dizer."""
+    out = []
+    for kind in KANBAN_KIND_ORDER:
+        kg = [g for g in groups if g["kind"] == kind]
+        if kg:
+            out.append(f'<li class="lgroup"><span class="khead {CAT_CLASS[kind]}">{esc(KIND_TITLE[kind])}'
+                       f'<span>{len(kg)}</span></span></li>')
+            out += [group_li(g, hexes, origin_label, show_cat=False) for g in kg]
+    return "\n".join(out) or f'<li class="empty">{empty}</li>'
 
 
 # Kanban kolonları: (başlık, statüler). Bilinmeyen statü "Geliştirmede" kolonuna düşer.
@@ -546,14 +559,13 @@ def build(a) -> None:
     ready_groups = group_items(ready_rows, order, themes)
     released = [r for r in rows if tr_lower(r["status"]) not in ready_st and r["done"]
                 and has_label(r, a.ready_label)]
-    ready_html = "\n".join(group_li(g, hexes, a.origin_field) for g in ready_groups) \
-        or '<li class="empty">Bu kriterde iş yok.</li>'
+    ready_html = grouped_list(ready_groups, hexes, a.origin_field, "Bu kriterde iş yok.")
     rel_groups = group_items(released, order, themes)
-    released_html = "\n".join(group_li(g, hexes, a.origin_field) for g in rel_groups) \
-        or '<li class="empty">Yok.</li>'
+    released_html = grouped_list(rel_groups, hexes, a.origin_field, "Yok.")
     rel_status = ", ".join(sorted({r["status"] for r in released})) or "—"
-    ready_note = (f'Canlıya hazır: statü {", ".join(a.ready_status)} + "{esc(a.ready_label[0])}" etiketi · '
-                  f'Canlıya alınan: "{esc(a.ready_label[0])}" etiketli ve {esc(rel_status)} statüsünde')
+    lbls = " / ".join(f'"{esc(x)}"' for x in a.ready_label[:2])
+    ready_note = (f'Canlıya hazır (release bekleyen): statü {", ".join(a.ready_status)} + {lbls} etiketi · '
+                  f'Canlıya alınan: aynı etiketlerden biri ve {esc(rel_status)} statüsünde')
 
     proj = data.get("project") or {}
     sprints = sorted({str(r["fields"].get(a.sprint_field) or "") for r in rows} - {""})
@@ -752,6 +764,8 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .khead.task {{ background:#ECEDEF; color:#4A5363; }}
 .kmeta {{ font-size:.7em; color:var(--muted); white-space:nowrap; }}
 .lempty {{ color:var(--muted); text-align:center; padding:20px 0; }}
+.list li.lgroup {{ border:0; padding:calc(var(--fs) * .6) 0 calc(var(--fs) * .15); break-after:avoid; }}
+.list li.lgroup .khead {{ width:100%; font-size:calc(var(--fs) * .62); }}
 .rnote {{ font-size:16px; color:var(--muted); margin-top:14px; }}
 @media print {{
   @page {{ size:1920px 1080px; margin:0; }}
@@ -816,7 +830,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <ul class="legend">{focus_key}</ul>
   </header>
   <div class="rgrid">
-    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <b>{n_ready}</b></div>
+    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>{n_ready}</b></div>
       <ul class="list" style="--cols:1;--max:30">
 {ready}
       </ul></div>
@@ -904,7 +918,7 @@ def main() -> None:
     a = ap.parse_args()
     a.mid_label = a.mid_label or ["AddedMidSprint"]
     a.tb_label = a.tb_label or ["TB", "Teknik Borç", "Tech Debt"]
-    a.ready_label = a.ready_label or ["Ready For Release"]
+    a.ready_label = a.ready_label or ["Ready For Release", "WaitingRelease", "Waiting For Release"]
     a.ready_status = a.ready_status or ["Done"]
     a.lead_status = a.lead_status or ["Done", "Released"]
     build(a)

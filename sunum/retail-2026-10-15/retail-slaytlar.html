@@ -155,6 +155,8 @@ h1 span { color:var(--accent); font-weight:600; }
 .khead.task { background:#ECEDEF; color:#4A5363; }
 .kmeta { font-size:.7em; color:var(--muted); white-space:nowrap; }
 .lempty { color:var(--muted); text-align:center; padding:20px 0; }
+.list li.lgroup { border:0; padding:calc(var(--fs) * .6) 0 calc(var(--fs) * .15); break-after:avoid; }
+.list li.lgroup .khead { width:100%; font-size:calc(var(--fs) * .62); }
 .rnote { font-size:16px; color:var(--muted); margin-top:14px; }
 @media print {
   @page { size:1920px 1080px; margin:0; }
@@ -302,24 +304,29 @@ Released · BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapa
     <ul class="legend"><li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li><li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li><li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li></ul>
   </header>
   <div class="rgrid">
-    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <b>0</b></div>
+    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>2</b></div>
       <ul class="list" style="--cols:1;--max:30">
-<li class="empty">Bu kriterde iş yok.</li>
+<li class="lgroup"><span class="khead bug">Bug<span>2</span></span></li>
+<li class="" title="Done · [BUG] Kullanıcı Verilerine Yetkisiz Erişim (IDOR) Denetim Bulgusu"><span class="dot" style="--c:#218BFF"></span><span class="t">Kullanıcı verilerine yetkisiz erişim açığı (IDOR, denetim bulgusu)</span></li>
+<li class="" title="Done · [BUG] Yetersiz Sunucu Taraflı Kontroller"><span class="dot" style="--c:#218BFF"></span><span class="t">Sunucu tarafı kontrollerin yetersiz olması (denetim bulgusu)</span></li>
       </ul></div>
     <div class="rsec done"><div class="rtitle">Bu sprintte canlıya alınanlar <b>9</b> <small>(Released)</small></div>
       <ul class="list" style="--cols:1;--max:22">
-<li class="" title="Released · Agentless Call Center Aranmama Talebinin Müşteriye Bağlı Tüm Kayıtlara Uygulanması"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat proj">Proje işi</span> Agentless Call Center: aranmama talebinin müşterinin tüm kayıtlarına uygulanması</span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · 83249752 &gt;Web FE Araba Al Filtresinin “Opsiyonsuz Arabalar” Olarak Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Araba Al filtresinin &quot;Opsiyonsuz arabalar&quot; olarak güncellenmesi (Web)<span class="xno">#83249752</span></span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · borusannext.com Filtre Kontrolü"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> borusannext.com filtrelerinin kontrolü<span class="xno">#83701817</span></span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · CMS Banner MobilResponsive İmage Ekleme Alanı"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> CMS banner&#x27;larına mobil uyumlu görsel ekleme alanı</span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · BE SAD ve DU çift rol Atama Geliştirmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Değerleme uzmanının kendi değerleme sonucunu görebilmesi ve SAD/DU çift rol ataması<span class="xno">#84196413</span></span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · Kişiselleştirme Projesi Sözleşme Sorgulama Servisinin Bff e Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat proj">Proje işi</span> Kişiselleştirme: sözleşme sorgulama servisinin uygulama katmanına eklenmesi</span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · [BUG] Motosiklet Seçiminde Araba Markaları Listelenmektedir."><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat bug">Bug</span> Motosiklet seçiminde araba markalarının listelenmesi</span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapanış Kontrolleri - 4h - BCF-1634"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Randevu ayarlarında pazar günü slot açma/kapama kontrolleri</span><span class="cnt">1 talep</span></li>
-<li class="" title="Released · [BUG] Statü Değiştiğinde Ekspertizin Kontrol Dışı Kalma Durumu"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat bug">Bug</span> Statü değişiminde ekspertizin kontrol dışı kalması</span><span class="cnt">1 talep</span></li>
+<li class="lgroup"><span class="khead proj">Proje<span>2</span></span></li>
+<li class="" title="Released · Agentless Call Center Aranmama Talebinin Müşteriye Bağlı Tüm Kayıtlara Uygulanması"><span class="dot" style="--c:#2DA44E"></span><span class="t">Agentless Call Center: aranmama talebinin müşterinin tüm kayıtlarına uygulanması</span></li>
+<li class="" title="Released · Kişiselleştirme Projesi Sözleşme Sorgulama Servisinin Bff e Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Kişiselleştirme: sözleşme sorgulama servisinin uygulama katmanına eklenmesi</span></li>
+<li class="lgroup"><span class="khead story">User Story<span>5</span></span></li>
+<li class="" title="Released · 83249752 &gt;Web FE Araba Al Filtresinin “Opsiyonsuz Arabalar” Olarak Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Araba Al filtresinin &quot;Opsiyonsuz arabalar&quot; olarak güncellenmesi (Web)<span class="xno">#83249752</span></span></li>
+<li class="" title="Released · borusannext.com Filtre Kontrolü"><span class="dot" style="--c:#2DA44E"></span><span class="t">borusannext.com filtrelerinin kontrolü<span class="xno">#83701817</span></span></li>
+<li class="" title="Released · CMS Banner MobilResponsive İmage Ekleme Alanı"><span class="dot" style="--c:#2DA44E"></span><span class="t">CMS banner&#x27;larına mobil uyumlu görsel ekleme alanı</span></li>
+<li class="" title="Released · BE SAD ve DU çift rol Atama Geliştirmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Değerleme uzmanının kendi değerleme sonucunu görebilmesi ve SAD/DU çift rol ataması<span class="xno">#84196413</span></span></li>
+<li class="" title="Released · BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapanış Kontrolleri - 4h - BCF-1634"><span class="dot" style="--c:#2DA44E"></span><span class="t">Randevu ayarlarında pazar günü slot açma/kapama kontrolleri</span></li>
+<li class="lgroup"><span class="khead bug">Bug<span>2</span></span></li>
+<li class="" title="Released · [BUG] Motosiklet Seçiminde Araba Markaları Listelenmektedir."><span class="dot" style="--c:#2DA44E"></span><span class="t">Motosiklet seçiminde araba markalarının listelenmesi</span></li>
+<li class="" title="Released · [BUG] Statü Değiştiğinde Ekspertizin Kontrol Dışı Kalma Durumu"><span class="dot" style="--c:#2DA44E"></span><span class="t">Statü değişiminde ekspertizin kontrol dışı kalması</span></li>
       </ul></div>
   </div>
-  <div class="rnote">Canlıya hazır: statü Done + "Ready For Release" etiketi · Canlıya alınan: "Ready For Release" etiketli ve Released statüsünde</div>
+  <div class="rnote">Canlıya hazır (release bekleyen): statü Done + "Ready For Release" / "WaitingRelease" etiketi · Canlıya alınan: aynı etiketlerden biri ve Released statüsünde</div>
 </section></div>
 
 </div>

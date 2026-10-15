@@ -126,9 +126,12 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
 3. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
    (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
    bazında planlanan vs. tamamlanan (GitHub işi | OE).
-4. **Canlıya Çıkmaya Hazır Olan İşler** — statüsü `Done` **ve** `Ready For Release`
-   etiketli işler, slayt 1'deki gibi gruplanmış tema adlarıyla. Yanında ayrı başlıkla
-   "Bu sprintte canlıya alınanlar": aynı etiketli olup Released vb. bitmiş statüdeki işler.
+4. **Canlıya Çıkmaya Hazır Olan İşler** — statüsü `Done` **ve** `Ready For Release` ya da
+   `WaitingRelease` / `Waiting For Release` etiketli işler (release bekleyenler), slayt
+   1'deki gibi gruplanmış tema adlarıyla. Yanında ayrı başlıkla "Bu sprintte canlıya
+   alınanlar": aynı etiketlerden biri olup Released vb. bitmiş statüdeki işler. Her iki
+   kolonda maddeler kanbandaki gibi **Proje → User Story → Task → Bug** alt başlıkları
+   altında gruplanır; maddelerde tür etiketi yoktur, "N talep" yalnız birden fazlaysa yazar.
 
 ### Akış
 
@@ -170,7 +173,7 @@ yeniden kullanılabilir).
 | `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
 | `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Teknik borç |
-| `--ready-label` / `--ready-status` | `Ready For Release` / `Done` | Canlıya hazır |
+| `--ready-label` / `--ready-status` | `Ready For Release`, `WaitingRelease`, `Waiting For Release` / `Done` | Canlıya hazır (release bekleyen) |
 | `--team` | proje adı | Alt başlıktaki takım adı |
 
 Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok sayar.
