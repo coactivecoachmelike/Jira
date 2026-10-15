@@ -96,13 +96,17 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
 (veri kaynağı seçenekleri `build_report.py` ile aynı). Çıktı her zaman şu 4 slayttır:
 
-1. **Sprint'te Odaklandığımız İşler** — işler **Xurrent Talep No**'ya göre gruplanır
-   (aynı talebin BE/FE/Jarvis işleri tek satır). Talep no'su olmayan işler, sade
-   başlıkları aynıysa (yalnızca BE/FE son eki farklı) birleşir. Her satırda:
-   statü renginde bullet (grubun **en geride** kalan işinin statüsü), kategori etiketi
-   (User Story / Bug / Task / Proje işi), iş birimi diliyle **tema adı**, küçük `#talep no`,
-   sağda **"N talep"** (grubun GitHub işi adedi). `Original Sprint` alanı dolu olan
-   gruplar sarı **"↪ Aktarıldı: Sprint X"** etiketi ve sarı satır vurgusuyla işaretlenir.
+1. **Sprint'te Odaklandığımız İşler** — kanban düzeni: 5 kolon (Yapılacak: Backlog/Todo ·
+   Geliştirmede: In Progress/Review/Blocked · Test: Test/UAT · Tamamlandı: Done ·
+   Canlıda: Released). Kolon genişliği talep sayısıyla orantılı, kalabalık kolon kendi
+   içinde sütunlara bölünür; yazı boyutu en kalabalık kolon sığana kadar küçülür.
+   Kolonlarda kart değil **madde** (bullet) vardır. İşler **Xurrent Talep No**'ya göre
+   gruplanır (aynı talebin BE/FE/Jarvis işleri tek madde); talep no'su olmayan işler, sade
+   başlıkları aynıysa (yalnızca BE/FE son eki farklı) birleşir. Her maddede: statü renginde
+   bullet (grubun **en geride** kalan işinin statüsü), kategori etiketi (User Story / Bug /
+   Task / Proje işi), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
+   statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
+   işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
 2. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
    - Planlanan vs. tamamlanan: **Toplam** (Xurrent + ek), **distinct Xurrent talebi**
      (talep, tüm GitHub işleri bitince tamamlanmış sayılır) ve **ek talepler**
