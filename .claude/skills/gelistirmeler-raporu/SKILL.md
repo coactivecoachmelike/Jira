@@ -152,7 +152,10 @@ teknik ekleri, talep numarasını, "Hk." gibi kısaltmaları at; ne yapıldığ�
 diliyle söyle (ör. "Yeni Üyelik | ... Hatırlatma Maili BE/FE" → "Evraklarını
 tamamlamayan yeni üyelere otomatik hatırlatma e-postası"). Başlıkta olmayan bilgi
 uydurma; emin değilsen başlığa sadık kal. Bug'larda sorunu anlat ("... yaşanan hata").
-`temalar.json` biçimi `{"<grup anahtarı>": "<ad>"}`; anahtarlar taslaktakiyle birebir
+`temalar.json` biçimi `{"<grup anahtarı>": "<ad>"}`; talep no'su olmayan farklı
+anahtarlara **aynı ad** verilirse tek madde olarak birleşir ve yanında "N talep" yazar — aynı
+talebin otomatik birleşmeyen parçalarını (ör. "Toplu Sevk BE İhtiyaçları" + "Toplu Sevk FE
+Bağlamalar", "(SAP)" + "(Boomi)") böyle birleştir; anahtarlar taslaktakiyle birebir
 aynı olmalı. Dosyayı çıktı klasöründe sakla (sonraki sprintte aynı talepler için
 yeniden kullanılabilir).
 
@@ -161,6 +164,7 @@ yeniden kullanılabilir).
 | Seçenek | Varsayılan | Not |
 |---|---|---|
 | `--xurrent-field` | `Xurrent Talep No` | Sütun esastır (başlıktaki numaradan farklı olabilir). Sütun yoksa ya da hücre boşsa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır; boş hücre için uyarı basılır — kullanıcıya bildir |
+| `--ignore-xurrent` | kapalı | **Takım istisnası (Back Office):** Xurrent Talep No yok sayılır; planlanan vs. tamamlanan yalnız "GitHub talepleri" (iş adedi), statü dağılımı tek kolon (GitHub işi), OE paneli yalnız Toplam. Gruplama sadece BE/FE gibi parçalar üzerinden yapılır |
 | `--origin-field` | `Original Sprint` | Değer `3` ya da `Sprint 3` olabilir. İşin `Sprint`'inden farklıysa "aktarıldı" belirteci gösterilir (aynıysa gösterilmez); sütun yoksa uyarı verir |
 | `--sprint-field` | `Sprint` | Alt başlıkta gösterilir; lead time başlangıcı |
 | `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
@@ -189,7 +193,8 @@ erişimi gerekmez. Dikkat edilecekler:
   **Todo kırmızı**, In Progress sarı, Review mor, Test turuncu, UAT pembe, Blocked kırmızı,
   **Done mavi**, Released yeşil; bilinmeyenler gri). Bilinen statüler iş akışı sırasına dizilir
   (Backlog → Todo → In Progress → Review → Test → UAT → Done → Released).
-- Takım başına ayrı export gelirse her biri için ayrı klasöre (`sunum/<takım>/`) üret.
+- Takım başına ayrı export gelirse her biri için ayrı klasöre (`sunum/<takım>-<tarih>/`) üret.
+  Back Office Squad için her zaman `--ignore-xurrent` kullan.
   Export'ta başka board'lardan satır varsa (`Board` sütununa bak) takımın board'una
   filtrele, ör. `--filter 'board:"Back Office"'`, ve dışarıda kalanları kullanıcıya söyle.
 - Yalnızca görünümde açık olan sütunlar dışa aktarılır. `Original Estimate` sütunu

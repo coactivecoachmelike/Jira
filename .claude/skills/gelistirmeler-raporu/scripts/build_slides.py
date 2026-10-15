@@ -167,12 +167,21 @@ def group_items(rows: list[dict], order: dict, themes: dict) -> list[dict]:
             key = ("bug:" if r["kind"] == "Bug" else "") + tr_lower(base_title(r["raw_title"]))
         g = groups.setdefault(key, {"key": key, "xno": r["xno"], "items": []})
         g["items"].append(r)
-    out = []
+    # temalar.json'da aynı ad verilen talep no'suz gruplar tek madde olur (ör. BE + FE, SAP + Boomi)
+    merged: dict[str, dict] = {}
     for g in groups.values():
         its = g["items"]
         default = min((base_title(i["raw_title"]) for i in its), key=len) or its[0]["title"]
         th = themes.get(g["key"])
         g["name"] = (th.get("name") if isinstance(th, dict) else th) or default
+        mkey = g["xno"] or ("name:" + tr_lower(g["name"]) if th else g["key"])
+        if mkey in merged:
+            merged[mkey]["items"].extend(its)
+        else:
+            merged[mkey] = g
+    out = []
+    for g in merged.values():
+        its = g["items"]
         kinds = collections.Counter(i["kind"] for i in its)
         g["kind"] = sorted(kinds, key=lambda k: (-kinds[k], TYPES.index(k)))[0]
         g["status"] = min((i["status"] for i in its), key=lambda s: order.get(s, 999))
@@ -389,7 +398,9 @@ def build(a) -> None:
         r["est"] = float(v) if isinstance(v, (int, float)) else 0.0
         xf = r["fields"].get(a.xurrent_field)
         m = XNO_RE.match(r["raw_title"])
-        if xf not in (None, ""):
+        if a.ignore_xurrent:
+            r["xno"] = None
+        elif xf not in (None, ""):
             r["xno"] = re.sub(r"\.0$", "", str(xf)).strip()
         else:
             # Sütun boşsa başlıktaki numara; sütun varsa bunu veri eksiği olarak raporla
@@ -440,9 +451,15 @@ def build(a) -> None:
     xg = [g for g in groups if g["xno"]]
     ek = [r for r in rows if not r["xno"]]
     x_done, e_done_n = sum(g["done"] for g in xg), sum(r["done"] for r in ek)
-    comp = (mini_comp("Toplam <small>(Xurrent + ek)</small>", x_done + e_done_n, len(xg) + len(ek), "talep")
-            + mini_comp("Xurrent talepleri <small>(distinct)</small>", x_done, len(xg), "talep")
-            + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", e_done_n, len(ek), "talep"))
+    if a.ignore_xurrent:
+        comp = completion_block("GitHub talepleri", e_done_n, len(ek), "talep")
+    else:
+        comp = (mini_comp("Toplam <small>(Xurrent + ek)</small>", x_done + e_done_n, len(xg) + len(ek), "talep")
+                + mini_comp("Xurrent talepleri <small>(distinct)</small>", x_done, len(xg), "talep")
+                + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", e_done_n, len(ek), "talep"))
+    comp_note = ("GitHub işi (talep) adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
+                 if a.ignore_xurrent else
+                 "Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi")
     status_rows = []
     for o in used_opts:
         mem = [r for r in rows if r["status"] == o["name"]]
@@ -501,9 +518,10 @@ def build(a) -> None:
     missing = sum(1 for r in rows if not r["est"])
     oe = (mini_comp("Toplam", sum(r["est"] for r in rows if r["done"]), sum(r["est"] for r in rows), unit,
                     f"{missing} işin {esc(est_label)}'ı boş (0 sayıldı)" if missing else "")
-          + mini_comp("Xurrent talepleri", sum(r["est"] for r in xe if r["done"]), sum(r["est"] for r in xe), unit)
-          + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", sum(r["est"] for r in ek if r["done"]),
-                      sum(r["est"] for r in ek), unit))
+          + ("" if a.ignore_xurrent else
+             mini_comp("Xurrent talepleri", sum(r["est"] for r in xe if r["done"]), sum(r["est"] for r in xe), unit)
+             + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", sum(r["est"] for r in ek if r["done"]),
+                         sum(r["est"] for r in ek), unit)))
     people = {}
     for r in rows:
         for p in r["assignees"] or ["Atanmamış"]:
@@ -540,8 +558,9 @@ def build(a) -> None:
     page = TEMPLATE.format(
         subtitle=esc(subtitle), legend=legend, focus_key=focus_key, focus=focus,
         n_groups=len(groups), n_items=len(rows), n_carry=n_carry,
-        comp=comp, status=multi_table(status_rows, [{"key": "x", "head": "Xurrent talebi"},
-                                                    {"key": "c", "head": "GitHub işi"}]),
+        comp=comp, comp_note=comp_note,
+        status=multi_table(status_rows, ([] if a.ignore_xurrent else [{"key": "x", "head": "Xurrent talebi"}])
+                           + [{"key": "c", "head": "GitHub işi"}]),
         types=multi_table(type_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                       {"key": "e", "done": "ed", "head": est_label}]),
         projects=proj_txt, pfield=esc(a.project_field), midp=midp, tbp=tbp,
@@ -752,7 +771,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </header>
   <div class="grid">
     <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{comp}</div>
-      <div class="pfoot">Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi</div></div>
+      <div class="pfoot">{comp_note}</div></div>
     <div class="panel"><div class="ptitle">Statü dağılımı</div>{status}</div>
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
@@ -856,6 +875,8 @@ def main() -> None:
     ap.add_argument("--estimate-label", default="Original Estimate")
     ap.add_argument("--xurrent-field", default="Xurrent Talep No",
                     help="Talep no alanı; yoksa başlıktaki baştaki numara kullanılır")
+    ap.add_argument("--ignore-xurrent", action="store_true",
+                    help="Xurrent Talep No'yu yok say; metrikler yalnız GitHub işi adedi üzerinden")
     ap.add_argument("--origin-field", default="Original Sprint",
                     help="Doluysa iş önceki sprintten aktarılmış sayılır")
     ap.add_argument("--project-field", default="DD Project Name", help="Doluysa 'Proje işi'")
