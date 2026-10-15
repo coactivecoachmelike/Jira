@@ -98,8 +98,8 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
 
 1. **Sprint'te Odaklandığımız İşler** — kanban düzeni: 5 kolon (Yapılacak: Backlog/Todo ·
    Geliştirmede: In Progress/Review/Blocked · Test: Test/UAT · Tamamlandı: Done ·
-   Canlıda: Released). Kolon genişliği talep sayısıyla orantılı, kalabalık kolon kendi
-   içinde sütunlara bölünür; yazı boyutu en kalabalık kolon sığana kadar küçülür.
+   Canlıda: Released). Kolon genişliği içerdiği metin miktarıyla orantılı (dolu kolon en az
+   260 px), kalabalık kolon kendi içinde sütunlara bölünür; yazı boyutu en kalabalık kolon sığana kadar küçülür.
    Kolonlarda kart değil **madde** (bullet) vardır. Her kolonun içinde maddeler iş tipine
    göre **her zaman şu sırayla** alt başlıklar altında gruplanır: **Proje → User Story →
    Task → Bug** (boş grup gösterilmez; alt başlıkta grup adı ve adedi yazar). Maddelerin

@@ -331,7 +331,14 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
         lane = next((l for l in lanes if st in l[1]), lanes[1])
         lane[2].append(g)
     # Kolon genişliği madde + alt başlık sayısıyla orantılı; geniş kolon kendi içinde sütunlara bölünür
-    subs = [max(len(l[2]) + len({g["kind"] for g in l[2]}) // 2, 4) if l[2] else 3 for l in lanes]
+    # Kolon genişliği içerdiği metin miktarıyla orantılı (madde adları + alt başlıklar),
+    # böylece tüm kolonlar aynı yazı boyutunda benzer doluluğa ulaşır
+    def weight(gs):
+        if not gs:
+            return 110
+        chars = sum(len(g["name"]) + 22 for g in gs) + 30 * len({g["kind"] for g in gs})
+        return max(chars, 240)
+    subs = [weight(l[2]) for l in lanes]
     out = []
     for (title, sts, gs), sub in zip(lanes, subs):
         # Tür grupları sabit sırada: Proje işi → User Story → Task → Bug
@@ -348,10 +355,10 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
                              f'<span>{len(kg)}</span></div>'
                              + "".join(kanban_card(g, hexes, len(present) > 1) for g in kg) + '</div>')
         cards = "".join(parts) or '<div class="lempty">—</div>'
-        out.append(f'<div class="lane" style="grid-column:span {sub}"><div class="lhead" style="--c:{color}"><span>{esc(title)}</span>'
+        out.append(f'<div class="lane"><div class="lhead" style="--c:{color}"><span>{esc(title)}</span>'
                    f'<b>{len(gs)}</b><small>{items} iş</small></div>'
                    f'<div class="cards">{cards}</div></div>')
-    return (f'<div class="board" style="grid-template-columns:repeat({sum(subs)}, minmax(0,1fr))">'
+    return (f'<div class="board" style="grid-template-columns:{" ".join(f"minmax({260 if l[2] else 150}px,{w}fr)" for w, l in zip(subs, lanes))}">'
             + "".join(out) + "</div>")
 
 

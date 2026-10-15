@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint Sunumu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#E9EDF2; --slide:#FFFFFF; --ink:#0B1F3A; --ink-2:#3B4A5E; --muted:#6B7788;
+  --rule:#DCE6EE; --accent:#1FA3B5; --warm:#E07B39; --track:#E8EDF2; --plan:#C9D5E1; --s:1; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.deck { display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0; }
+.frame { width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); overflow:hidden;
+  box-shadow:0 2px 12px rgba(11,31,58,.12); }
+.slide { width:1920px; height:1080px; background:var(--slide); padding:44px 60px 36px;
+  transform:scale(var(--s)); transform-origin:0 0; display:flex; flex-direction:column; }
+header { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:22px; }
+h1 { white-space:nowrap; font-size:56px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1.05; }
+h1 span { color:var(--accent); font-weight:600; }
+.sub { color:var(--muted); font-size:19px; margin-top:10px; white-space:nowrap; }
+.legend { list-style:none; margin:0; padding:12px 18px; display:flex; flex-wrap:wrap; gap:8px 22px; align-items:center;
+  border:1px solid var(--rule); border-radius:12px; font-size:17px; color:var(--ink-2); justify-content:flex-end; min-width:0; flex:0 1 auto; }
+.legend li { display:flex; align-items:center; }
+.legend .sep { width:1px; height:22px; background:var(--rule); }
+.dot { display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--c); margin-right:9px; flex:none; }
+/* paneller */
+.grid { flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+.grid.one { grid-template-rows:minmax(0,1fr); }
+.grid.one .dual { justify-content:flex-start; }
+.grid.one .drow { max-height:92px; font-size:20px; }
+.grid.one .db { height:18px; }
+.panel { border:1px solid var(--rule); border-radius:14px; padding:18px 22px; display:flex; flex-direction:column; min-height:0; }
+.ptitle { font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
+.pfoot { font-size:14px; color:var(--muted); margin-top:auto; padding-top:10px; line-height:1.45; }
+.pfoot b { color:var(--ink); }
+.comps { display:grid; grid-template-columns:1fr 1fr; gap:22px; flex:1; }
+.comp { display:flex; flex-direction:column; justify-content:center; }
+.clabel { font-size:17px; color:var(--ink-2); font-weight:600; }
+.clabel small { font-weight:400; color:var(--muted); font-size:14px; }
+.chero { font-size:92px; font-weight:800; line-height:1.05; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+.bar { height:14px; border-radius:7px; background:var(--track); overflow:hidden; margin:10px 0 6px; }
+.bar i { display:block; height:100%; background:var(--accent); border-radius:6px; }
+.comps.r .chero { font-size:72px; }
+.comps.r .cnums b { font-size:24px; }
+.bar.warm i { background:var(--warm); }
+.cnums { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+.cnums.two { grid-template-columns:1fr 1fr; }
+.cnums div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:6px; }
+.cnums span { font-size:14px; color:var(--muted); }
+.cnums b { font-size:28px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.cnums small, .lstats small { font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }
+.cnote { font-size:14px; color:var(--muted); margin-top:8px; }
+.minis { display:flex; flex-direction:column; justify-content:space-evenly; flex:1; gap:18px; }
+.mini .mtop { display:flex; align-items:baseline; justify-content:space-between; }
+.mlabel { font-size:20px; font-weight:600; color:var(--ink-2); }
+.mlabel small { font-size:14px; font-weight:400; color:var(--muted); }
+.mhero { font-size:64px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1; }
+.mini .bar { margin:10px 0 10px; }
+.grid:not(.one) .minis { gap:6px; }
+.grid:not(.one) .mhero { font-size:44px; }
+.grid:not(.one) .mlabel { font-size:17px; }
+.grid:not(.one) .mini .bar { margin:6px 0 6px; height:12px; }
+.grid:not(.one) .mnums { font-size:14px; gap:16px; }
+.grid:not(.one) .mnums b { font-size:17px; }
+.mnums { display:flex; gap:22px; font-size:16px; color:var(--muted); }
+.mnums b { color:var(--ink); font-size:20px; font-variant-numeric:tabular-nums; }
+.dual { display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }
+.dhead, .drow { display:grid; column-gap:10px; align-items:center; }
+.dhead { font-size:14px; color:var(--muted); padding-bottom:5px; }
+.drow { border-top:1px solid var(--rule); padding:6px 0; font-size:18px; flex:1; max-height:64px; }
+.dl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-2); display:flex; align-items:center; }
+.db { position:relative; height:14px; }
+.tr, .fi { position:absolute; left:0; top:0; height:100%; border-radius:0 4px 4px 0; }
+.tr { background:var(--plan); } .fi { background:var(--ink); }
+.dv { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.dv span { color:var(--muted); font-weight:400; }
+.pkey { display:flex; gap:18px; font-size:14px; color:var(--ink-2); margin:-2px 0 8px; }
+.pkey span::before { content:""; display:inline-block; width:14px; height:9px; border-radius:2px; margin-right:6px; background:var(--k); }
+.lstats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:10px; }
+.lstats div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }
+.lstats span { font-size:13px; color:var(--muted); }
+.lstats b { font-size:24px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.lsub { font-size:13px; color:var(--muted); margin:-6px 0 8px; }
+.hist { display:flex; flex-direction:column; min-height:0; flex:1; }
+.hplot { flex:1; min-height:80px; display:flex; align-items:flex-end; gap:6px; border-bottom:1px solid var(--plan); }
+.hcol { flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+.hval { text-align:center; font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:3px; }
+.hbar { border-radius:4px 4px 0 0; }
+.hx { display:flex; gap:6px; font-size:13px; color:var(--muted); margin-top:5px; }
+.hx div { flex:1; text-align:center; white-space:nowrap; }
+.emptymsg { margin:auto; font-size:20px; color:var(--ink-2); }
+/* listeler */
+.list { flex:1; min-height:0; list-style:none; margin:0; padding:0; columns:var(--cols, 3); column-gap:56px;
+  column-fill:auto; column-rule:1px solid var(--accent); --fs:22px; overflow:hidden; }
+.list li { break-inside:avoid; display:flex; align-items:flex-start; gap:2px; padding:calc(var(--fs) * .45) 0;
+  border-bottom:1px solid var(--rule); font-size:var(--fs); line-height:1.3; font-weight:500; }
+.list .dot { width:calc(var(--fs) * .55); height:calc(var(--fs) * .55); margin-top:calc(var(--fs) * .38); }
+.list .t { flex:1; }
+.list li.empty { color:var(--muted); border:0; }
+.cat { display:inline-block; font-size:.62em; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  padding:.15em .5em; border-radius:5px; vertical-align:.12em; margin-right:.2em; white-space:nowrap;
+  background:#EDF1F6; color:#3B4A5E; }
+.cat.story { background:#E3EEFB; color:#1D4E89; }
+.cat.proj { background:#DDF3F5; color:#0F6470; }
+.cat.bug { background:#FCE4E2; color:#A3261C; }
+.cat.task { background:#ECEDEF; color:#4A5363; }
+.carry { display:inline-block; font-size:.62em; font-weight:700; padding:.15em .55em; border-radius:999px;
+  vertical-align:.12em; margin-left:.35em; white-space:nowrap; background:#FFD666; color:#5C3B00; border:1px solid #F0A800; }
+.list li.carried { background:linear-gradient(90deg, rgba(255,214,102,.28), transparent 70%); }
+.xno { font-size:.6em; color:var(--muted); margin-left:.5em; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.cnt { font-size:calc(var(--fs) * .66); color:var(--ink-2); border:1px solid var(--rule); border-radius:999px;
+  padding:1px 9px; margin:2px 0 0 10px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.legend .cnt { font-size:14px; margin:0; }
+.legend .cat, .legend .carry { font-size:12px; vertical-align:0; margin:0; }
+.names { list-style:none; margin:10px 0 0; padding:8px 0 0; border-top:1px solid var(--rule);
+  columns:2; column-gap:18px; font-size:14px; color:var(--ink-2); }
+.names li { display:block; break-inside:avoid; padding:2px 0; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.names .dot { width:9px; height:9px; margin:0 7px 0 0; vertical-align:0; }
+.rgrid { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+.rsec { display:flex; flex-direction:column; min-height:0; }
+.rsec .list { column-rule:none; }
+.rtitle { font-size:22px; font-weight:700; padding-bottom:10px; border-bottom:3px solid var(--accent); margin-bottom:4px; }
+.rtitle b { display:inline-block; min-width:34px; text-align:center; background:var(--accent); color:#fff;
+  border-radius:999px; padding:0 10px; margin-left:8px; font-size:18px; }
+.rtitle small { font-weight:400; color:var(--muted); font-size:16px; }
+.rsec.done .rtitle { border-color:var(--plan); color:var(--ink-2); }
+.rsec.done .rtitle b { background:var(--plan); color:var(--ink); }
+/* kanban */
+.board { flex:1; min-height:0; display:grid; gap:16px; --kf:17px; }
+.lane { display:flex; flex-direction:column; min-height:0; background:#F7F9FB; border-radius:14px; padding:12px 14px; }
+.lhead { display:flex; flex-wrap:wrap; row-gap:2px; align-items:baseline; gap:10px; overflow:hidden; padding:4px 4px 10px; margin-bottom:10px;
+  border-bottom:4px solid var(--c); font-size:21px; font-weight:700; }
+.lhead b { font-size:15px; background:var(--c); color:#fff; border-radius:999px; padding:1px 10px; }
+.lhead small { margin-left:auto; font-size:13px; font-weight:500; color:var(--muted); white-space:nowrap; }
+.cards { flex:1; min-height:0; overflow:hidden; column-width:230px; column-gap:12px; column-fill:balance; }
+.cards .kitem { break-inside:avoid; }
+.kitem { display:flex; align-items:flex-start; gap:2px; padding:calc(var(--kf) * .42) 2px;
+  border-bottom:1px solid var(--rule); font-size:var(--kf); line-height:1.3; font-weight:500; }
+.kitem .dot { width:calc(var(--kf) * .55); height:calc(var(--kf) * .55); margin-top:calc(var(--kf) * .38); }
+.kitem .kt { flex:1; }
+.kitem .cat, .kitem .carry { font-size:.62em; vertical-align:.12em; }
+.kitem.carried { background:linear-gradient(90deg, rgba(255,214,102,.35), transparent 85%); border-radius:4px; }
+.kgroup { margin-bottom:calc(var(--kf) * .7); }
+.khead { display:flex; align-items:center; gap:8px; font-size:calc(var(--kf) * .72); font-weight:800;
+  letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:6px; margin:2px 0 2px;
+  break-after:avoid; background:#EDF1F6; color:#3B4A5E; }
+.khead span { font-weight:600; opacity:.75; }
+.khead.story { background:#E3EEFB; color:#1D4E89; }
+.khead.proj { background:#DDF3F5; color:#0F6470; }
+.khead.bug { background:#FCE4E2; color:#A3261C; }
+.khead.task { background:#ECEDEF; color:#4A5363; }
+.kmeta { font-size:.7em; color:var(--muted); white-space:nowrap; }
+.lempty { color:var(--muted); text-align:center; padding:20px 0; }
+.rnote { font-size:16px; color:var(--muted); margin-top:14px; }
+@media print {
+  @page { size:1920px 1080px; margin:0; }
+  body { background:none; } .deck { padding:0; gap:0; } .frame { box-shadow:none; break-after:page; }
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="frame"><section class="slide" aria-label="Sprint'te Odaklandığımız İşler">
+  <header>
+    <div><h1>Sprint'te Odaklandığımız İşler</h1>
+      <div class="sub">Retail · Sprint 4 · 15.10.2026 · 57 talep (62 GitHub işi)</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#8C959F"></span>Backlog</li><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#A475F9"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#E85AAD"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li><li class="sep"></li><li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li><li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li><li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li></ul>
+  </header>
+  <div class="board" style="grid-template-columns:minmax(260px,1119fr) minmax(260px,614fr) minmax(260px,1021fr) minmax(260px,330fr) minmax(260px,1792fr)"><div class="lane"><div class="lhead" style="--c:#8C959F"><span>Yapılacak</span><b>14</b><small>15 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>8</span></div><div class="kitem carried" title="Todo · BE Araba Sat Başvurusu &gt; OCR ile Ruhsat Okuma Entegrasyon Revizesi"><span class="dot" style="--c:#E5534B"></span><span class="kt">Araba Sat başvurusunda OCR ile ruhsat okumanın iyileştirilmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · Data - Homepage Vehicle Search Module Event Entegrasyonu"><span class="dot" style="--c:#E5534B"></span><span class="kt">Ana sayfa araç arama modülünde kullanıcı etkileşimlerinin ölçümlenmesi <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · Araba Al sayfasında seçim yapılmadan değişen marka/model bilgisinin düzeltilmesi - BCF-1653"><span class="dot" style="--c:#E5534B"></span><span class="kt">Araba Al sayfasında seçim yapılmadan marka/model bilgisinin değişmesinin düzeltilmesi <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · Araç Sevklerinde SAP BranchCode, BNext Satıcısı ve İlan Statüsü Yönetimi"><span class="dot" style="--c:#E5534B"></span><span class="kt">Araç sevklerinde SAP şube kodu, BNext satıcısı ve ilan statüsü yönetimi <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · Bnext Otomasyon Development"><span class="dot" style="--c:#E5534B"></span><span class="kt">BNext test otomasyonlarının geliştirilmesi <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · Carvak&#x27;ın BNext&#x27;te Yetkili Satıcı Olarak Tanımlanması"><span class="dot" style="--c:#E5534B"></span><span class="kt">Carvak&#x27;ın BNext&#x27;te yetkili satıcı olarak tanımlanması <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · BE Franchise Şube Araçlarına Ait “Sizi Arayalım” Taleplerinin BOD Kuyruğuna Aktarılması"><span class="dot" style="--c:#E5534B"></span><span class="kt">Franchise şube araçlarının &quot;Sizi Arayalım&quot; taleplerinin BOD kuyruğuna aktarılması <span class="kmeta">Todo</span></span></div><div class="kitem" title="Todo · CMS &gt; Araç Listeleme ve Detay Alanlarındaki İçeriklerin CMS’ten Yönetilmesi (JLR Borusan Next - Approved Sertifikalı Araçlar)
+Todo · CMS İçeriklerinin Araç Listeleme ve Detay Alanlarında Gösterilmesi"><span class="dot" style="--c:#E5534B"></span><span class="kt">JLR onaylı sertifikalı araçlarda liste ve detay içeriklerinin CMS&#x27;ten yönetilmesi <span class="kmeta">Todo · 2 talep</span></span></div></div><div class="kgroup"><div class="khead task">Task<span>5</span></div><div class="kitem" title="Backlog · Analiz İşlemleri"><span class="dot" style="--c:#8C959F"></span><span class="kt">Analiz çalışmaları <span class="kmeta">Backlog</span></span></div><div class="kitem" title="Backlog · Deployment İşlemleri"><span class="dot" style="--c:#8C959F"></span><span class="kt">Canlıya alım (deployment) işlemleri <span class="kmeta">Backlog</span></span></div><div class="kitem" title="Backlog · Operasyonel İşlemler"><span class="dot" style="--c:#8C959F"></span><span class="kt">Operasyonel işler <span class="kmeta">Backlog</span></span></div><div class="kitem" title="Backlog · Toplantı Takvimi"><span class="dot" style="--c:#8C959F"></span><span class="kt">Sprint toplantıları <span class="kmeta">Backlog</span></span></div><div class="kitem" title="Todo · Agentless Call Center Projesi Analiz Test Toplantı"><span class="dot" style="--c:#E5534B"></span><span class="kt">Agentless Call Center: analiz ve test toplantıları <span class="kmeta">Todo</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>1</span></div><div class="kitem" title="Todo · [BUG] App Deeplink Çalışmama Sorunu"><span class="dot" style="--c:#E5534B"></span><span class="kt">Uygulamada deeplink&#x27;lerin çalışmaması <span class="kmeta">Todo</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#D4A72C"><span>Geliştirmede</span><b>7</b><small>7 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>6</span></div><div class="kitem" title="In Progress · Araç Görüntüleme Yetkisinin Dealer Tablosundaki Grup Yapısına Taşınması"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Araç görüntüleme yetkisinin bayi grup yapısına taşınması <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · 83795481 App - Bnext - Finansman Alanında Finans Kuruluşunu Kredi Miktarından Sonra Seçmek"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Finansman alanında finans kuruluşunun kredi tutarından sonra seçilmesi (App) <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · BE Jarvis Ekspertiz Fiyatlama Geçmişi Görüntüleme Yetkisi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Jarvis&#x27;te ekspertiz fiyatlama geçmişini görüntüleme yetkisi <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · #RetroAction dev-test-uat ortamların eşitlenmesi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Retro aksiyonu: dev, test ve UAT ortamlarının eşitlenmesi <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · Yeni Değerleme Süreci Canlı Geçiş Süreci ve Canlı Ortam Destek"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Yeni değerleme sürecinin canlıya alınması ve canlı ortam desteği <span class="kmeta">In Progress</span></span></div><div class="kitem" title="Review · BNext MCP Entegrasyonu"><span class="dot" style="--c:#A475F9"></span><span class="kt">BNext MCP entegrasyonu <span class="kmeta">Review</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>1</span></div><div class="kitem" title="Review · [BUG] Toplu Veri Yollama/Sorgulama Güvenlik Problemi &gt; Denetim Bulgusu"><span class="dot" style="--c:#A475F9"></span><span class="kt">Toplu veri gönderme/sorgulamadaki güvenlik açığı (denetim bulgusu) <span class="kmeta">Review</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#FB8F44"><span>Test</span><b>12</b><small>12 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>8</span></div><div class="kitem" title="Test · App FE &gt; 404 Sayfa Tasarım Güncellenmesi"><span class="dot" style="--c:#FB8F44"></span><span class="kt">404 sayfasının yeni tasarımla güncellenmesi (App) <span class="kmeta">Test</span></span></div><div class="kitem" title="Test · App FE BNext | Araç Alım Kriterlerinin App Tarafında Dinamik Olarak Yönetilmesi"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Araç alım kriterlerinin uygulamada dinamik yönetilmesi <span class="kmeta">Test</span></span></div><div class="kitem" title="Test · 83795481 BE - Bnext - Finansman Alanında Finans Kuruluşunu Kredi Miktarından Sonra Seçmek"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Finansman alanında finans kuruluşunun kredi tutarından sonra seçilmesi (arka uç) <span class="kmeta">Test</span></span></div><div class="kitem" title="Test · 83700547 &gt; App FE Borusannext.com Filtreleri - Borusan Next mobil uygulamasının filtre eşlenmesi"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Mobil uygulama filtrelerinin borusannext.com ile eşlenmesi <span class="kmeta">Test</span></span></div><div class="kitem" title="Test · 83589270 App &gt; Borusan Next Randevu Funnel&#x27;ı Whatsapp İletişimleri"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Randevu sürecinde WhatsApp ile bilgilendirme (App) <span class="kmeta">Test</span></span></div><div class="kitem" title="Test · 83340168 &gt; BE BNext | Satın Alma Ekranı, Tramer Detay Sorgulama"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Satın alma ekranında Tramer detay sorgulama <span class="kmeta">Test</span></span></div><div class="kitem" title="UAT · SEO | AI Arama Alanından Kaynaklanan CLS Sorununun Giderilmesi"><span class="dot" style="--c:#E85AAD"></span><span class="kt">SEO: AI arama alanının yol açtığı sayfa kayması (CLS) sorununun giderilmesi <span class="kmeta">UAT</span></span></div><div class="kitem" title="UAT · App &gt; DATA - APP - Screen View Sorunları"><span class="dot" style="--c:#E85AAD"></span><span class="kt">Uygulamada ekran görüntüleme ölçümleme sorunlarının giderilmesi <span class="kmeta">UAT</span></span></div></div><div class="kgroup"><div class="khead task">Task<span>3</span></div><div class="kitem carried" title="Test · Dependabot ve Critical Code Geliştirmeleri"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Bağımlılık güncellemeleri ve kritik kod iyileştirmeleri (Dependabot) <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">Test</span></span></div><div class="kitem" title="UAT · Uygulamanın Iphone Duo&#x27;ya uyumlu Hale Geliştirmesi Ön İnceleme Taskı"><span class="dot" style="--c:#E85AAD"></span><span class="kt">Uygulamanın iPhone Duo uyumluluğu için ön inceleme <span class="kmeta">UAT</span></span></div><div class="kitem" title="UAT · BNext | Yandex Captcha Değişimi Ön İnceleme Taskı"><span class="dot" style="--c:#E85AAD"></span><span class="kt">Yandex Captcha değişimi için ön inceleme <span class="kmeta">UAT</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>1</span></div><div class="kitem" title="UAT · [BUG] Jarvis -&gt; Rol Ekranı Paging Hatası"><span class="dot" style="--c:#E85AAD"></span><span class="kt">Jarvis rol ekranında sayfalama hatası <span class="kmeta">UAT</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#218BFF"><span>Tamamlandı</span><b>3</b><small>4 iş</small></div><div class="cards"><div class="kgroup"><div class="khead proj">Proje<span>1</span></div><div class="kitem" title="Done · App &gt; Kişiselleştirme Projesi FE - Aydınlatma Metni Gösterimi &gt; Login Olan kullanıcılarda Gösterim Zorunluluğu
+Released · WEB &gt; Kişiselleştirme Projesi FE - Aydınlatma Metni Gösterimi &gt; Login Olan kullanıcılarda Gösterim Zorunluluğu"><span class="dot" style="--c:#218BFF"></span><span class="kt">Giriş yapan kullanıcılara aydınlatma metninin zorunlu gösterilmesi (App + Web) <span class="kmeta">2 talep</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>2</span></div><div class="kitem" title="Done · [BUG] Kullanıcı Verilerine Yetkisiz Erişim (IDOR) Denetim Bulgusu"><span class="dot" style="--c:#218BFF"></span><span class="kt">Kullanıcı verilerine yetkisiz erişim açığı (IDOR, denetim bulgusu)</span></div><div class="kitem" title="Done · [BUG] Yetersiz Sunucu Taraflı Kontroller"><span class="dot" style="--c:#218BFF"></span><span class="kt">Sunucu tarafı kontrollerin yetersiz olması (denetim bulgusu)</span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#2DA44E"><span>Canlıda</span><b>21</b><small>24 iş</small></div><div class="cards"><div class="kgroup"><div class="khead proj">Proje<span>3</span></div><div class="kitem" title="Released · Agentless Call Center Projesi &gt; Aranmak İstemeyen Kullanıcıların SF a İlgili Alanın Gönderilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Agentless Call Center: aranmak istemeyen kullanıcıların Salesforce&#x27;a iletilmesi</span></div><div class="kitem" title="Released · Agentless Call Center Aranmama Talebinin Müşteriye Bağlı Tüm Kayıtlara Uygulanması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Agentless Call Center: aranmama talebinin müşterinin tüm kayıtlarına uygulanması</span></div><div class="kitem" title="Released · Kişiselleştirme Projesi Sözleşme Sorgulama Servisinin Bff e Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Kişiselleştirme: sözleşme sorgulama servisinin uygulama katmanına eklenmesi</span></div></div><div class="kgroup"><div class="khead story">User Story<span>15</span></div><div class="kitem" title="Released · 83700548 Web FE &gt;“Bizi Arayın” Butonunda Tekrarlı İsteklere Süre Kontrolü Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">&quot;Bizi Arayın&quot; butonunda tekrarlı isteklere süre sınırı</span></div><div class="kitem" title="Released · Web CMS / Bff 404 Sayfa Tasarım Güncellenmesi
+Released · Web FE &gt; 404 Sayfa Tasarım Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">404 sayfasının yeni tasarımla güncellenmesi (Web) <span class="kmeta">2 talep</span></span></div><div class="kitem" title="Released · 83821903 &gt;App BE bff Araba Al Filtresinin “Opsiyonsuz arabaları göster” Olarak Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Araba Al filtresinin &quot;Opsiyonsuz arabalar&quot; olarak güncellenmesi (App)</span></div><div class="kitem" title="Released · 83249752 &gt;Web FE Araba Al Filtresinin “Opsiyonsuz Arabalar” Olarak Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Araba Al filtresinin &quot;Opsiyonsuz arabalar&quot; olarak güncellenmesi (Web)</span></div><div class="kitem" title="Released · Araba Sat Başvurusu İhale Yönlendirmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Araba Sat başvurularının ihaleye yönlendirilmesi</span></div><div class="kitem" title="Released · FE Ardışık satın alma ekspertizlerinin Kaporta-Boya bilgilerinin karşılaştırılması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Ardışık satın alma ekspertizlerinde kaporta-boya bilgilerinin karşılaştırılması</span></div><div class="kitem" title="Released · borusannext.com Filtre Kontrolü"><span class="dot" style="--c:#2DA44E"></span><span class="kt">borusannext.com filtrelerinin kontrolü</span></div><div class="kitem" title="Released · CMS Banner MobilResponsive İmage Ekleme Alanı"><span class="dot" style="--c:#2DA44E"></span><span class="kt">CMS banner&#x27;larına mobil uyumlu görsel ekleme alanı</span></div><div class="kitem" title="Released · Değerleme Uzmanı &gt; Kendi Değerleme Sonucunu Görünütüleme Geliştirmesi
+Released · BE SAD ve DU çift rol Atama Geliştirmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Değerleme uzmanının kendi değerleme sonucunu görebilmesi ve SAD/DU çift rol ataması <span class="kmeta">2 talep</span></span></div><div class="kitem" title="Released · BNext | Girişte telefon numarasının şifre ile girişe taşınması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Girişte telefon numarası ile girişin şifreli girişe taşınması</span></div><div class="kitem" title="Released · 84227932 iOS ve Android splash screen Görselinin Değiştirilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">iOS ve Android açılış ekranı görselinin değiştirilmesi</span></div><div class="kitem" title="Released · IOS ve Android Uygulama İcon Revizesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">iOS ve Android uygulama ikonlarının yenilenmesi</span></div><div class="kitem" title="Released · BNext Kampanya Sayfalarında Görsel Düzenlemeler"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Kampanya sayfalarında görsel düzenlemeler</span></div><div class="kitem" title="Released · FE - BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapanış Kontrolleri - BCF-1634
+Released · BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapanış Kontrolleri - 4h - BCF-1634"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Randevu ayarlarında pazar günü slot açma/kapama kontrolleri <span class="kmeta">2 talep</span></span></div><div class="kitem" title="Released · 83591934 &gt;Web &gt; Borusan Next Randevu Funnel&#x27;ı Whatsapp İletişimleri 4me talebi yok!"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Randevu sürecinde WhatsApp ile bilgilendirme (Web)</span></div></div><div class="kgroup"><div class="khead bug">Bug<span>3</span></div><div class="kitem" title="Released · [BUG] Apple Google ile Loginde Sözleşme Görünütlme eSorunu"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Apple/Google ile girişte sözleşmenin görüntülenmemesi</span></div><div class="kitem" title="Released · [BUG] Motosiklet Seçiminde Araba Markaları Listelenmektedir."><span class="dot" style="--c:#2DA44E"></span><span class="kt">Motosiklet seçiminde araba markalarının listelenmesi</span></div><div class="kitem" title="Released · [BUG] Statü Değiştiğinde Ekspertizin Kontrol Dışı Kalma Durumu"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Statü değişiminde ekspertizin kontrol dışı kalması</span></div></div></div></div></div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz">
+  <header>
+    <div><h1>Metriklerimiz</h1><div class="sub">Retail · Sprint 4 · 15.10.2026</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#8C959F"></span>Backlog</li><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#A475F9"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#E85AAD"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li></ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Toplam <small>(Xurrent + ek)</small></span><span class="mhero">%44</span></div>
+  <div class="bar"><i style="width:44.07%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>26</b> talep</span><span>Planlanan <b>59</b> talep</span>
+    <span>Kalan <b>33</b> talep</span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Xurrent talepleri <small>(distinct)</small></span><span class="mhero">%38</span></div>
+  <div class="bar"><i style="width:37.50%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>12</b> talep</span><span>Planlanan <b>32</b> talep</span>
+    <span>Kalan <b>20</b> talep</span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Ek talepler <small>(Xurrent no'suz)</small></span><span class="mhero">%52</span></div>
+  <div class="bar"><i style="width:51.85%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>14</b> talep</span><span>Planlanan <b>27</b> talep</span>
+    <span>Kalan <b>13</b> talep</span></div>
+  
+</div></div>
+      <div class="pfoot">Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi</div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı</div><div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>Xurrent talebi</span><span></span><span>GitHub işi</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Backlog"><span class="dot" style="--c:#8C959F"></span>Backlog</div><div class="db" title="Backlog · Xurrent talebi: 0"><div class="fi" style="width:0.00%;background:#8C959F"></div></div><div class="dv">0</div><div class="db" title="Backlog · GitHub işi: 4"><div class="fi" style="width:16.00%;background:#8C959F"></div></div><div class="dv">4</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Todo"><span class="dot" style="--c:#E5534B"></span>Todo</div><div class="db" title="Todo · Xurrent talebi: 7"><div class="fi" style="width:58.33%;background:#E5534B"></div></div><div class="dv">7</div><div class="db" title="Todo · GitHub işi: 11"><div class="fi" style="width:44.00%;background:#E5534B"></div></div><div class="dv">11</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress · Xurrent talebi: 2"><div class="fi" style="width:16.67%;background:#D4A72C"></div></div><div class="dv">2</div><div class="db" title="In Progress · GitHub işi: 5"><div class="fi" style="width:20.00%;background:#D4A72C"></div></div><div class="dv">5</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Review"><span class="dot" style="--c:#A475F9"></span>Review</div><div class="db" title="Review · Xurrent talebi: 1"><div class="fi" style="width:8.33%;background:#A475F9"></div></div><div class="dv">1</div><div class="db" title="Review · GitHub işi: 2"><div class="fi" style="width:8.00%;background:#A475F9"></div></div><div class="dv">2</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test · Xurrent talebi: 6"><div class="fi" style="width:50.00%;background:#FB8F44"></div></div><div class="dv">6</div><div class="db" title="Test · GitHub işi: 7"><div class="fi" style="width:28.00%;background:#FB8F44"></div></div><div class="dv">7</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="UAT"><span class="dot" style="--c:#E85AAD"></span>UAT</div><div class="db" title="UAT · Xurrent talebi: 4"><div class="fi" style="width:33.33%;background:#E85AAD"></div></div><div class="dv">4</div><div class="db" title="UAT · GitHub işi: 5"><div class="fi" style="width:20.00%;background:#E85AAD"></div></div><div class="dv">5</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Done ✓"><span class="dot" style="--c:#218BFF"></span>Done ✓</div><div class="db" title="Done ✓ · Xurrent talebi: 0"><div class="fi" style="width:0.00%;background:#218BFF"></div></div><div class="dv">0</div><div class="db" title="Done ✓ · GitHub işi: 3"><div class="fi" style="width:12.00%;background:#218BFF"></div></div><div class="dv">3</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓ · Xurrent talebi: 12"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">12</div><div class="db" title="Released ✓ · GitHub işi: 25"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">25</div></div></div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>GitHub işi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="User Story">User Story</div><div class="db" title="User Story · GitHub işi: 41"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:43.90%"></div></div><div class="dv">18<span>/41</span></div><div class="db" title="User Story · Original Estimate: 193"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:35.75%"></div></div><div class="dv">69<span>/193</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Proje işi">Proje işi</div><div class="db" title="Proje işi · GitHub işi: 5"><div class="tr" style="width:12.20%"></div><div class="fi" style="width:12.20%"></div></div><div class="dv">5<span>/5</span></div><div class="db" title="Proje işi · Original Estimate: 20"><div class="tr" style="width:10.36%"></div><div class="fi" style="width:10.36%"></div></div><div class="dv">20<span>/20</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Bug">Bug</div><div class="db" title="Bug · GitHub işi: 8"><div class="tr" style="width:19.51%"></div><div class="fi" style="width:12.20%"></div></div><div class="dv">5<span>/8</span></div><div class="db" title="Bug · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Task">Task</div><div class="db" title="Task · GitHub işi: 8"><div class="tr" style="width:19.51%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/8</span></div><div class="db" title="Task · Original Estimate: 33"><div class="tr" style="width:17.10%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/33</span></div></div></div>
+      <div class="pfoot">Proje işleri (DD Project Name): BOD- Borusan Next Kisisellestirme <b>3</b> · BOD- Voice AI (Agentless Call Center) <b>2</b></div></div>
+    <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%24</div>
+  <div class="bar warm"><i style="width:24.00%"></i></div>
+  <div class="cnums two">
+    <div><span>Sprint ortasında gelen</span><b>12<small>iş</small></b></div>
+    <div><span>İlk planlanan</span><b>50<small>iş</small></b></div>
+  </div>
+</div>
+<div class="comp">
+  <div class="clabel">Original Estimate&#x27;a göre</div>
+  <div class="chero">%27</div>
+  <div class="bar warm"><i style="width:27.46%"></i></div>
+  <div class="cnums two">
+    <div><span>Sprint ortasında gelen</span><b>53</b></div>
+    <div><span>İlk planlanan</span><b>193</b></div>
+  </div>
+</div></div>
+      <ul class="names"><li><span class="dot" style="--c:#A475F9"></span>BNext MCP entegrasyonu</li><li><span class="dot" style="--c:#FB8F44"></span>Bağımlılık güncellemeleri ve kritik kod iyileştirmeleri (Dependabot)</li><li><span class="dot" style="--c:#218BFF"></span>Giriş yapan kullanıcılara aydınlatma metninin zorunlu gösterilmesi (App + Web)</li><li><span class="dot" style="--c:#218BFF"></span>Sunucu tarafı kontrollerin yetersiz olması (denetim bulgusu)</li><li><span class="dot" style="--c:#2DA44E"></span>Agentless Call Center: aranmama talebinin müşterinin tüm kayıtlarına uygulanması</li><li><span class="dot" style="--c:#2DA44E"></span>Araba Sat başvurularının ihaleye yönlendirilmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Değerleme uzmanının kendi değerleme sonucunu görebilmesi ve SAD/DU çift rol ataması</li><li><span class="dot" style="--c:#2DA44E"></span>Girişte telefon numarası ile girişin şifreli girişe taşınması</li><li><span class="dot" style="--c:#2DA44E"></span>iOS ve Android uygulama ikonlarının yenilenmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Kişiselleştirme: sözleşme sorgulama servisinin uygulama katmanına eklenmesi</li></ul>
+      <div class="pfoot">"AddedMidSprint" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
+    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%0</div>
+  <div class="bar warm"><i style="width:0.00%"></i></div>
+  <div class="cnums two">
+    <div><span>Teknik borç</span><b>0<small>iş</small></b></div>
+    <div><span>Toplam</span><b>62<small>iş</small></b></div>
+  </div>
+</div>
+<div class="comp">
+  <div class="clabel">Original Estimate&#x27;a göre</div>
+  <div class="chero">%0</div>
+  <div class="bar warm"><i style="width:0.00%"></i></div>
+  <div class="cnums two">
+    <div><span>Teknik borç</span><b>0</b></div>
+    <div><span>Toplam</span><b>246</b></div>
+  </div>
+</div></div>
+      <ul class="names"></ul>
+      <div class="pfoot">"TB" etiketli işler ÷ toplam iş</div></div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = 14 gün · Closed tarihi olmadığı için hariç: #549, #521, #452, #620</div>
+      <div class="lstats"><div><span>Biten GitHub işi</span><b>24</b></div><div><span>Medyan</span><b>6,7<small>gün</small></b></div><div><span>Ortalama</span><b>6,4<small>gün</small></b></div><div><span>En uzun</span><b>10,7<small>gün</small></b></div></div><div class="hist"><div class="hplot"><div class="hcol" title="&lt;1 gün gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="1–3 gün: 4"><div class="hval">4</div><div class="hbar" style="height:32.80%;background:var(--ink)"></div></div><div class="hcol" title="3–7 gün: 10"><div class="hval">10</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div><div class="hcol" title="7–14 gün: 10"><div class="hval">10</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div></div><div class="hx"><div>&lt;1 gün</div><div>1–3</div><div>3–7</div><div>7–14</div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz (Takıma özel)">
+  <header>
+    <div><h1>Metriklerimiz <span>(Takıma özel)</span></h1><div class="sub">Retail · Sprint 4 · 15.10.2026 · Original Estimate bazında</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#8C959F"></span>Backlog</li><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#A475F9"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#E85AAD"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li></ul>
+  </header>
+  <div class="grid one">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan · Original Estimate</div><div class="minis">
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Toplam</span><span class="mhero">%36</span></div>
+  <div class="bar"><i style="width:36.18%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>89</b></span><span>Planlanan <b>246</b></span>
+    <span>Kalan <b>157</b></span></div>
+  <div class="cnote">16 işin Original Estimate'ı boş (0 sayıldı)</div>
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Xurrent talepleri</span><span class="mhero">%26</span></div>
+  <div class="bar"><i style="width:26.13%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>52</b></span><span>Planlanan <b>199</b></span>
+    <span>Kalan <b>147</b></span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Ek talepler <small>(Xurrent no'suz)</small></span><span class="mhero">%79</span></div>
+  <div class="bar"><i style="width:78.72%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>37</b></span><span>Planlanan <b>47</b></span>
+    <span>Kalan <b>10</b></span></div>
+  
+</div></div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı · Original Estimate</div><div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Backlog"><span class="dot" style="--c:#8C959F"></span>Backlog</div><div class="db" title="Backlog · Original Estimate: 0"><div class="fi" style="width:0.00%;background:#8C959F"></div></div><div class="dv">0</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Todo"><span class="dot" style="--c:#E5534B"></span>Todo</div><div class="db" title="Todo · Original Estimate: 36"><div class="fi" style="width:42.35%;background:#E5534B"></div></div><div class="dv">36</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress · Original Estimate: 24"><div class="fi" style="width:28.24%;background:#D4A72C"></div></div><div class="dv">24</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Review"><span class="dot" style="--c:#A475F9"></span>Review</div><div class="db" title="Review · Original Estimate: 16"><div class="fi" style="width:18.82%;background:#A475F9"></div></div><div class="dv">16</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test · Original Estimate: 47"><div class="fi" style="width:55.29%;background:#FB8F44"></div></div><div class="dv">47</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="UAT"><span class="dot" style="--c:#E85AAD"></span>UAT</div><div class="db" title="UAT · Original Estimate: 34"><div class="fi" style="width:40.00%;background:#E85AAD"></div></div><div class="dv">34</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Done ✓"><span class="dot" style="--c:#218BFF"></span>Done ✓</div><div class="db" title="Done ✓ · Original Estimate: 4"><div class="fi" style="width:4.71%;background:#218BFF"></div></div><div class="dv">4</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓ · Original Estimate: 85"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">85</div></div></div></div>
+    <div class="panel"><div class="ptitle">Kişi bazında planlanan vs. tamamlanan</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>GitHub işi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="mrcosgun9">mrcosgun9</div><div class="db" title="mrcosgun9 · GitHub işi: 15"><div class="tr" style="width:83.33%"></div><div class="fi" style="width:55.56%"></div></div><div class="dv">10<span>/15</span></div><div class="db" title="mrcosgun9 · Original Estimate: 76"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:50.00%"></div></div><div class="dv">38<span>/76</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="alkocman">alkocman</div><div class="db" title="alkocman · GitHub işi: 18"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:55.56%"></div></div><div class="dv">10<span>/18</span></div><div class="db" title="alkocman · Original Estimate: 63"><div class="tr" style="width:82.89%"></div><div class="fi" style="width:46.05%"></div></div><div class="dv">35<span>/63</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="sedatates">sedatates</div><div class="db" title="sedatates · GitHub işi: 9"><div class="tr" style="width:50.00%"></div><div class="fi" style="width:11.11%"></div></div><div class="dv">2<span>/9</span></div><div class="db" title="sedatates · Original Estimate: 59"><div class="tr" style="width:77.63%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/59</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="hakcaliskan">hakcaliskan</div><div class="db" title="hakcaliskan · GitHub işi: 9"><div class="tr" style="width:50.00%"></div><div class="fi" style="width:33.33%"></div></div><div class="dv">6<span>/9</span></div><div class="db" title="hakcaliskan · Original Estimate: 42"><div class="tr" style="width:55.26%"></div><div class="fi" style="width:21.05%"></div></div><div class="dv">16<span>/42</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="hakankayakaya">hakankayakaya</div><div class="db" title="hakankayakaya · GitHub işi: 5"><div class="tr" style="width:27.78%"></div><div class="fi" style="width:11.11%"></div></div><div class="dv">2<span>/5</span></div><div class="db" title="hakankayakaya · Original Estimate: 10"><div class="tr" style="width:13.16%"></div><div class="fi" style="width:10.53%"></div></div><div class="dv">8<span>/10</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="ualyaz">ualyaz</div><div class="db" title="ualyaz · GitHub işi: 2"><div class="tr" style="width:11.11%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/2</span></div><div class="db" title="ualyaz · Original Estimate: 4"><div class="tr" style="width:5.26%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/4</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Atanmamış">Atanmamış</div><div class="db" title="Atanmamış · GitHub işi: 4"><div class="tr" style="width:22.22%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/4</span></div><div class="db" title="Atanmamış · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="hkecicimay">hkecicimay</div><div class="db" title="hkecicimay · GitHub işi: 1"><div class="tr" style="width:5.56%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/1</span></div><div class="db" title="hkecicimay · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="hzrylmz">hzrylmz</div><div class="db" title="hzrylmz · GitHub işi: 1"><div class="tr" style="width:5.56%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/1</span></div><div class="db" title="hzrylmz · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Canlıya Çıkmaya Hazır Olan İşler">
+  <header>
+    <div><h1>Canlıya Çıkmaya Hazır Olan İşler</h1><div class="sub">Retail · Sprint 4 · 15.10.2026</div></div>
+    <ul class="legend"><li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li><li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li><li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li></ul>
+  </header>
+  <div class="rgrid">
+    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <b>0</b></div>
+      <ul class="list" style="--cols:1;--max:30">
+<li class="empty">Bu kriterde iş yok.</li>
+      </ul></div>
+    <div class="rsec done"><div class="rtitle">Bu sprintte canlıya alınanlar <b>9</b> <small>(Released)</small></div>
+      <ul class="list" style="--cols:1;--max:22">
+<li class="" title="Released · Agentless Call Center Aranmama Talebinin Müşteriye Bağlı Tüm Kayıtlara Uygulanması"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat proj">Proje işi</span> Agentless Call Center: aranmama talebinin müşterinin tüm kayıtlarına uygulanması</span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · 83249752 &gt;Web FE Araba Al Filtresinin “Opsiyonsuz Arabalar” Olarak Güncellenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Araba Al filtresinin &quot;Opsiyonsuz arabalar&quot; olarak güncellenmesi (Web)<span class="xno">#83249752</span></span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · borusannext.com Filtre Kontrolü"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> borusannext.com filtrelerinin kontrolü<span class="xno">#83701817</span></span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · CMS Banner MobilResponsive İmage Ekleme Alanı"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> CMS banner&#x27;larına mobil uyumlu görsel ekleme alanı</span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · BE SAD ve DU çift rol Atama Geliştirmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Değerleme uzmanının kendi değerleme sonucunu görebilmesi ve SAD/DU çift rol ataması<span class="xno">#84196413</span></span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · Kişiselleştirme Projesi Sözleşme Sorgulama Servisinin Bff e Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat proj">Proje işi</span> Kişiselleştirme: sözleşme sorgulama servisinin uygulama katmanına eklenmesi</span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · [BUG] Motosiklet Seçiminde Araba Markaları Listelenmektedir."><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat bug">Bug</span> Motosiklet seçiminde araba markalarının listelenmesi</span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · BNext | Randevu Ayarları Ekranı: Pazar Günü Slot Açılış/Kapanış Kontrolleri - 4h - BCF-1634"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat story">User Story</span> Randevu ayarlarında pazar günü slot açma/kapama kontrolleri</span><span class="cnt">1 talep</span></li>
+<li class="" title="Released · [BUG] Statü Değiştiğinde Ekspertizin Kontrol Dışı Kalma Durumu"><span class="dot" style="--c:#2DA44E"></span><span class="t"><span class="cat bug">Bug</span> Statü değişiminde ekspertizin kontrol dışı kalması</span><span class="cnt">1 talep</span></li>
+      </ul></div>
+  </div>
+  <div class="rnote">Canlıya hazır: statü Done + "Ready For Release" etiketi · Canlıya alınan: "Ready For Release" etiketli ve Released statüsünde</div>
+</section></div>
+
+</div>
+<script>
+(() => {
+  // Her listeyi slayta sığana kadar küçült (az madde varsa büyük kalır), sonra kolonları dengele
+  document.querySelectorAll('.list').forEach(list => {
+    let fs = parseFloat(getComputedStyle(list).getPropertyValue('--max')) || 22;
+    const fits = () => list.scrollWidth <= list.clientWidth + 1 && list.scrollHeight <= list.clientHeight + 1;
+    list.style.setProperty('--fs', fs + 'px');
+    while (!fits() && fs > 11) { fs -= 0.5; list.style.setProperty('--fs', fs + 'px'); }
+    list.style.columnFill = 'balance';
+    if (!fits()) list.style.columnFill = 'auto';
+    list.dataset.fitted = fs;
+  });
+  // Kanban: en kalabalık kolon sığana kadar kart yazısını küçült
+  document.querySelectorAll('.board').forEach(b => {
+    let kf = 18;
+    const over = () => [...b.querySelectorAll('.cards')].some(c => c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1);
+    b.style.setProperty('--kf', kf + 'px');
+    while (over() && kf > 10) { kf -= 0.5; b.style.setProperty('--kf', kf + 'px'); }
+    b.dataset.fitted = kf;
+  });
+  document.body.dataset.fitted = [...document.querySelectorAll('.list, .board')].map(l => l.dataset.fitted).join('/');
+  const scale = () => document.documentElement.style.setProperty('--s',
+    Math.min(1, (innerWidth - 32) / 1920).toFixed(4));
+  scale(); addEventListener('resize', scale);
+})();
+</script>
+</body>
+</html>
