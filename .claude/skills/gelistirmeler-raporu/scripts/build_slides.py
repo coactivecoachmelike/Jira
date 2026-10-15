@@ -293,6 +293,10 @@ LANES = [("Yapılacak", ["backlog", "todo", "to do", "yapılacak"]),
          ("Canlıda", ["released", "canlıda", "yayında"])]
 
 
+KANBAN_KIND_ORDER = ["Proje işi", "User Story", "Task", "Bug"]
+KIND_TITLE = {"Proje işi": "Proje", "User Story": "User Story", "Task": "Task", "Bug": "Bug"}
+
+
 def kanban_card(g: dict, hexes: dict, show_status: bool) -> str:
     """Kanban kolonundaki tek madde: statü renginde bullet + kategori + tema adı."""
     n = len(g["items"])
@@ -308,8 +312,7 @@ def kanban_card(g: dict, hexes: dict, show_status: bool) -> str:
     meta_html = f' <span class="kmeta">{" · ".join(meta)}</span>' if meta else ""
     return (f'<div class="kitem{" carried" if g["carry"] else ""}" title="{esc(tip)}">'
             f'<span class="dot" style="--c:{color}"></span>'
-            f'<span class="kt"><span class="cat {CAT_CLASS[g["kind"]]}">{esc(g["kind"])}</span> '
-            f'{esc(g["name"])}{carry}{meta_html}</span></div>')
+            f'<span class="kt">{esc(g["name"])}{carry}{meta_html}</span></div>')
 
 
 def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
@@ -318,15 +321,24 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
         st = tr_lower(g["status"])
         lane = next((l for l in lanes if st in l[1]), lanes[1])
         lane[2].append(g)
-    # Kolon genişliği kart sayısıyla orantılı; geniş kolon kendi içinde sütunlara bölünür
-    subs = [max(len(l[2]), 3) for l in lanes]
+    # Kolon genişliği madde + alt başlık sayısıyla orantılı; geniş kolon kendi içinde sütunlara bölünür
+    subs = [max(len(l[2]) + len({g["kind"] for g in l[2]}) // 2, 3) for l in lanes]
     out = []
     for (title, sts, gs), sub in zip(lanes, subs):
-        gs.sort(key=lambda g: (order.get(g["status"], 999), not g["carry"], tr_lower(g["name"])))
+        # Tür grupları sabit sırada: Proje işi → User Story → Task → Bug
+        gs.sort(key=lambda g: (KANBAN_KIND_ORDER.index(g["kind"]), order.get(g["status"], 999),
+                               not g["carry"], tr_lower(g["name"])))
         present = {g["status"] for g in gs}
         color = next((hexes[s] for s in sorted(present, key=lambda s: order.get(s, 999))), NO_STATUS_COLOR)
         items = sum(len(g["items"]) for g in gs)
-        cards = "".join(kanban_card(g, hexes, len(present) > 1) for g in gs) or '<div class="lempty">—</div>'
+        parts = []
+        for kind in KANBAN_KIND_ORDER:
+            kg = [g for g in gs if g["kind"] == kind]
+            if kg:
+                parts.append(f'<div class="kgroup"><div class="khead {CAT_CLASS[kind]}">{esc(KIND_TITLE[kind])}'
+                             f'<span>{len(kg)}</span></div>'
+                             + "".join(kanban_card(g, hexes, len(present) > 1) for g in kg) + '</div>')
+        cards = "".join(parts) or '<div class="lempty">—</div>'
         out.append(f'<div class="lane" style="grid-column:span {sub}"><div class="lhead" style="--c:{color}"><span>{esc(title)}</span>'
                    f'<b>{len(gs)}</b><small>{items} iş</small></div>'
                    f'<div class="cards">{cards}</div></div>')
@@ -522,7 +534,7 @@ def build(a) -> None:
     sprints = sorted({str(r["fields"].get(a.sprint_field) or "") for r in rows} - {""})
     subtitle = " · ".join(x for x in [a.team or proj.get("title"), ", ".join(sprints),
                                       dt.date.today().strftime("%d.%m.%Y")] if x)
-    focus_key = (f'<li><span class="cat story">Kategori</span>&nbsp;= iş tipi</li>'
+    focus_key = (f'<li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li>'
                  f'<li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li>'
                  f'<li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li>')
     page = TEMPLATE.format(
@@ -696,13 +708,22 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .lhead b {{ font-size:15px; background:var(--c); color:#fff; border-radius:999px; padding:1px 10px; }}
 .lhead small {{ margin-left:auto; font-size:13px; font-weight:500; color:var(--muted); white-space:nowrap; }}
 .cards {{ flex:1; min-height:0; overflow:hidden; column-width:230px; column-gap:12px; column-fill:balance; }}
-.cards > * {{ break-inside:avoid; }}
+.cards .kitem {{ break-inside:avoid; }}
 .kitem {{ display:flex; align-items:flex-start; gap:2px; padding:calc(var(--kf) * .42) 2px;
   border-bottom:1px solid var(--rule); font-size:var(--kf); line-height:1.3; font-weight:500; }}
 .kitem .dot {{ width:calc(var(--kf) * .55); height:calc(var(--kf) * .55); margin-top:calc(var(--kf) * .38); }}
 .kitem .kt {{ flex:1; }}
 .kitem .cat, .kitem .carry {{ font-size:.62em; vertical-align:.12em; }}
 .kitem.carried {{ background:linear-gradient(90deg, rgba(255,214,102,.35), transparent 85%); border-radius:4px; }}
+.kgroup {{ margin-bottom:calc(var(--kf) * .7); }}
+.khead {{ display:flex; align-items:center; gap:8px; font-size:calc(var(--kf) * .72); font-weight:800;
+  letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:6px; margin:2px 0 2px;
+  break-after:avoid; background:#EDF1F6; color:#3B4A5E; }}
+.khead span {{ font-weight:600; opacity:.75; }}
+.khead.story {{ background:#E3EEFB; color:#1D4E89; }}
+.khead.proj {{ background:#DDF3F5; color:#0F6470; }}
+.khead.bug {{ background:#FCE4E2; color:#A3261C; }}
+.khead.task {{ background:#ECEDEF; color:#4A5363; }}
 .kmeta {{ font-size:.7em; color:var(--muted); white-space:nowrap; }}
 .lempty {{ color:var(--muted); text-align:center; padding:20px 0; }}
 .rnote {{ font-size:16px; color:var(--muted); margin-top:14px; }}

@@ -100,11 +100,13 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
    Geliştirmede: In Progress/Review/Blocked · Test: Test/UAT · Tamamlandı: Done ·
    Canlıda: Released). Kolon genişliği talep sayısıyla orantılı, kalabalık kolon kendi
    içinde sütunlara bölünür; yazı boyutu en kalabalık kolon sığana kadar küçülür.
-   Kolonlarda kart değil **madde** (bullet) vardır. İşler **Xurrent Talep No**'ya göre
+   Kolonlarda kart değil **madde** (bullet) vardır. Her kolonun içinde maddeler iş tipine
+   göre **her zaman şu sırayla** alt başlıklar altında gruplanır: **Proje → User Story →
+   Task → Bug** (boş grup gösterilmez; alt başlıkta grup adı ve adedi yazar). Maddelerin
+   üzerinde ayrıca tür etiketi yoktur; tür alt başlıktan okunur. İşler **Xurrent Talep No**'ya göre
    gruplanır (aynı talebin BE/FE/Jarvis işleri tek madde); talep no'su olmayan işler, sade
    başlıkları aynıysa (yalnızca BE/FE son eki farklı) birleşir. Her maddede: statü renginde
-   bullet (grubun **en geride** kalan işinin statüsü), kategori etiketi (User Story / Bug /
-   Task / Proje işi), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
+   bullet (grubun **en geride** kalan işinin statüsü), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
    statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
    işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
 2. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
