@@ -130,12 +130,23 @@ def sprint_starts(specs: list[str], days: int) -> callable:
     return start
 
 
-def lead_days(it: dict, start):
+def sprint_label(v) -> str:
+    """'3', 3.0, 'Sprint 3' → 'Sprint 3'; diğer değerler olduğu gibi."""
+    v = re.sub(r"\.0$", "", str(v or "").strip())
+    return f"Sprint {v}" if v.isdigit() else v
+
+
+def sprint_no(v):
+    m = re.search(r"(\d+)", v or "")
+    return int(m.group(1)) if m else None
+
+
+def lead_days(it: dict, start, finished: set):
     """Biten işin lead time'ı: Original Sprint doluysa o sprintin, değilse işin
     sprintinin başlangıcından Closed tarihine kadar geçen gün."""
     d = parse_ts(it.get("closed"))
     s0 = start(it["origin"] or it["sprint"])
-    if it["done"] and d and s0:
+    if tr_lower(it["status"]) in finished and d and s0:
         return max((d - s0).total_seconds() / 86400, 0.0)
     return None
 
@@ -166,7 +177,7 @@ def group_items(rows: list[dict], order: dict, themes: dict) -> list[dict]:
         g["kind"] = sorted(kinds, key=lambda k: (-kinds[k], TYPES.index(k)))[0]
         g["status"] = min((i["status"] for i in its), key=lambda s: order.get(s, 999))
         g["done"] = all(i["done"] for i in its)
-        g["carry"] = sorted({i["origin"] for i in its if i["origin"]})
+        g["carry"] = sorted({i["origin"] for i in its if i["carried"]})
         g["est"] = sum(i["est"] for i in its)
         out.append(g)
     return sorted(out, key=lambda g: (order.get(g["status"], 999), tr_lower(g["name"])))
@@ -323,10 +334,12 @@ def build(a) -> None:
             r["xno"] = m.group(1) if m else None
             if m and has_xfield:
                 title_fallback.append(f'#{(r.get("url") or "").rsplit("/", 1)[-1]} → {m.group(1)}')
-        r["origin"] = str(r["fields"].get(a.origin_field) or "").strip()
-        r["sprint"] = str(r["fields"].get(a.sprint_field) or "").strip()
+        r["origin"] = sprint_label(r["fields"].get(a.origin_field))
+        r["sprint"] = sprint_label(r["fields"].get(a.sprint_field))
+        # Original Sprint, işin şimdiki sprintinden farklıysa önceki sprintten aktarılmıştır
+        r["carried"] = bool(r["origin"]) and sprint_no(r["origin"]) != sprint_no(r["sprint"])
         r["kind"] = classify(r, a.project_field, task_kw)
-        r["lead"] = lead_days(r, start_of)
+        r["lead"] = lead_days(r, start_of, {tr_lower(s) for s in a.lead_status})
         r["mid"] = has_label(r, a.mid_label)
         r["tb"] = has_label(r, a.tb_label)
     if not has_xfield:
@@ -466,7 +479,7 @@ def build(a) -> None:
                                       {"key": "e", "done": "ed", "head": est_label}]),
         projects=proj_txt, pfield=esc(a.project_field), midp=midp, tbp=tbp,
         mid_label=esc(a.mid_label[0]), tb_label=esc(a.tb_label[0]), mid_list=mid_list, tb_list=tb_list,
-        lead_stats=lead_stats, hist=hist, oe=oe, est_label=esc(est_label),
+        lead_stats=lead_stats, hist=hist, sprint_days=a.sprint_days, oe=oe, est_label=esc(est_label),
         status_oe=multi_table(status_rows, [{"key": "e", "head": est_label}]),
         people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
@@ -575,6 +588,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .lstats div {{ display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }}
 .lstats span {{ font-size:13px; color:var(--muted); }}
 .lstats b {{ font-size:24px; font-variant-numeric:tabular-nums; white-space:nowrap; }}
+.lsub {{ font-size:13px; color:var(--muted); margin:-6px 0 8px; }}
 .hist {{ display:flex; flex-direction:column; min-height:0; flex:1; }}
 .hplot {{ flex:1; min-height:80px; display:flex; align-items:flex-end; gap:6px; border-bottom:1px solid var(--plan); }}
 .hcol {{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }}
@@ -660,6 +674,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -735,6 +750,8 @@ def main() -> None:
     ap.add_argument("--sprint-start", action="append",
                     help="Sprint başlangıcı, ör. 'Sprint 4=2026-10-05' (tekrarlanabilir; eksikler --sprint-days ile türetilir)")
     ap.add_argument("--sprint-days", type=int, default=14, help="Sprint uzunluğu (gün)")
+    ap.add_argument("--lead-status", action="append", default=None,
+                    help="Lead time'da biten sayılan statüler (varsayılan Done, Released)")
     ap.add_argument("--estimate-field", default="Original Estimate")
     ap.add_argument("--estimate-field-id", type=int, default=None)
     ap.add_argument("--estimate-label", default="Original Estimate")
@@ -762,6 +779,7 @@ def main() -> None:
     a.tb_label = a.tb_label or ["TB", "Teknik Borç", "Tech Debt"]
     a.ready_label = a.ready_label or ["Ready For Release"]
     a.ready_status = a.ready_status or ["Done"]
+    a.lead_status = a.lead_status or ["Done", "Released"]
     build(a)
 
 

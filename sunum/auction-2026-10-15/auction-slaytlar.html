@@ -84,6 +84,7 @@ h1 span { color:var(--accent); font-weight:600; }
 .lstats div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }
 .lstats span { font-size:13px; color:var(--muted); }
 .lstats b { font-size:24px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.lsub { font-size:13px; color:var(--muted); margin:-6px 0 8px; }
 .hist { display:flex; flex-direction:column; min-height:0; flex:1; }
 .hplot { flex:1; min-height:80px; display:flex; align-items:flex-end; gap:6px; border-bottom:1px solid var(--plan); }
 .hcol { flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
@@ -162,9 +163,9 @@ Done · Araç Fotoğraflama Ekran Düzenlemeleri BE"><span class="dot" style="--
 <li class="" title="In Progress · One Click Auction - Araç Satıldı Bilgisi"><span class="dot" style="--c:#D4A72C"></span><span class="t"><span class="cat story">User Story</span> Tek tıkla ihale: aracın satıldı bilgisinin iletilmesi</span><span class="cnt">1 talep</span></li>
 <li class="" title="In Progress · One Click Auction - Araç Bilgilerinin SmartIq&#x27;dan Jarvise İletilmesi"><span class="dot" style="--c:#D4A72C"></span><span class="t"><span class="cat story">User Story</span> Tek tıkla ihale: araç bilgilerinin SmartIQ&#x27;dan Jarvis&#x27;e aktarılması</span><span class="cnt">1 talep</span></li>
 <li class="" title="In Progress · One Click Auction - Araçların İhaleye Eklenmesi"><span class="dot" style="--c:#D4A72C"></span><span class="t"><span class="cat story">User Story</span> Tek tıkla ihale: araçların ihaleye eklenmesi</span><span class="cnt">1 talep</span></li>
-<li class="" title="In Progress · One Click Auction - İhaleye Eklenen/Çıkartılan Araç Statüleri Hk."><span class="dot" style="--c:#D4A72C"></span><span class="t"><span class="cat story">User Story</span> Tek tıkla ihale: ihaleye eklenen / çıkarılan araçların statü takibi</span><span class="cnt">1 talep</span></li>
-<li class="" title="Review · Satıcı İçin Dijital Üyelik Geliştirmesi FE
-Test · Satıcı İçin Dijital Üyelik Geliştirmesi BE"><span class="dot" style="--c:#A475F9"></span><span class="t"><span class="cat story">User Story</span> Satıcılar için dijital üyelik</span><span class="cnt">2 talep</span></li>
+<li class="carried" title="In Progress · One Click Auction - İhaleye Eklenen/Çıkartılan Araç Statüleri Hk."><span class="dot" style="--c:#D4A72C"></span><span class="t"><span class="cat story">User Story</span> Tek tıkla ihale: ihaleye eklenen / çıkarılan araçların statü takibi <span class="carry" title="Original Sprint: Sprint 3">↪ Aktarıldı: Sprint 3</span></span><span class="cnt">1 talep</span></li>
+<li class="carried" title="Review · Satıcı İçin Dijital Üyelik Geliştirmesi FE
+Test · Satıcı İçin Dijital Üyelik Geliştirmesi BE"><span class="dot" style="--c:#A475F9"></span><span class="t"><span class="cat story">User Story</span> Satıcılar için dijital üyelik <span class="carry" title="Original Sprint: Sprint 3">↪ Aktarıldı: Sprint 3</span></span><span class="cnt">2 talep</span></li>
 <li class="" title="Test · Ekspertiz Krokisi Oluşmayan Kayıtlar İçin Jarviste Servisinin Oluşturulması"><span class="dot" style="--c:#FB8F44"></span><span class="t"><span class="cat story">User Story</span> Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</span><span class="cnt">1 talep</span></li>
 <li class="" title="UAT · Araç Detay Kartında Kaporta Ekspertiz Gösterimi BE
 UAT · Araç Detay Kartında Kaporta Ekspertiz Gösterimi"><span class="dot" style="--c:#E85AAD"></span><span class="t"><span class="cat story">User Story</span> Araç detay kartında kaporta ekspertiz bilgisinin gösterilmesi<span class="xno">#82634159</span></span><span class="cnt">2 talep</span></li>
@@ -272,6 +273,7 @@ Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi BE"><span class="dot"
       <ul class="names"><li><span class="dot" style="--c:#D4A72C"></span>Araç fotoğraflama ekranının iyileştirilmesi</li><li><span class="dot" style="--c:#FB8F44"></span>Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</li></ul>
       <div class="pfoot">"TB" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = 14 gün</div>
       <div class="lstats"><div><span>Biten iş</span><b>19</b></div><div><span>Medyan</span><b>3,5<small>gün</small></b></div><div><span>Ortalama</span><b>5,5<small>gün</small></b></div><div><span>En uzun</span><b>10,5<small>gün</small></b></div></div><div class="hist"><div class="hplot"><div class="hcol" title="&lt;1 gün gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="1–3 gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="3–7 gün: 13"><div class="hval">13</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div><div class="hcol" title="7–14 gün: 6"><div class="hval">6</div><div class="hbar" style="height:37.85%;background:var(--ink)"></div></div></div><div class="hx"><div>&lt;1 gün</div><div>1–3</div><div>3–7</div><div>7–14</div></div></div></div>
   </div>
 </section></div>

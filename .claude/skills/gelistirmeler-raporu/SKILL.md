@@ -112,9 +112,11 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
    - Sprint ortasında gelen iş: `AddedMidSprint` etiketli ÷ ilk planlanan (etiketsiz),
      hem iş adedi hem OE; altında o işlerin tema adları.
    - Teknik borç payı: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
-   - Lead time histogramı (yalnız adet): **biten** işlerde (Done/Released vb.) sprint
-     başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o sprintin,
-     boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır.
+   - Lead time histogramı (yalnız adet): yalnızca **Done ve Released** statüsündeki
+     işler (`--lead-status`; Closed tarihi olup başka statüde olanlar sayılmaz). Süre,
+     sprint başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o
+     sprintin, boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır; önceki
+     sprintler mevcut sprintten geriye her biri `--sprint-days` (14) gün sayılarak bulunur.
 3. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
    (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
    bazında planlanan vs. tamamlanan (GitHub işi | OE).
@@ -153,7 +155,7 @@ yeniden kullanılabilir).
 | Seçenek | Varsayılan | Not |
 |---|---|---|
 | `--xurrent-field` | `Xurrent Talep No` | Sütun esastır (başlıktaki numaradan farklı olabilir). Sütun yoksa ya da hücre boşsa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır; boş hücre için uyarı basılır — kullanıcıya bildir |
-| `--origin-field` | `Original Sprint` | Doluysa "aktarıldı" belirteci; sütun yoksa uyarı verir |
+| `--origin-field` | `Original Sprint` | Değer `3` ya da `Sprint 3` olabilir. İşin `Sprint`'inden farklıysa "aktarıldı" belirteci gösterilir (aynıysa gösterilmez); sütun yoksa uyarı verir |
 | `--sprint-field` | `Sprint` | Alt başlıkta gösterilir; lead time başlangıcı |
 | `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
