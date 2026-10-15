@@ -112,7 +112,7 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
    - Sprint ortasında gelen iş: `AddedMidSprint` etiketli ÷ ilk planlanan (etiketsiz),
      hem iş adedi hem OE; altında o işlerin tema adları.
    - Teknik borç payı: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
-   - Lead time histogramı (yalnız adet): yalnızca **Done ve Released** statüsündeki
+   - Lead time histogramı (**GitHub işi** bazında, talep bazında değil — slaytta not olarak yazar; Closed tarihi boş biten işler hariç tutulur ve numaraları notta listelenir): yalnızca **Done ve Released** statüsündeki
      işler (`--lead-status`; Closed tarihi olup başka statüde olanlar sayılmaz). Süre,
      sprint başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o
      sprintin, boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır; önceki

@@ -420,8 +420,13 @@ def build(a) -> None:
     while len(bins) > 4 and not bins[-1]["c"]:
         bins.pop()
     leads = [r["lead"] for r in closed]
+    fin = {tr_lower(x) for x in a.lead_status}
+    no_close = [(r.get("url") or "").rsplit("/", 1)[-1] for r in rows
+                if tr_lower(r["status"]) in fin and r["lead"] is None]
+    lead_missing = (f" · Closed tarihi olmadığı için hariç: {', '.join('#' + n for n in no_close)}"
+                    if no_close else "")
     if leads:
-        lead_stats = (f'<div><span>Biten iş</span><b>{len(leads)}</b></div>'
+        lead_stats = (f'<div><span>Biten GitHub işi</span><b>{len(leads)}</b></div>'
                       f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
@@ -479,7 +484,7 @@ def build(a) -> None:
                                       {"key": "e", "done": "ed", "head": est_label}]),
         projects=proj_txt, pfield=esc(a.project_field), midp=midp, tbp=tbp,
         mid_label=esc(a.mid_label[0]), tb_label=esc(a.tb_label[0]), mid_list=mid_list, tb_list=tb_list,
-        lead_stats=lead_stats, hist=hist, sprint_days=a.sprint_days, oe=oe, est_label=esc(est_label),
+        lead_stats=lead_stats, hist=hist, sprint_days=a.sprint_days, lead_missing=lead_missing, oe=oe, est_label=esc(est_label),
         status_oe=multi_table(status_rows, [{"key": "e", "head": est_label}]),
         people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
@@ -674,7 +679,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün</div>
+      <div class="lsub">GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
