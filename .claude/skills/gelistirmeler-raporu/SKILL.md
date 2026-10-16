@@ -91,7 +91,7 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
-## Sprint sunumu (5 slayt, 16:9, HTML + PNG)
+## Sprint sunumu (6 slayt, 16:9, HTML + PNG)
 
 Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
 (veri kaynağı seçenekleri `build_report.py` ile aynı).
@@ -103,7 +103,7 @@ numaralarını konsola yazar.
 **Statü renkleri:** Todo kırmızı · In Progress sarı · Review **gri** · Test turuncu ·
 UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
 
-Çıktı her zaman şu 5 slayttır:
+Çıktı her zaman şu 6 slayttır:
 
 1. **Sprint'te Odaklandığımız İşler** — kanban düzeni: 5 kolon (Yapılacak: Backlog/Todo ·
    Geliştirmede: In Progress/Review/Blocked · Test: Test/UAT · Tamamlandı: Done ·
@@ -119,15 +119,18 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
    statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
    işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
 2. **Metriklerimiz - Özet** — sade, yalnız GitHub/talep adedi (Original Estimate yok):
-   - Planlanan vs. tamamlanan: yalnız **Toplam** (Xurrent + ek talep).
-   - Statü dağılımı: Xurrent talebi | GitHub işi; GitHub işi = **yalnız Xurrent taleplerine
-     bağlı** işler (talebin statüsü satırında). En altta **Toplam** satırı; tamamen 0 olan
+   - Planlanan vs. tamamlanan: yalnız **Toplam**, **GitHub işi adedi** üzerinden (iş tipi
+     kırılımıyla aynı birim; parantez/alt kırılım yok).
+   - **Xurrent talebi statü dağılımı**: Xurrent talebi | **Karşılık gelen GitHub işi**
+     (= yalnız Xurrent taleplerine bağlı işler, talebin statüsü satırında). Metriklerimiz
+     slaytında da aynı tablo kullanılır. `--ignore-xurrent` takımlarında başlık "Statü
+     dağılımı", tek kolon GitHub işi. En altta **Toplam** satırı; tamamen 0 olan
      satırlar gizlenir.
    - İş tipi kırılımı: GitHub işi (planlanan/tamamlanan) + **Toplam** satırı.
    - Sprint ortasında gelen iş ve teknik borç: yalnız GitHub iş adedine göre.
    - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla.
 3. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
-   - Planlanan vs. tamamlanan: **Toplam** (Xurrent + ek), **distinct Xurrent talebi**
+   - Planlanan vs. tamamlanan: **Toplam GitHub işi** (iş tipi kırılımıyla aynı birim), **distinct Xurrent talebi**
      (talep, tüm GitHub işleri bitince tamamlanmış sayılır) ve **ek talepler**
      (Xurrent no'suz GitHub işleri) — üç ayrı oran.
    - Statü dağılımı: iki kolon — Xurrent talebi (grubun en geri statüsü) | GitHub işi.
@@ -152,6 +155,12 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
      **GitHub başlığıyla** ve "↳ talep adı" notuyla listelenir.
    - Her iki kolonda Proje → User Story → Task → Bug alt başlıkları; "N talep" yalnız
      birden fazlaysa. Canlıya alınan çoksa sağ kolon genişler ve iki sütuna bölünür.
+6. **Hesaplama Varsayımları** — takımın metrikleri doğru okuması için otomatik üretilen
+   özet: kapsam ve hariç tutulan iş numaraları, sayım birimleri (Xurrent talebi / ek talep /
+   GitHub işi ve hangi panelin hangisini kullandığı), tamamlandı statüleri ve kanban kolon
+   eşlemesi, iş tipi kuralı, etiket bazlı metrik formülleri, lead time tanımı (takvim günü,
+   sprint başlangıcı, Closed'ı boş olanlar), canlıya çıkış kriterleri, OE boşlukları ve
+   betiğin veri uyarıları. Yeni bir kural/istisna eklendiğinde bu slayta da yansıt.
 
 ### Akış
 

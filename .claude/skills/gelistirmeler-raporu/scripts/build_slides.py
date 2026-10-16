@@ -52,6 +52,12 @@ def tr_lower(s: str) -> str:
     return s.replace("İ", "i").replace("I", "ı").lower()
 
 
+def sk(s) -> str:
+    """Statü karşılaştırma anahtarı: dil bağımsız küçük harf (In Progress → in progress,
+    Tamamlandı → tamamlandi)."""
+    return str(s or "").strip().lower().replace("\u0307", "").replace("ı", "i")
+
+
 def norm_label(s: str) -> str:
     return re.sub(r"[\s_\-]+", "", tr_lower(s))
 
@@ -146,7 +152,7 @@ def lead_days(it: dict, start, finished: set):
     sprintinin başlangıcından Closed tarihine kadar geçen gün."""
     d = parse_ts(it.get("closed"))
     s0 = start(it["origin"] or it["sprint"])
-    if tr_lower(it["status"]) in finished and d and s0:
+    if sk(it["status"]) in finished and d and s0:
         return max((d - s0).total_seconds() / 86400, 0.0)
     return None
 
@@ -347,9 +353,9 @@ def kanban_card(g: dict, hexes: dict, show_status: bool) -> str:
 
 
 def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
-    lanes = [(t, set(st), []) for t, st in LANES]
+    lanes = [(t, {sk(x) for x in st}, []) for t, st in LANES]
     for g in groups:
-        st = tr_lower(g["status"])
+        st = sk(g["status"])
         lane = next((l for l in lanes if st in l[1]), lanes[1])
         lane[2].append(g)
     # Kolon genişliği madde + alt başlık sayısıyla orantılı; geniş kolon kendi içinde sütunlara bölünür
@@ -405,8 +411,8 @@ def load(a) -> tuple[dict, list[dict], list[str]]:
 def build(a) -> None:
     data, items, warnings = load(a)
     # Backlog statüsündeki ve RetroAction etiketli işler hiçbir slayta/metriğe girmez
-    ex_st = {tr_lower(x) for x in a.exclude_status}
-    excluded = [i for i in items if tr_lower(str(i["fields"].get(a.status_field) or "")) in ex_st
+    ex_st = {sk(x) for x in a.exclude_status}
+    excluded = [i for i in items if sk(i["fields"].get(a.status_field)) in ex_st
                 or has_label(i, a.exclude_label)]
     items = [i for i in items if i not in excluded]
     for it in items:
@@ -446,7 +452,7 @@ def build(a) -> None:
         # Original Sprint, işin şimdiki sprintinden farklıysa önceki sprintten aktarılmıştır
         r["carried"] = bool(r["origin"]) and sprint_no(r["origin"]) != sprint_no(r["sprint"])
         r["kind"] = classify(r, a.project_field, task_kw)
-        r["lead"] = lead_days(r, start_of, {tr_lower(s) for s in a.lead_status})
+        r["lead"] = lead_days(r, start_of, {sk(s) for s in a.lead_status})
         r["mid"] = has_label(r, a.mid_label)
         r["tb"] = has_label(r, a.tb_label)
     if not has_xfield:
@@ -485,15 +491,18 @@ def build(a) -> None:
     xg = [g for g in groups if g["xno"]]
     ek = [r for r in rows if not r["xno"]]
     x_done, e_done_n = sum(g["done"] for g in xg), sum(r["done"] for r in ek)
+    # Toplam, iş tipi kırılımıyla aynı birim: GitHub işi adedi
+    all_done = sum(r["done"] for r in rows)
     if a.ignore_xurrent:
         comp = completion_block("GitHub talepleri", e_done_n, len(ek), "talep")
     else:
-        comp = (mini_comp("Toplam <small>(Xurrent + ek)</small>", x_done + e_done_n, len(xg) + len(ek), "talep")
+        comp = (mini_comp("Toplam GitHub işi", all_done, len(rows), "iş")
                 + mini_comp("Xurrent talepleri <small>(distinct)</small>", x_done, len(xg), "talep")
                 + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", e_done_n, len(ek), "talep"))
     comp_note = ("GitHub işi (talep) adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
                  if a.ignore_xurrent else
-                 "Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi")
+                 "Toplam = GitHub işi adedi (iş tipi kırılımıyla aynı) · Xurrent talebi, tüm GitHub işleri "
+                 "bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi")
     status_rows = []
     for o in used_opts:
         mem = [r for r in rows if r["status"] == o["name"]]
@@ -533,9 +542,9 @@ def build(a) -> None:
     while len(bins) > 4 and not bins[-1]["c"]:
         bins.pop()
     leads = [r["lead"] for r in closed]
-    fin = {tr_lower(x) for x in a.lead_status}
+    fin = {sk(x) for x in a.lead_status}
     no_close = [(r.get("url") or "").rsplit("/", 1)[-1] for r in rows
-                if tr_lower(r["status"]) in fin and r["lead"] is None]
+                if sk(r["status"]) in fin and r["lead"] is None]
     lead_missing = (f" · Closed tarihi olmadığı için hariç: {', '.join('#' + n for n in no_close)}"
                     if no_close else "")
     if leads:
@@ -554,13 +563,12 @@ def build(a) -> None:
         sum_status_cols = [{"key": "c", "head": "GitHub işi"}]
         sum_status_total = {"label": "Toplam", "c": len(rows)}
     else:
-        sum_comp = completion_block("Toplam talep <small>(Xurrent + ek)</small>", x_done + e_done_n,
-                                    len(xg) + len(ek), "talep")
+        sum_comp = completion_block("Toplam", all_done, len(rows), "iş")
         # GitHub işi = yalnız Xurrent taleplerine bağlı işler (talebin statüsüne göre)
         sum_status_rows = [{"label": r["label"], "color": r["color"], "x": r["x"],
                             "c": sum(len(g["items"]) for g in xg if g["status"] == o["name"])}
                            for r, o in zip(status_rows, used_opts)]
-        sum_status_cols = [{"key": "x", "head": "Xurrent talebi"}, {"key": "c", "head": "GitHub işi"}]
+        sum_status_cols = [{"key": "x", "head": "Xurrent talebi"}, {"key": "c", "head": "Karşılık gelen GitHub işi"}]
         sum_status_total = {"label": "Toplam", "x": len(xg), "c": sum(len(g["items"]) for g in xg)}
     sum_status_rows = [r for r in sum_status_rows if any(r[c["key"]] for c in sum_status_cols)]
     sum_status = multi_table(sum_status_rows, sum_status_cols, total=sum_status_total)
@@ -571,7 +579,10 @@ def build(a) -> None:
                           "İlk planlanan", "iş")
     sum_tb = ratio_block("GitHub iş adedine göre", len(tb), len(rows), "Teknik borç", "Toplam", "iş")
     sum_status_note = ("GitHub işi: tüm işler" if a.ignore_xurrent else
-                       "GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü")
+                       "Karşılık gelen GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü")
+    status_title = "Statü dağılımı" if a.ignore_xurrent else "Xurrent talebi statü dağılımı"
+    sum_comp_note = ("GitHub işi (talep) adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
+                     if a.ignore_xurrent else "GitHub işi adedi üzerinden (iş tipi kırılımıyla aynı birim)")
 
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
@@ -613,12 +624,12 @@ def build(a) -> None:
                                     status=i["status"], carry=[i["origin"]] if i["carried"] else [],
                                     part_of=g["name"]))
         return out
-    ready_st = {tr_lower(s) for s in a.ready_status}
-    ready_rows = [r for r in rows if tr_lower(r["status"]) in ready_st and has_label(r, a.ready_label)]
+    ready_st = {sk(s) for s in a.ready_status}
+    ready_rows = [r for r in rows if sk(r["status"]) in ready_st and has_label(r, a.ready_label)]
     ready_groups = subset_entries({key_of(r) for r in ready_rows})
     # Canlıya alınanlar = kanbandaki "Canlıda" kolonunun statüleri (etiketten bağımsız)
-    live_st = set(dict(LANES)["Canlıda"])
-    released = [r for r in rows if tr_lower(r["status"]) in live_st]
+    live_st = {sk(x) for x in dict(LANES)["Canlıda"]}
+    released = [r for r in rows if sk(r["status"]) in live_st]
     rel_groups = subset_entries({key_of(r) for r in released})
     ready_html = grouped_list(ready_groups, hexes, a.origin_field, "Bu kriterde iş yok.")
     released_html = grouped_list(rel_groups, hexes, a.origin_field, "Yok.")
@@ -627,6 +638,62 @@ def build(a) -> None:
     ready_note = (f'Canlıya hazır (release bekleyen): statü {", ".join(a.ready_status)} + {lbls} etiketi · '
                   f'Canlıya alınan: {esc(rel_status)} statüsündeki tüm işler (kanbandaki "Canlıda" kolonu) · '
                   f'↳ = talebin yalnızca bu GitHub işi kriterde')
+
+    # ---- Slayt 6: hesaplama varsayımları
+    def nums(rs):
+        return ", ".join("#" + (r.get("url") or "").rsplit("/", 1)[-1] for r in rs) or "—"
+    done_lbl = ", ".join(o["name"] for o in mc["options"] if o["done"] and o["count"]) or "Done, Released"
+    starts = ", ".join(a.sprint_start or []) or "verilmedi"
+    lanes_txt = " · ".join(
+        f"{t}: {', '.join(o['name'] for o in used_opts if sk(o['name']) in {sk(x) for x in st})}"
+        for t, st in LANES if any(sk(o["name"]) in {sk(x) for x in st} for o in used_opts))
+    xurrent_txt = (["Bu takımda Xurrent Talep No kullanılmıyor; tüm sayımlar GitHub işi adedi üzerinden.",
+                    "Aynı talebin BE/FE/SAP/Boomi gibi parçaları tek madde olarak gösterilir, yanında \"N talep\" yazar."]
+                   if a.ignore_xurrent else
+                   ["<b>Xurrent talebi</b>: aynı Xurrent Talep No'ya sahip GitHub işleri tek talep sayılır "
+                    "(BE/FE/App/Web parçaları); talep, tüm işleri bitince tamamlanmış sayılır.",
+                    "<b>Ek talep</b>: Xurrent Talep No'su boş GitHub işi; her biri ayrı sayılır.",
+                    "<b>GitHub işi</b>: panodaki her issue. Planlanan vs. tamamlanan toplamı ve iş tipi kırılımı "
+                    "bu birimle hesaplanır; bu yüzden talep sayısından büyük olabilir.",
+                    "Xurrent statü dağılımında talep, işleri içinde <b>en geride kalanın</b> statüsünde sayılır; "
+                    "\"Karşılık gelen GitHub işi\" o talebe bağlı işlerin adedidir."])
+    cards = [
+        ("Kapsam", [f"Sprint: {esc(', '.join(sorted({r['sprint'] for r in rows} - {''})) or '—')} · "
+                    f"{len(rows)} GitHub işi değerlendirildi.",
+                    f"Hariç tutulanlar: statüsü <b>{esc(', '.join(a.exclude_status))}</b> olan ve "
+                    f"<b>{esc(', '.join(a.exclude_label))}</b> etiketli işler — bu sprintte: {nums(excluded)}.",
+                    "Tüm slayt ve metrikler bu kapsam üzerinden hesaplanır."]),
+        ("Sayım birimleri", xurrent_txt),
+        ("Statüler ve kolonlar", [f"Tamamlandı sayılan statüler: <b>{esc(done_lbl)}</b> (lejantta ✓).",
+                                  f"Kanban kolonları — {esc(lanes_txt)}.",
+                                  "Bir talebin rengi/kolonu, işleri içinde en geride kalanın statüsüdür."]),
+        ("İş tipi", ["Başlıkta [BUG] → <b>Bug</b>; DD Project Name dolu → <b>Proje işi</b>; "
+                     "toplantı, analiz/inceleme, deployment, kurulum, operasyonel işler → <b>Task</b>; "
+                     "diğerleri → <b>User Story</b>.",
+                     "GitHub'ta issue type sütunu dışa aktarılırsa doğrudan o kullanılır."]),
+        ("Etiket bazlı metrikler", [f"Sprint ortasında gelen iş = \"{esc(a.mid_label[0])}\" etiketli işler ÷ "
+                                    "etiketsiz (ilk planlanan) işler.",
+                                    f"Teknik borç payı = \"{esc(a.tb_label[0])}\" etiketli işler ÷ toplam iş.",
+                                    "Etiket karşılaştırmasında büyük/küçük harf, boşluk, - ve _ yok sayılır."]),
+        ("Lead time", ["Yalnız <b>Done ve Released</b> işler; süre <b>takvim günü</b> olarak sprint "
+                       "başlangıcından Closed tarihine kadar ölçülür.",
+                       f"Başlangıç: Original Sprint doluysa o sprintin, değilse işin sprintinin başlangıcı. "
+                       f"Tanımlı başlangıç: {esc(starts)}; diğer sprintler {a.sprint_days} günlük sprint varsayımıyla bulunur.",
+                       f"Closed tarihi boş olduğu için hariç: {esc(', '.join('#' + n for n in no_close) or '—')}."]),
+        ("Canlıya çıkış", [f"Release bekleyen = statü {esc(', '.join(a.ready_status))} + "
+                           f"{esc(' / '.join(a.ready_label[:2]))} etiketi.",
+                           "Canlıya alınan = kanbandaki \"Canlıda\" kolonundaki tüm işler (etiketten bağımsız).",
+                           "Talebin yalnız bir kısmı canlıdaysa o işler GitHub başlığıyla ve ↳ notuyla listelenir."]),
+        ("Diğer", [f"Original Estimate boş olan {missing} iş 0 sayılır (yalnız Takıma özel slaytı etkiler).",
+                   "Önceki sprintten aktarılan: Original Sprint, işin sprintinden farklıysa (↪ Sprint N).",
+                   "Madde adları, GitHub başlıklarından iş birimi diline çevrilmiş tema adlarıdır; "
+                   "teknik ayrıntı için Xurrent / GitHub numarasına bakılabilir."]),
+    ]
+    if warnings:
+        cards.append(("Veri uyarıları", [esc(w) for w in warnings]))
+    assumptions = "".join(
+        f'<div class="acard"><div class="atitle">{t}</div><ul>{"".join(f"<li>{b}</li>" for b in bl)}</ul></div>'
+        for t, bl in cards)
 
     proj = data.get("project") or {}
     sprints = sorted({str(r["fields"].get(a.sprint_field) or "") for r in rows} - {""})
@@ -639,8 +706,7 @@ def build(a) -> None:
         subtitle=esc(subtitle), legend=legend, focus_key=focus_key, focus=focus,
         n_groups=len(groups), n_items=len(rows), n_carry=n_carry,
         comp=comp, comp_note=comp_note,
-        status=multi_table(status_rows, ([] if a.ignore_xurrent else [{"key": "x", "head": "Xurrent talebi"}])
-                           + [{"key": "c", "head": "GitHub işi"}]),
+        status=sum_status, status_title=status_title, sum_comp_note=sum_comp_note,
         types=multi_table(type_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                       {"key": "e", "done": "ed", "head": est_label}]),
         projects=proj_txt, pfield=esc(a.project_field), midp=midp, tbp=tbp,
@@ -649,6 +715,7 @@ def build(a) -> None:
         status_oe=multi_table(status_rows, [{"key": "e", "head": est_label}]),
         people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
+        assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
         sum_mid=sum_mid, sum_tb=sum_tb,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
@@ -721,7 +788,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .chero {{ font-size:92px; font-weight:800; line-height:1.05; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }}
 .bar {{ height:14px; border-radius:7px; background:var(--track); overflow:hidden; margin:10px 0 6px; }}
 .bar i {{ display:block; height:100%; background:var(--accent); border-radius:6px; }}
-.comps.r .chero {{ font-size:72px; }}
+.comps.r .chero {{ font-size:64px; }}
 .comps.r .cnums b {{ font-size:24px; }}
 .bar.warm i {{ background:var(--warm); }}
 .cnums {{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }}
@@ -838,6 +905,14 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .drow.total {{ border-top:2px solid var(--ink-2); font-weight:700; }}
 .drow.total .dl {{ color:var(--ink); }}
 .part {{ font-size:.62em; color:var(--muted); margin-left:.5em; }}
+.agrid {{ flex:1; min-height:0; columns:3; column-gap:22px; --af:17px; overflow:hidden; }}
+.acard {{ break-inside:avoid; border:1px solid var(--rule); border-radius:12px; padding:14px 18px; margin-bottom:16px;
+  font-size:var(--af); line-height:1.4; color:var(--ink-2); }}
+.atitle {{ font-size:calc(var(--af) * .82); font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:6px; }}
+.acard ul {{ margin:0; padding-left:1.1em; }}
+.acard li {{ margin:3px 0; }}
+.acard b {{ color:var(--ink); }}
 .rnote {{ font-size:16px; color:var(--muted); margin-top:14px; }}
 @media print {{
   @page {{ size:1920px 1080px; margin:0; }}
@@ -864,8 +939,8 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </header>
   <div class="grid">
     <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{sum_comp}</div>
-      <div class="pfoot">{comp_note}</div></div>
-    <div class="panel"><div class="ptitle">Statü dağılımı</div>{sum_status}
+      <div class="pfoot">{sum_comp_note}</div></div>
+    <div class="panel"><div class="ptitle">{status_title}</div>{sum_status}
       <div class="pfoot">{sum_status_note}</div></div>
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
@@ -891,7 +966,8 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   <div class="grid">
     <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{comp}</div>
       <div class="pfoot">{comp_note}</div></div>
-    <div class="panel"><div class="ptitle">Statü dağılımı</div>{status}</div>
+    <div class="panel"><div class="ptitle">{status_title}</div>{status}
+      <div class="pfoot">{sum_status_note}</div></div>
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
       {types}
@@ -940,6 +1016,13 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   <div class="rnote">{ready_note}</div>
 </section></div>
 
+<div class="frame"><section class="slide" aria-label="Hesaplama Varsayımları">
+  <header>
+    <div><h1>Hesaplama <span>Varsayımları</span></h1><div class="sub">{subtitle} · bu sunumdaki metrikler nasıl hesaplandı?</div></div>
+  </header>
+  <div class="agrid">{assumptions}</div>
+</section></div>
+
 </div>
 <script>
 (() => {{
@@ -960,6 +1043,12 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     b.style.setProperty('--kf', kf + 'px');
     while (over() && kf > 10) {{ kf -= 0.5; b.style.setProperty('--kf', kf + 'px'); }}
     b.dataset.fitted = kf;
+  }});
+  document.querySelectorAll('.agrid').forEach(g => {{
+    let af = 18;
+    const over = () => g.scrollHeight > g.clientHeight + 1 || g.scrollWidth > g.clientWidth + 1;
+    g.style.setProperty('--af', af + 'px');
+    while (over() && af > 11) {{ af -= 0.5; g.style.setProperty('--af', af + 'px'); }}
   }});
   document.body.dataset.fitted = [...document.querySelectorAll('.list, .board')].map(l => l.dataset.fitted).join('/');
   const scale = () => document.documentElement.style.setProperty('--s',
