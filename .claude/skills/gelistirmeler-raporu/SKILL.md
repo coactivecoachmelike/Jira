@@ -91,10 +91,19 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
-## Sprint sunumu (4 slayt, 16:9, HTML + PNG)
+## Sprint sunumu (5 slayt, 16:9, HTML + PNG)
 
 Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
-(veri kaynağı seçenekleri `build_report.py` ile aynı). Çıktı her zaman şu 4 slayttır:
+(veri kaynağı seçenekleri `build_report.py` ile aynı).
+
+**Hariç tutma:** Statüsü **Backlog** olan ve **RetroAction** etiketli işler tüm slayt ve
+metriklerden çıkarılır (`--exclude-status`, `--exclude-label`); betik hariç tutulan iş
+numaralarını konsola yazar.
+
+**Statü renkleri:** Todo kırmızı · In Progress sarı · Review **gri** · Test turuncu ·
+UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
+
+Çıktı her zaman şu 5 slayttır:
 
 1. **Sprint'te Odaklandığımız İşler** — kanban düzeni: 5 kolon (Yapılacak: Backlog/Todo ·
    Geliştirmede: In Progress/Review/Blocked · Test: Test/UAT · Tamamlandı: Done ·
@@ -109,7 +118,15 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
    bullet (grubun **en geride** kalan işinin statüsü), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
    statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
    işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
-2. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
+2. **Metriklerimiz - Özet** — sade, yalnız GitHub/talep adedi (Original Estimate yok):
+   - Planlanan vs. tamamlanan: yalnız **Toplam** (Xurrent + ek talep).
+   - Statü dağılımı: Xurrent talebi | GitHub işi; GitHub işi = **yalnız Xurrent taleplerine
+     bağlı** işler (talebin statüsü satırında). En altta **Toplam** satırı; tamamen 0 olan
+     satırlar gizlenir.
+   - İş tipi kırılımı: GitHub işi (planlanan/tamamlanan) + **Toplam** satırı.
+   - Sprint ortasında gelen iş ve teknik borç: yalnız GitHub iş adedine göre.
+   - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla.
+3. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
    - Planlanan vs. tamamlanan: **Toplam** (Xurrent + ek), **distinct Xurrent talebi**
      (talep, tüm GitHub işleri bitince tamamlanmış sayılır) ve **ek talepler**
      (Xurrent no'suz GitHub işleri) — üç ayrı oran.
@@ -123,15 +140,18 @@ Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py`
      sprint başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o
      sprintin, boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır; önceki
      sprintler mevcut sprintten geriye her biri `--sprint-days` (14) gün sayılarak bulunur.
-3. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
+4. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
    (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
    bazında planlanan vs. tamamlanan (GitHub işi | OE).
-4. **Canlıya Çıkmaya Hazır Olan İşler** — statüsü `Done` **ve** `Ready For Release` ya da
-   `WaitingRelease` / `Waiting For Release` etiketli işler (release bekleyenler), slayt
-   1'deki gibi gruplanmış tema adlarıyla. Yanında ayrı başlıkla "Bu sprintte canlıya
-   alınanlar": aynı etiketlerden biri olup Released vb. bitmiş statüdeki işler. Her iki
-   kolonda maddeler kanbandaki gibi **Proje → User Story → Task → Bug** alt başlıkları
-   altında gruplanır; maddelerde tür etiketi yoktur, "N talep" yalnız birden fazlaysa yazar.
+5. **Canlıya Çıkmaya Hazır Olan İşler** — gruplama slayt 1 ile aynıdır (Xurrent Talep No).
+   - Sol: **release bekleyen** = statü `Done` + `Ready For Release` / `WaitingRelease` /
+     `Waiting For Release` etiketi.
+   - Sağ: **Bu sprintte canlıya alınanlar** = kanbandaki "Canlıda" kolonunun (Released vb.)
+     **tüm** işleri, etiketten bağımsız — slayt 1 ile birebir tutarlı.
+   - Bir talebin tüm işleri kriterdeyse tema adıyla; yalnız bir kısmı kriterdeyse o işler
+     **GitHub başlığıyla** ve "↳ talep adı" notuyla listelenir.
+   - Her iki kolonda Proje → User Story → Task → Bug alt başlıkları; "N talep" yalnız
+     birden fazlaysa. Canlıya alınan çoksa sağ kolon genişler ve iki sütuna bölünür.
 
 ### Akış
 
@@ -143,7 +163,7 @@ python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --dump-theme
 # 2) temalar.json yaz: her grup anahtarı → iş biriminin anlayacağı tema adı
 # 3) Son hali üret ve PNG'ye çevir
 python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --sprint-start "Sprint 4=2026-10-05" --themes $D/temalar.json -o $D/slaytlar.html
-node $S/export_png.mjs $D/slaytlar.html $D/slayt      # -> slayt-1..4.png (1920x1080)
+node $S/export_png.mjs $D/slaytlar.html $D/slayt      # -> slayt-1..5.png (1920x1080)
 ```
 
 Önceki bir sprintin `temalar.json`'u varsa yeni taslaktaki başlıkları eskisininkilerle
@@ -156,7 +176,9 @@ diliyle söyle (ör. "Yeni Üyelik | ... Hatırlatma Maili BE/FE" → "Evraklar�
 tamamlamayan yeni üyelere otomatik hatırlatma e-postası"). Başlıkta olmayan bilgi
 uydurma; emin değilsen başlığa sadık kal. Bug'larda sorunu anlat ("... yaşanan hata").
 `temalar.json` biçimi `{"<grup anahtarı>": "<ad>"}`; talep no'su olmayan farklı
-anahtarlara **aynı ad** verilirse tek madde olarak birleşir ve yanında "N talep" yazar — aynı
+anahtarlara **aynı ad** verilirse tek madde olarak birleşir (bunu yalnız Xurrent'ı
+kullanmayan takımlarda, ör. Back Office, yap; Xurrent kullanan takımlarda gruplama yalnız
+Xurrent Talep No'ya göredir, no'suz işlere ayrı adlar ver) ve yanında "N talep" yazar — aynı
 talebin otomatik birleşmeyen parçalarını (ör. "Toplu Sevk BE İhtiyaçları" + "Toplu Sevk FE
 Bağlamalar", "(SAP)" + "(Boomi)") böyle birleştir; anahtarlar taslaktakiyle birebir
 aynı olmalı. Dosyayı çıktı klasöründe sakla (sonraki sprintte aynı talepler için

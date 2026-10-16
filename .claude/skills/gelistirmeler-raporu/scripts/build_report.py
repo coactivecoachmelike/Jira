@@ -46,8 +46,8 @@ NO_STATUS_COLOR = "#C4CAD2"
 DEFAULT_STATUS_COLORS = {
     "backlog": "GRAY", "todo": "RED", "to do": "RED", "yapılacak": "RED",
     "in progress": "YELLOW", "devam ediyor": "YELLOW", "geliştirmede": "YELLOW",
-    "in review": "PURPLE", "review": "PURPLE", "code review": "PURPLE",
-    "test": "ORANGE", "qa": "ORANGE", "uat": "PINK", "blocked": "RED", "engelli": "RED",
+    "in review": "GRAY", "review": "GRAY", "code review": "GRAY",
+    "test": "ORANGE", "qa": "ORANGE", "uat": "PURPLE", "blocked": "RED", "engelli": "RED",
     "released": "GREEN", "yayında": "GREEN",
     "done": "BLUE", "tamamlandı": "BLUE", "closed": "BLUE", "canlıda": "GREEN",
 }

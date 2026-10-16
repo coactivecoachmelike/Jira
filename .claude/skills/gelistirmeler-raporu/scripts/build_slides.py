@@ -240,7 +240,7 @@ def mini_comp(label: str, done: float, total: float, unit: str, note: str = "") 
 </div>"""
 
 
-def multi_table(rows: list[dict], cols: list[dict], label_fr: float = 1.25) -> str:
+def multi_table(rows: list[dict], cols: list[dict], label_fr: float = 1.25, total: dict | None = None) -> str:
     """Satır başına bir etiket + her ölçü için çubuk ve değer. Her ölçü kendi ölçeğinde.
     cols: {"key": toplam anahtarı, "done": tamamlanan anahtarı|None, "head": başlık}"""
     tmpl = f"minmax(0,{label_fr}fr) " + " ".join("minmax(0,1fr) 88px" for _ in cols)
@@ -264,6 +264,13 @@ def multi_table(rows: list[dict], cols: list[dict], label_fr: float = 1.25) -> s
                          f'<div class="dv">{val}</div>')
         out.append(f'<div class="drow" style="grid-template-columns:{tmpl}">'
                    f'<div class="dl" title="{esc(r["label"])}">{dot}{esc(r["label"])}</div>{"".join(cells)}</div>')
+    if total:
+        cells = "".join(
+            f'<div></div><div class="dv">'
+            + (f'{fmt(total[c["done"]])}<span>/{fmt(total[c["key"]])}</span>' if c.get("done") else fmt(total[c["key"]]))
+            + '</div>' for c in cols)
+        out.append(f'<div class="drow total" style="grid-template-columns:{tmpl}">'
+                   f'<div class="dl">{esc(total.get("label", "Toplam"))}</div>{cells}</div>')
     return '<div class="dual">' + "".join(out) + "</div>"
 
 
@@ -283,9 +290,11 @@ def group_li(g: dict, hexes: dict, origin_label: str, show_cat: bool = True) -> 
     carry = ""
     if g["carry"]:
         carry = (f' <span class="carry" title="{esc(origin_label)}: {esc(", ".join(g["carry"]))}">'
-                 f'↪ Aktarıldı: {esc(", ".join(g["carry"]))}</span>')
+                 f'↪ {esc(", ".join(g["carry"]))}</span>')
     tip = "\n".join(f'{i["status"]} · {display_title(i["raw_title"])}' for i in g["items"])
     xno = f'<span class="xno">#{esc(g["xno"])}</span>' if g["xno"] else ""
+    if g.get("part_of"):
+        xno = f'<span class="part" title="Talebin yalnızca bu GitHub işi">↳ {esc(g["part_of"])}</span>' + xno
     return (f'<li class="{"carried" if g["carry"] else ""}" title="{esc(tip)}">'
             f'<span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
             f'<span class="t">'
@@ -395,6 +404,11 @@ def load(a) -> tuple[dict, list[dict], list[str]]:
 
 def build(a) -> None:
     data, items, warnings = load(a)
+    # Backlog statüsündeki ve RetroAction etiketli işler hiçbir slayta/metriğe girmez
+    ex_st = {tr_lower(x) for x in a.exclude_status}
+    excluded = [i for i in items if tr_lower(str(i["fields"].get(a.status_field) or "")) in ex_st
+                or has_label(i, a.exclude_label)]
+    items = [i for i in items if i not in excluded]
     for it in items:
         it["raw_title"] = it["title"]
         it["title"] = display_title(it["title"])
@@ -533,6 +547,32 @@ def build(a) -> None:
     else:
         lead_stats, hist = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
 
+    # ---- Özet slaytı: yalnız adet bazlı, sadeleştirilmiş
+    if a.ignore_xurrent:
+        sum_comp = completion_block("GitHub talepleri", e_done_n, len(ek), "talep")
+        sum_status_rows = [{"label": r["label"], "color": r["color"], "c": r["c"]} for r in status_rows]
+        sum_status_cols = [{"key": "c", "head": "GitHub işi"}]
+        sum_status_total = {"label": "Toplam", "c": len(rows)}
+    else:
+        sum_comp = completion_block("Toplam talep <small>(Xurrent + ek)</small>", x_done + e_done_n,
+                                    len(xg) + len(ek), "talep")
+        # GitHub işi = yalnız Xurrent taleplerine bağlı işler (talebin statüsüne göre)
+        sum_status_rows = [{"label": r["label"], "color": r["color"], "x": r["x"],
+                            "c": sum(len(g["items"]) for g in xg if g["status"] == o["name"])}
+                           for r, o in zip(status_rows, used_opts)]
+        sum_status_cols = [{"key": "x", "head": "Xurrent talebi"}, {"key": "c", "head": "GitHub işi"}]
+        sum_status_total = {"label": "Toplam", "x": len(xg), "c": sum(len(g["items"]) for g in xg)}
+    sum_status_rows = [r for r in sum_status_rows if any(r[c["key"]] for c in sum_status_cols)]
+    sum_status = multi_table(sum_status_rows, sum_status_cols, total=sum_status_total)
+    sum_types = multi_table(type_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"}],
+                            total={"label": "Toplam", "c": sum(t["c"] for t in type_rows),
+                                   "cd": sum(t["cd"] for t in type_rows)})
+    sum_mid = ratio_block("GitHub iş adedine göre", len(mid), len(plan), "Sprint ortasında gelen",
+                          "İlk planlanan", "iş")
+    sum_tb = ratio_block("GitHub iş adedine göre", len(tb), len(rows), "Teknik borç", "Toplam", "iş")
+    sum_status_note = ("GitHub işi: tüm işler" if a.ignore_xurrent else
+                       "GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü")
+
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
     missing = sum(1 for r in rows if not r["est"])
@@ -554,18 +594,39 @@ def build(a) -> None:
     people_rows = sorted(people.values(), key=lambda d: (-d["e"], -d["c"], d["label"]))
 
     # ---- Slayt 4: canlıya çıkmaya hazır
+    # Gruplama slayt 1 ile aynı (Xurrent Talep No). Talebin tüm işleri kriterdeyse tema adıyla,
+    # yalnız bir kısmı kriterdeyse o işler GitHub başlığıyla ve "↳ talep adı" notuyla listelenir.
+    def key_of(r):
+        return r.get("url") or id(r)
+
+    def subset_entries(ids):
+        out = []
+        for g in groups:
+            sel = [i for i in g["items"] if key_of(i) in ids]
+            if not sel:
+                continue
+            if len(sel) == len(g["items"]):
+                out.append(g)
+            else:
+                for i in sel:
+                    out.append(dict(g, items=[i], name=display_title(i["raw_title"]), kind=i["kind"],
+                                    status=i["status"], carry=[i["origin"]] if i["carried"] else [],
+                                    part_of=g["name"]))
+        return out
     ready_st = {tr_lower(s) for s in a.ready_status}
     ready_rows = [r for r in rows if tr_lower(r["status"]) in ready_st and has_label(r, a.ready_label)]
-    ready_groups = group_items(ready_rows, order, themes)
-    released = [r for r in rows if tr_lower(r["status"]) not in ready_st and r["done"]
-                and has_label(r, a.ready_label)]
+    ready_groups = subset_entries({key_of(r) for r in ready_rows})
+    # Canlıya alınanlar = kanbandaki "Canlıda" kolonunun statüleri (etiketten bağımsız)
+    live_st = set(dict(LANES)["Canlıda"])
+    released = [r for r in rows if tr_lower(r["status"]) in live_st]
+    rel_groups = subset_entries({key_of(r) for r in released})
     ready_html = grouped_list(ready_groups, hexes, a.origin_field, "Bu kriterde iş yok.")
-    rel_groups = group_items(released, order, themes)
     released_html = grouped_list(rel_groups, hexes, a.origin_field, "Yok.")
     rel_status = ", ".join(sorted({r["status"] for r in released})) or "—"
     lbls = " / ".join(f'"{esc(x)}"' for x in a.ready_label[:2])
     ready_note = (f'Canlıya hazır (release bekleyen): statü {", ".join(a.ready_status)} + {lbls} etiketi · '
-                  f'Canlıya alınan: aynı etiketlerden biri ve {esc(rel_status)} statüsünde')
+                  f'Canlıya alınan: {esc(rel_status)} statüsündeki tüm işler (kanbandaki "Canlıda" kolonu) · '
+                  f'↳ = talebin yalnızca bu GitHub işi kriterde')
 
     proj = data.get("project") or {}
     sprints = sorted({str(r["fields"].get(a.sprint_field) or "") for r in rows} - {""})
@@ -588,12 +649,19 @@ def build(a) -> None:
         status_oe=multi_table(status_rows, [{"key": "e", "head": est_label}]),
         people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
+        sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
+        sum_mid=sum_mid, sum_tb=sum_tb,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
-        released=released_html, n_released=len(rel_groups), rel_status=esc(rel_status),
+        released=released_html, n_released=len(rel_groups),
+        rel_cols=2 if len(rel_groups) > 12 else 1,
+        rgrid="minmax(0,1fr) minmax(0,1.9fr)" if len(rel_groups) > 12 else "1fr 1fr", rel_status=esc(rel_status),
     )
     with open(a.output, "w", encoding="utf-8") as fh:
         fh.write(page)
 
+    if excluded:
+        print(f"  hariç tutulan (Backlog / RetroAction): " + ", ".join(
+            "#" + (i.get("url") or "").rsplit("/", 1)[-1] for i in excluded))
     print(f"{a.output} yazıldı: {len(rows)} GitHub işi → {len(groups)} tema "
           f"({len(xg)} Xurrent talebi, {len(ek)} ek iş)")
     print(f"  Xurrent: {sum(g['done'] for g in xg)}/{len(xg)} tamam · ek: {sum(r['done'] for r in ek)}/{len(ek)}")
@@ -766,6 +834,10 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .lempty {{ color:var(--muted); text-align:center; padding:20px 0; }}
 .list li.lgroup {{ border:0; padding:calc(var(--fs) * .6) 0 calc(var(--fs) * .15); break-after:avoid; }}
 .list li.lgroup .khead {{ width:100%; font-size:calc(var(--fs) * .62); }}
+.comps.one {{ grid-template-columns:1fr; }}
+.drow.total {{ border-top:2px solid var(--ink-2); font-weight:700; }}
+.drow.total .dl {{ color:var(--ink); }}
+.part {{ font-size:.62em; color:var(--muted); margin-left:.5em; }}
 .rnote {{ font-size:16px; color:var(--muted); margin-top:14px; }}
 @media print {{
   @page {{ size:1920px 1080px; margin:0; }}
@@ -783,6 +855,32 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <ul class="legend">{legend}<li class="sep"></li>{focus_key}</ul>
   </header>
   {focus}
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz - Özet">
+  <header>
+    <div><h1>Metriklerimiz <span>- Özet</span></h1><div class="sub">{subtitle}</div></div>
+    <ul class="legend">{legend}</ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{sum_comp}</div>
+      <div class="pfoot">{comp_note}</div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı</div>{sum_status}
+      <div class="pfoot">{sum_status_note}</div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      {sum_types}
+      <div class="pfoot">GitHub'taki talep (iş) sayısı üzerinden · Proje işleri ({pfield}): {projects}</div></div>
+    <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r one">{sum_mid}</div>
+      <ul class="names">{mid_list}</ul>
+      <div class="pfoot">"{mid_label}" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
+    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r one">{sum_tb}</div>
+      <ul class="names">{tb_list}</ul>
+      <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
+      <div class="lstats">{lead_stats}</div>{hist}</div>
+  </div>
 </section></div>
 
 <div class="frame"><section class="slide" aria-label="Metriklerimiz">
@@ -805,7 +903,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -829,13 +927,13 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <div><h1>Canlıya Çıkmaya Hazır Olan İşler</h1><div class="sub">{subtitle}</div></div>
     <ul class="legend">{focus_key}</ul>
   </header>
-  <div class="rgrid">
+  <div class="rgrid" style="grid-template-columns:{rgrid}">
     <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>{n_ready}</b></div>
       <ul class="list" style="--cols:1;--max:30">
 {ready}
       </ul></div>
     <div class="rsec done"><div class="rtitle">Bu sprintte canlıya alınanlar <b>{n_released}</b> <small>({rel_status})</small></div>
-      <ul class="list" style="--cols:1;--max:22">
+      <ul class="list" style="--cols:{rel_cols};--max:22">
 {released}
       </ul></div>
   </div>
@@ -898,6 +996,10 @@ def main() -> None:
                     help="Talep no alanı; yoksa başlıktaki baştaki numara kullanılır")
     ap.add_argument("--ignore-xurrent", action="store_true",
                     help="Xurrent Talep No'yu yok say; metrikler yalnız GitHub işi adedi üzerinden")
+    ap.add_argument("--exclude-status", action="append", default=None,
+                    help="Tüm slayt/metriklerden hariç tutulan statüler (varsayılan Backlog)")
+    ap.add_argument("--exclude-label", action="append", default=None,
+                    help="Tüm slayt/metriklerden hariç tutulan etiketler (varsayılan RetroAction)")
     ap.add_argument("--origin-field", default="Original Sprint",
                     help="Doluysa iş önceki sprintten aktarılmış sayılır")
     ap.add_argument("--project-field", default="DD Project Name", help="Doluysa 'Proje işi'")
@@ -921,6 +1023,8 @@ def main() -> None:
     a.ready_label = a.ready_label or ["Ready For Release", "WaitingRelease", "Waiting For Release"]
     a.ready_status = a.ready_status or ["Done"]
     a.lead_status = a.lead_status or ["Done", "Released"]
+    a.exclude_status = a.exclude_status or ["Backlog"]
+    a.exclude_label = a.exclude_label or ["RetroAction"]
     build(a)
 
 
