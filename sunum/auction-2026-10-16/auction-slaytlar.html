@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprint Sunumu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#E9EDF2; --slide:#FFFFFF; --ink:#0B1F3A; --ink-2:#3B4A5E; --muted:#6B7788;
+  --rule:#DCE6EE; --accent:#1FA3B5; --warm:#E07B39; --track:#E8EDF2; --plan:#C9D5E1; --s:1; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Plus Jakarta Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+.deck { display:flex; flex-direction:column; align-items:center; gap:24px; padding:24px 0; }
+.frame { width:calc(1920px * var(--s)); height:calc(1080px * var(--s)); overflow:hidden;
+  box-shadow:0 2px 12px rgba(11,31,58,.12); }
+.slide { width:1920px; height:1080px; background:var(--slide); padding:44px 60px 36px;
+  transform:scale(var(--s)); transform-origin:0 0; display:flex; flex-direction:column; }
+header { display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:22px; }
+h1 { white-space:nowrap; font-size:56px; font-weight:800; letter-spacing:-.02em; margin:0; line-height:1.05; }
+h1 span { color:var(--accent); font-weight:600; }
+.sub { color:var(--muted); font-size:19px; margin-top:10px; white-space:nowrap; }
+.legend { list-style:none; margin:0; padding:12px 18px; display:flex; flex-wrap:wrap; gap:8px 22px; align-items:center;
+  border:1px solid var(--rule); border-radius:12px; font-size:17px; color:var(--ink-2); justify-content:flex-end; min-width:0; flex:0 1 auto; }
+.legend li { display:flex; align-items:center; }
+.legend .sep { width:1px; height:22px; background:var(--rule); }
+.dot { display:inline-block; width:13px; height:13px; border-radius:50%; background:var(--c); margin-right:9px; flex:none; }
+/* paneller */
+.grid { flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr); gap:18px; }
+.grid.one { grid-template-rows:minmax(0,1fr); }
+.grid.one .dual { justify-content:flex-start; }
+.grid.one .drow { max-height:92px; font-size:20px; }
+.grid.one .db { height:18px; }
+.panel { border:1px solid var(--rule); border-radius:14px; padding:18px 22px; display:flex; flex-direction:column; min-height:0; }
+.ptitle { font-size:16px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:10px; }
+.pfoot { font-size:14px; color:var(--muted); margin-top:auto; padding-top:10px; line-height:1.45; }
+.pfoot b { color:var(--ink); }
+.comps { display:grid; grid-template-columns:1fr 1fr; gap:22px; flex:1; }
+.comp { display:flex; flex-direction:column; justify-content:center; }
+.clabel { font-size:17px; color:var(--ink-2); font-weight:600; }
+.clabel small { font-weight:400; color:var(--muted); font-size:14px; }
+.chero { font-size:92px; font-weight:800; line-height:1.05; letter-spacing:-.03em; font-variant-numeric:tabular-nums; }
+.bar { height:14px; border-radius:7px; background:var(--track); overflow:hidden; margin:10px 0 6px; }
+.bar i { display:block; height:100%; background:var(--accent); border-radius:6px; }
+.comps.r .chero { font-size:64px; }
+.comps.r .cnums b { font-size:24px; }
+.bar.warm i { background:var(--warm); }
+.cnums { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; }
+.cnums.two { grid-template-columns:1fr 1fr; }
+.cnums div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:6px; }
+.cnums span { font-size:14px; color:var(--muted); }
+.cnums b { font-size:28px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.cnums small, .lstats small { font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }
+.cnote { font-size:14px; color:var(--muted); margin-top:8px; }
+.minis { display:flex; flex-direction:column; justify-content:space-evenly; flex:1; gap:18px; }
+.mini .mtop { display:flex; align-items:baseline; justify-content:space-between; }
+.mlabel { font-size:20px; font-weight:600; color:var(--ink-2); }
+.mlabel small { font-size:14px; font-weight:400; color:var(--muted); }
+.mhero { font-size:64px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1; }
+.mini .bar { margin:10px 0 10px; }
+.grid:not(.one) .minis { gap:6px; }
+.grid:not(.one) .mhero { font-size:44px; }
+.grid:not(.one) .mlabel { font-size:17px; }
+.grid:not(.one) .mini .bar { margin:6px 0 6px; height:12px; }
+.grid:not(.one) .mnums { font-size:14px; gap:16px; }
+.grid:not(.one) .mnums b { font-size:17px; }
+.mnums { display:flex; gap:22px; font-size:16px; color:var(--muted); }
+.mnums b { color:var(--ink); font-size:20px; font-variant-numeric:tabular-nums; }
+.dual { display:flex; flex-direction:column; flex:1; justify-content:space-evenly; }
+.dhead, .drow { display:grid; column-gap:10px; align-items:center; }
+.dhead { font-size:14px; color:var(--muted); padding-bottom:5px; }
+.drow { border-top:1px solid var(--rule); padding:6px 0; font-size:18px; flex:1; max-height:64px; }
+.dl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink-2); display:flex; align-items:center; }
+.db { position:relative; height:14px; }
+.tr, .fi { position:absolute; left:0; top:0; height:100%; border-radius:0 4px 4px 0; }
+.tr { background:var(--plan); } .fi { background:var(--ink); }
+.dv { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.dv span { color:var(--muted); font-weight:400; }
+.pkey { display:flex; gap:18px; font-size:14px; color:var(--ink-2); margin:-2px 0 8px; }
+.pkey span::before { content:""; display:inline-block; width:14px; height:9px; border-radius:2px; margin-right:6px; background:var(--k); }
+.lstats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:10px; }
+.lstats div { display:flex; flex-direction:column; border-top:1px solid var(--rule); padding-top:5px; }
+.lstats span { font-size:13px; color:var(--muted); }
+.lstats b { font-size:24px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.lsub { font-size:13px; color:var(--muted); margin:-6px 0 8px; }
+.hist { display:flex; flex-direction:column; min-height:0; flex:1; }
+.hplot { flex:1; min-height:80px; display:flex; align-items:flex-end; gap:6px; border-bottom:1px solid var(--plan); }
+.hcol { flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; }
+.hval { text-align:center; font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; margin-bottom:3px; }
+.hbar { border-radius:4px 4px 0 0; }
+.hx { display:flex; gap:6px; font-size:13px; color:var(--muted); margin-top:5px; }
+.hx div { flex:1; text-align:center; white-space:nowrap; }
+.emptymsg { margin:auto; font-size:20px; color:var(--ink-2); }
+/* listeler */
+.list { flex:1; min-height:0; list-style:none; margin:0; padding:0; columns:var(--cols, 3); column-gap:56px;
+  column-fill:auto; column-rule:1px solid var(--accent); --fs:22px; overflow:hidden; }
+.list li { break-inside:avoid; display:flex; align-items:flex-start; gap:2px; padding:calc(var(--fs) * .45) 0;
+  border-bottom:1px solid var(--rule); font-size:var(--fs); line-height:1.3; font-weight:500; }
+.list .dot { width:calc(var(--fs) * .55); height:calc(var(--fs) * .55); margin-top:calc(var(--fs) * .38); }
+.list .t { flex:1; }
+.list li.empty { color:var(--muted); border:0; }
+.cat { display:inline-block; font-size:.62em; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  padding:.15em .5em; border-radius:5px; vertical-align:.12em; margin-right:.2em; white-space:nowrap;
+  background:#EDF1F6; color:#3B4A5E; }
+.cat.story { background:#E3EEFB; color:#1D4E89; }
+.cat.proj { background:#DDF3F5; color:#0F6470; }
+.cat.bug { background:#FCE4E2; color:#A3261C; }
+.cat.task { background:#ECEDEF; color:#4A5363; }
+.carry { display:inline-block; font-size:.62em; font-weight:700; padding:.15em .55em; border-radius:999px;
+  vertical-align:.12em; margin-left:.35em; white-space:nowrap; background:#FFD666; color:#5C3B00; border:1px solid #F0A800; }
+.list li.carried { background:linear-gradient(90deg, rgba(255,214,102,.28), transparent 70%); }
+.xno { font-size:.6em; color:var(--muted); margin-left:.5em; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.cnt { font-size:calc(var(--fs) * .66); color:var(--ink-2); border:1px solid var(--rule); border-radius:999px;
+  padding:1px 9px; margin:2px 0 0 10px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.legend .cnt { font-size:14px; margin:0; }
+.legend .cat, .legend .carry { font-size:12px; vertical-align:0; margin:0; }
+.names { list-style:none; margin:10px 0 0; padding:8px 0 0; border-top:1px solid var(--rule);
+  columns:2; column-gap:18px; font-size:14px; color:var(--ink-2); }
+.names li { display:block; break-inside:avoid; padding:2px 0; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.names .dot { width:9px; height:9px; margin:0 7px 0 0; vertical-align:0; }
+.rgrid { flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+.rsec { display:flex; flex-direction:column; min-height:0; }
+.rsec .list { column-rule:none; }
+.rtitle { font-size:22px; font-weight:700; padding-bottom:10px; border-bottom:3px solid var(--accent); margin-bottom:4px; }
+.rtitle b { display:inline-block; min-width:34px; text-align:center; background:var(--accent); color:#fff;
+  border-radius:999px; padding:0 10px; margin-left:8px; font-size:18px; }
+.rtitle small { font-weight:400; color:var(--muted); font-size:16px; }
+.rsec.done .rtitle { border-color:var(--plan); color:var(--ink-2); }
+.rsec.done .rtitle b { background:var(--plan); color:var(--ink); }
+/* kanban */
+.board { flex:1; min-height:0; display:grid; gap:16px; --kf:17px; }
+.lane { display:flex; flex-direction:column; min-height:0; background:#F7F9FB; border-radius:14px; padding:12px 14px; }
+.lhead { display:flex; flex-wrap:wrap; row-gap:2px; align-items:baseline; gap:10px; overflow:hidden; padding:4px 4px 10px; margin-bottom:10px;
+  border-bottom:4px solid var(--c); font-size:21px; font-weight:700; }
+.lhead b { font-size:15px; background:var(--c); color:#fff; border-radius:999px; padding:1px 10px; }
+.lhead small { margin-left:auto; font-size:13px; font-weight:500; color:var(--muted); white-space:nowrap; }
+.cards { flex:1; min-height:0; overflow:hidden; column-width:230px; column-gap:12px; column-fill:balance; }
+.cards .kitem { break-inside:avoid; }
+.kitem { display:flex; align-items:flex-start; gap:2px; padding:calc(var(--kf) * .42) 2px;
+  border-bottom:1px solid var(--rule); font-size:var(--kf); line-height:1.3; font-weight:500; }
+.kitem .dot { width:calc(var(--kf) * .55); height:calc(var(--kf) * .55); margin-top:calc(var(--kf) * .38); }
+.kitem .kt { flex:1; }
+.kitem .cat, .kitem .carry { font-size:.62em; vertical-align:.12em; }
+.kitem.carried { background:linear-gradient(90deg, rgba(255,214,102,.35), transparent 85%); border-radius:4px; }
+.kgroup { margin-bottom:calc(var(--kf) * .7); }
+.khead { display:flex; align-items:center; gap:8px; font-size:calc(var(--kf) * .72); font-weight:800;
+  letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:6px; margin:2px 0 2px;
+  break-after:avoid; background:#EDF1F6; color:#3B4A5E; }
+.khead span { font-weight:600; opacity:.75; }
+.khead.story { background:#E3EEFB; color:#1D4E89; }
+.khead.proj { background:#DDF3F5; color:#0F6470; }
+.khead.bug { background:#FCE4E2; color:#A3261C; }
+.khead.task { background:#ECEDEF; color:#4A5363; }
+.kmeta { font-size:.7em; color:var(--muted); white-space:nowrap; }
+.lempty { color:var(--muted); text-align:center; padding:20px 0; }
+.list li.lgroup { border:0; padding:calc(var(--fs) * .6) 0 calc(var(--fs) * .15); break-after:avoid; }
+.list li.lgroup .khead { width:100%; font-size:calc(var(--fs) * .62); }
+.comps.one { grid-template-columns:1fr; }
+.drow.total { border-top:2px solid var(--ink-2); font-weight:700; }
+.drow.total .dl { color:var(--ink); }
+.part { font-size:.62em; color:var(--muted); margin-left:.5em; }
+.agrid { flex:1; min-height:0; columns:3; column-gap:22px; --af:17px; overflow:hidden; }
+.acard { break-inside:avoid; border:1px solid var(--rule); border-radius:12px; padding:14px 18px; margin-bottom:16px;
+  font-size:var(--af); line-height:1.4; color:var(--ink-2); }
+.atitle { font-size:calc(var(--af) * .82); font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:6px; }
+.acard ul { margin:0; padding-left:1.1em; }
+.acard li { margin:3px 0; }
+.acard b { color:var(--ink); }
+.rnote { font-size:16px; color:var(--muted); margin-top:14px; }
+@media print {
+  @page { size:1920px 1080px; margin:0; }
+  body { background:none; } .deck { padding:0; gap:0; } .frame { box-shadow:none; break-after:page; }
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<div class="frame"><section class="slide" aria-label="Sprint'te Odaklandığımız İşler">
+  <header>
+    <div><h1>Sprint'te Odaklandığımız İşler</h1>
+      <div class="sub">Auction · Sprint 4 · 19.10.2026 · 36 talep (46 GitHub işi)</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#8C959F"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#A475F9"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li><li class="sep"></li><li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li><li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li><li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li></ul>
+  </header>
+  <div class="board" style="grid-template-columns:minmax(260px,392fr) minmax(260px,691fr) minmax(260px,337fr) minmax(260px,240fr) minmax(260px,1370fr)"><div class="lane"><div class="lhead" style="--c:#E5534B"><span>Yapılacak</span><b>4</b><small>5 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>3</span></div><div class="kitem" title="Todo · Yeni Üyelik | Müşteri Aktivasyonu Sonrası Otomatik Hoş Geldiniz Maili Gönderimi"><span class="dot" style="--c:#E5534B"></span><span class="kt">Aktivasyon sonrası yeni üyelere otomatik hoş geldiniz e-postası</span></div><div class="kitem" title="Todo · Ekspertiz Talep Ekranına KM ve Son Ekspertiz Tarihi Bilgilerinin Eklenmesi"><span class="dot" style="--c:#E5534B"></span><span class="kt">Ekspertiz talep ekranında KM ve son ekspertiz tarihinin gösterilmesi</span></div><div class="kitem" title="Todo · Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili FE
+Done · Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili BE"><span class="dot" style="--c:#E5534B"></span><span class="kt">Evraklarını tamamlamayan yeni üyelere otomatik hatırlatma e-postası <span class="kmeta">2 talep</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>1</span></div><div class="kitem" title="Todo · [BUG] Canlı İhaledeki Araçların Satışlarının İptal Olması Hk."><span class="dot" style="--c:#E5534B"></span><span class="kt">Canlı ihaledeki araç satışlarının iptal olması</span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#D4A72C"><span>Geliştirmede</span><b>9</b><small>12 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>8</span></div><div class="kitem carried" title="In Progress · Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi FE
+Done · Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi BE"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Devir kartında tedarikçi noter bilgisinin güncellenmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">In Progress · 2 talep</span></span></div><div class="kitem carried" title="In Progress · One Click Auction - Araç Bilgilerinin SmartIq&#x27;dan Jarvise İletilmesi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Tek tıkla ihale: araç bilgilerinin SmartIQ&#x27;dan Jarvis&#x27;e aktarılması <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">In Progress</span></span></div><div class="kitem carried" title="In Progress · One Click Auction - Araçların İhaleye Eklenmesi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Tek tıkla ihale: araçların ihaleye eklenmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · Baicom renk değişimi
+UAT · İhale ekranları renk değişimi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Baicom ve ihale ekranlarında renk güncellemesi <span class="kmeta">In Progress · 2 talep</span></span></div><div class="kitem" title="In Progress · ihale lokasyon bilgisi hk."><span class="dot" style="--c:#D4A72C"></span><span class="kt">İhale lokasyon bilgisinin düzenlenmesi <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · One Click Auction - Araç Satıldı Bilgisi"><span class="dot" style="--c:#D4A72C"></span><span class="kt">Tek tıkla ihale: aracın satıldı bilgisinin iletilmesi <span class="kmeta">In Progress</span></span></div><div class="kitem" title="In Progress · One Click Auction - İhaleye Eklenen/Çıkartılan Araç Statüleri Hk."><span class="dot" style="--c:#D4A72C"></span><span class="kt">Tek tıkla ihale: ihaleye eklenen / çıkarılan araçların statü takibi <span class="kmeta">In Progress</span></span></div><div class="kitem carried" title="Review · Satıcı İçin Dijital Üyelik Geliştirmesi FE
+Test · Satıcı İçin Dijital Üyelik Geliştirmesi BE"><span class="dot" style="--c:#8C959F"></span><span class="kt">Satıcılar için dijital üyelik <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">Review · 2 talep</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>1</span></div><div class="kitem carried" title="In Progress · [BUG] OCR ile Belge Okuma Hatası"><span class="dot" style="--c:#D4A72C"></span><span class="kt">OCR ile belge okumada yaşanan hata <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">In Progress</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#FB8F44"><span>Test</span><b>4</b><small>6 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>4</span></div><div class="kitem" title="Test · Yeni Üyelik | Müşteri Aktivasyonu Sonrası Satış Temsilcisine Otomatik Mail Gönderimi"><span class="dot" style="--c:#FB8F44"></span><span class="kt">Müşteri aktivasyonunda satış temsilcisine otomatik bilgilendirme e-postası <span class="kmeta">Test</span></span></div><div class="kitem carried" title="UAT · Araç Detay Kartında Kaporta Ekspertiz Gösterimi BE
+UAT · Araç Detay Kartında Kaporta Ekspertiz Gösterimi"><span class="dot" style="--c:#A475F9"></span><span class="kt">Araç detay kartında kaporta ekspertiz bilgisinin gösterilmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">UAT · 2 talep</span></span></div><div class="kitem carried" title="UAT · Araç Fotoğraflama Ekran Düzenlemeleri FE
+UAT · Araç Fotoğraflama Ekran Düzenlemeleri BE"><span class="dot" style="--c:#A475F9"></span><span class="kt">Araç fotoğraflama ekranının iyileştirilmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 2</span> <span class="kmeta">UAT · 2 talep</span></span></div><div class="kitem carried" title="UAT · Yarı Römork İşlemlerinde Şasi Kısıtlaması - 8h"><span class="dot" style="--c:#A475F9"></span><span class="kt">Yarı römork işlemlerinde şasi kısıtlaması <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span> <span class="kmeta">UAT</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#218BFF"><span>Tamamlandı</span><b>2</b><small>3 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>2</span></div><div class="kitem carried" title="Done · Ekspertiz Krokisi Oluşmayan Kayıtlar İçin Jarviste Servisinin Oluşturulması"><span class="dot" style="--c:#218BFF"></span><span class="kt">Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span></span></div><div class="kitem carried" title="Done · NPS Kurgusunun İncelenmesi
+Released · User_Data Bilgisinin Eklenmesi (NPS Kurgusu)"><span class="dot" style="--c:#218BFF"></span><span class="kt">NPS anket kurgusu ve kullanıcı verisinin eklenmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 1</span> <span class="kmeta">2 talep</span></span></div></div></div></div><div class="lane"><div class="lhead" style="--c:#2DA44E"><span>Canlıda</span><b>17</b><small>20 iş</small></div><div class="cards"><div class="kgroup"><div class="khead story">User Story<span>13</span></div><div class="kitem carried" title="Released · İhale Araç Liste Görünümünden &quot;Tramer Tutarı&quot; Kolonunun Kaldırılması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">İhale araç listesinden &quot;Tramer Tutarı&quot; kolonunun kaldırılması <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span></span></div><div class="kitem carried" title="Released · Trafik Sigortası için Onay Vermeyen Müşterilere Pop-up Açılması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Trafik sigortası onayı vermeyen müşterilere bilgilendirme pop-up&#x27;ı <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 3</span></span></div><div class="kitem carried" title="Released · DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis BE
+Released · DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis İnceleme Taskı
+Released · DATA - Register Süreçleri Funnel Event Entegrasyonu FE - 4h"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Üyelik (register) adımlarının funnel analizi için ölçümlenmesi <span class="carry" title="Önceki sprintten aktarıldı">↪ Sprint 2</span> <span class="kmeta">3 talep</span></span></div><div class="kitem" title="Released · Bana Özel Satıştaki Araç Düzenleme Alanında Ekspertiz PDF İndirme"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Bana Özel Satış&#x27;ta araç düzenlerken ekspertiz PDF&#x27;i indirebilme</span></div><div class="kitem" title="Released · Birden Fazla Plakayı Aynı Anda Aratma"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Birden fazla plakayı aynı anda arayabilme</span></div><div class="kitem" title="Released · Ekspertiz Açıklama Ekranının Düzenlenebilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Ekspertiz açıklamalarının düzenlenebilmesi</span></div><div class="kitem" title="Released · Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması BE"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Potansiyel müşteriyi dönüştüren kullanıcı bilgisinin kaydedilmesi</span></div><div class="kitem" title="Released · Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması FE"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Potansiyel müşteriyi dönüştüren kullanıcı bilgisinin kaydedilmesi</span></div><div class="kitem" title="Released · Hero Görsellerin Preload Edilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Sayfa hızı: ana (hero) görsellerin önceden yüklenmesi</span></div><div class="kitem" title="Released · Hatalı Lazy Load Kurgusunun Düzeltilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Sayfa hızı: görsellerin geç yüklenme (lazy load) kurgusunun düzeltilmesi</span></div><div class="kitem" title="Released · Fetchpriority Düzenlemeleri"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Sayfa hızı: kaynak yükleme önceliklerinin düzenlenmesi</span></div><div class="kitem" title="Released · Critical CSS Uygulaması"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Sayfa hızı: kritik stillerin öncelikli yüklenmesi (Critical CSS)</span></div><div class="kitem" title="Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi FE
+Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi BE"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Toplu ekspertizlerde sıralama yapabilme <span class="kmeta">2 talep</span></span></div></div><div class="kgroup"><div class="khead bug">Bug<span>4</span></div><div class="kitem" title="Released · [BUG] Bnext Araçlarında İmzaya Gönderildi Alanın Disable Gelmesi Hk."><span class="dot" style="--c:#2DA44E"></span><span class="kt">BNext araçlarında &quot;İmzaya gönderildi&quot; alanının pasif gelmesi</span></div><div class="kitem" title="Released · [BUG] Ekspertiz Açıklama Ekranının Düzenlenebilmesi BE Servisi Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Ekspertiz açıklama düzenleme servisinin eksik olması</span></div><div class="kitem" title="Released · [BUG] Ekspertiz Pointlerinin Çoklaması Hk."><span class="dot" style="--c:#2DA44E"></span><span class="kt">Ekspertiz noktalarının mükerrer görünmesi</span></div><div class="kitem" title="Released · [BUG] Jarvis Müşteri Özet Ekranı Hatası"><span class="dot" style="--c:#2DA44E"></span><span class="kt">Jarvis müşteri özet ekranındaki hata</span></div></div></div></div></div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz - Özet">
+  <header>
+    <div><h1>Metriklerimiz <span>- Özet</span></h1><div class="sub">Auction · Sprint 4 · 19.10.2026</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#8C959F"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#A475F9"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li></ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">
+<div class="comp">
+  <div class="clabel">Toplam</div>
+  <div class="chero">%54</div>
+  <div class="bar"><i style="width:54.35%"></i></div>
+  <div class="cnums">
+    <div><span>Planlanan</span><b>46<small>iş</small></b></div>
+    <div><span>Tamamlanan</span><b>25<small>iş</small></b></div>
+    <div><span>Kalan</span><b>21<small>iş</small></b></div>
+  </div>
+  <div class="cnote">&nbsp;</div>
+</div></div>
+      <div class="pfoot">GitHub işi adedi üzerinden (iş tipi kırılımıyla aynı birim)</div></div>
+    <div class="panel"><div class="ptitle">Xurrent talebi statü dağılımı</div><div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>Xurrent talebi</span><span></span><span>Karşılık gelen GitHub işi</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Todo"><span class="dot" style="--c:#E5534B"></span>Todo</div><div class="db" title="Todo · Xurrent talebi: 3"><div class="fi" style="width:27.27%;background:#E5534B"></div></div><div class="dv">3</div><div class="db" title="Todo · Karşılık gelen GitHub işi: 4"><div class="fi" style="width:28.57%;background:#E5534B"></div></div><div class="dv">4</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress · Xurrent talebi: 4"><div class="fi" style="width:36.36%;background:#D4A72C"></div></div><div class="dv">4</div><div class="db" title="In Progress · Karşılık gelen GitHub işi: 6"><div class="fi" style="width:42.86%;background:#D4A72C"></div></div><div class="dv">6</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Review"><span class="dot" style="--c:#8C959F"></span>Review</div><div class="db" title="Review · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#8C959F"></div></div><div class="dv">1</div><div class="db" title="Review · Karşılık gelen GitHub işi: 2"><div class="fi" style="width:14.29%;background:#8C959F"></div></div><div class="dv">2</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#FB8F44"></div></div><div class="dv">1</div><div class="db" title="Test · Karşılık gelen GitHub işi: 1"><div class="fi" style="width:7.14%;background:#FB8F44"></div></div><div class="dv">1</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="UAT"><span class="dot" style="--c:#A475F9"></span>UAT</div><div class="db" title="UAT · Xurrent talebi: 2"><div class="fi" style="width:18.18%;background:#A475F9"></div></div><div class="dv">2</div><div class="db" title="UAT · Karşılık gelen GitHub işi: 3"><div class="fi" style="width:21.43%;background:#A475F9"></div></div><div class="dv">3</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Done ✓"><span class="dot" style="--c:#218BFF"></span>Done ✓</div><div class="db" title="Done ✓ · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#218BFF"></div></div><div class="dv">1</div><div class="db" title="Done ✓ · Karşılık gelen GitHub işi: 2"><div class="fi" style="width:14.29%;background:#218BFF"></div></div><div class="dv">2</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓ · Xurrent talebi: 11"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">11</div><div class="db" title="Released ✓ · Karşılık gelen GitHub işi: 14"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">14</div></div><div class="drow total" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl">Toplam</div><div></div><div class="dv">23</div><div></div><div class="dv">32</div></div></div>
+      <div class="pfoot">Karşılık gelen GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü</div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><span></span><span>GitHub işi</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="User Story">User Story</div><div class="db" title="User Story · GitHub işi: 38"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:50.00%"></div></div><div class="dv">19<span>/38</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Proje işi">Proje işi</div><div class="db" title="Proje işi · GitHub işi: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Bug">Bug</div><div class="db" title="Bug · GitHub işi: 6"><div class="tr" style="width:15.79%"></div><div class="fi" style="width:10.53%"></div></div><div class="dv">4<span>/6</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Task">Task</div><div class="db" title="Task · GitHub işi: 2"><div class="tr" style="width:5.26%"></div><div class="fi" style="width:5.26%"></div></div><div class="dv">2<span>/2</span></div></div><div class="drow total" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl">Toplam</div><div></div><div class="dv">25<span>/46</span></div></div></div>
+      <div class="pfoot">GitHub'taki talep (iş) sayısı üzerinden · Proje işleri (DD Project Name): —</div></div>
+    <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r one">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%18</div>
+  <div class="bar warm"><i style="width:17.95%"></i></div>
+  <div class="cnums two">
+    <div><span>Sprint ortasında gelen</span><b>7<small>iş</small></b></div>
+    <div><span>İlk planlanan</span><b>39<small>iş</small></b></div>
+  </div>
+</div></div>
+      <ul class="names"><li><span class="dot" style="--c:#E5534B"></span>Canlı ihaledeki araç satışlarının iptal olması</li><li><span class="dot" style="--c:#D4A72C"></span>OCR ile belge okumada yaşanan hata</li><li><span class="dot" style="--c:#A475F9"></span>Baicom ve ihale ekranlarında renk güncellemesi</li><li><span class="dot" style="--c:#218BFF"></span>Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz noktalarının mükerrer görünmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Sayfa hızı: görsellerin geç yüklenme (lazy load) kurgusunun düzeltilmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Sayfa hızı: kaynak yükleme önceliklerinin düzenlenmesi</li></ul>
+      <div class="pfoot">"AddedMidSprint" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
+    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r one">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%11</div>
+  <div class="bar warm"><i style="width:10.87%"></i></div>
+  <div class="cnums two">
+    <div><span>Teknik borç</span><b>5<small>iş</small></b></div>
+    <div><span>Toplam</span><b>46<small>iş</small></b></div>
+  </div>
+</div></div>
+      <ul class="names"><li><span class="dot" style="--c:#A475F9"></span>Araç fotoğraflama ekranının iyileştirilmesi</li><li><span class="dot" style="--c:#218BFF"></span>Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz açıklama düzenleme servisinin eksik olması</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz açıklamalarının düzenlenebilmesi</li></ul>
+      <div class="pfoot">"TB" etiketli işler ÷ toplam iş</div></div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = 14 gün · Closed tarihi olmadığı için hariç: #555</div>
+      <div class="lstats"><div><span>Biten GitHub işi</span><b>24</b></div><div><span>Medyan</span><b>10,3<small>gün</small></b></div><div><span>Ortalama</span><b>14,3<small>gün</small></b></div><div><span>En uzun</span><b>46,3<small>gün</small></b></div></div><div class="hist"><div class="hplot"><div class="hcol" title="&lt;1 gün gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="1–3 gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="3–7 gün: 10"><div class="hval">10</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div><div class="hcol" title="7–14 gün: 6"><div class="hval">6</div><div class="hbar" style="height:49.20%;background:var(--ink)"></div></div><div class="hcol" title="14–21 gün: 2"><div class="hval">2</div><div class="hbar" style="height:16.40%;background:var(--ink)"></div></div><div class="hcol" title="21–30 gün: 2"><div class="hval">2</div><div class="hbar" style="height:16.40%;background:var(--ink)"></div></div><div class="hcol" title="30+ gün: 4"><div class="hval">4</div><div class="hbar" style="height:32.80%;background:var(--ink)"></div></div></div><div class="hx"><div>&lt;1 gün</div><div>1–3</div><div>3–7</div><div>7–14</div><div>14–21</div><div>21–30</div><div>30+</div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz">
+  <header>
+    <div><h1>Metriklerimiz</h1><div class="sub">Auction · Sprint 4 · 19.10.2026</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#8C959F"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#A475F9"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li></ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Toplam GitHub işi</span><span class="mhero">%54</span></div>
+  <div class="bar"><i style="width:54.35%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>25</b> iş</span><span>Planlanan <b>46</b> iş</span>
+    <span>Kalan <b>21</b> iş</span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Xurrent talepleri <small>(distinct)</small></span><span class="mhero">%52</span></div>
+  <div class="bar"><i style="width:52.17%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>12</b> talep</span><span>Planlanan <b>23</b> talep</span>
+    <span>Kalan <b>11</b> talep</span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Ek talepler <small>(Xurrent no'suz)</small></span><span class="mhero">%50</span></div>
+  <div class="bar"><i style="width:50.00%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>7</b> talep</span><span>Planlanan <b>14</b> talep</span>
+    <span>Kalan <b>7</b> talep</span></div>
+  
+</div></div>
+      <div class="pfoot">Toplam = GitHub işi adedi (iş tipi kırılımıyla aynı) · Xurrent talebi, tüm GitHub işleri bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi</div></div>
+    <div class="panel"><div class="ptitle">Xurrent talebi statü dağılımı</div><div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>Xurrent talebi</span><span></span><span>Karşılık gelen GitHub işi</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Todo"><span class="dot" style="--c:#E5534B"></span>Todo</div><div class="db" title="Todo · Xurrent talebi: 3"><div class="fi" style="width:27.27%;background:#E5534B"></div></div><div class="dv">3</div><div class="db" title="Todo · Karşılık gelen GitHub işi: 4"><div class="fi" style="width:28.57%;background:#E5534B"></div></div><div class="dv">4</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress · Xurrent talebi: 4"><div class="fi" style="width:36.36%;background:#D4A72C"></div></div><div class="dv">4</div><div class="db" title="In Progress · Karşılık gelen GitHub işi: 6"><div class="fi" style="width:42.86%;background:#D4A72C"></div></div><div class="dv">6</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Review"><span class="dot" style="--c:#8C959F"></span>Review</div><div class="db" title="Review · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#8C959F"></div></div><div class="dv">1</div><div class="db" title="Review · Karşılık gelen GitHub işi: 2"><div class="fi" style="width:14.29%;background:#8C959F"></div></div><div class="dv">2</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#FB8F44"></div></div><div class="dv">1</div><div class="db" title="Test · Karşılık gelen GitHub işi: 1"><div class="fi" style="width:7.14%;background:#FB8F44"></div></div><div class="dv">1</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="UAT"><span class="dot" style="--c:#A475F9"></span>UAT</div><div class="db" title="UAT · Xurrent talebi: 2"><div class="fi" style="width:18.18%;background:#A475F9"></div></div><div class="dv">2</div><div class="db" title="UAT · Karşılık gelen GitHub işi: 3"><div class="fi" style="width:21.43%;background:#A475F9"></div></div><div class="dv">3</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Done ✓"><span class="dot" style="--c:#218BFF"></span>Done ✓</div><div class="db" title="Done ✓ · Xurrent talebi: 1"><div class="fi" style="width:9.09%;background:#218BFF"></div></div><div class="dv">1</div><div class="db" title="Done ✓ · Karşılık gelen GitHub işi: 2"><div class="fi" style="width:14.29%;background:#218BFF"></div></div><div class="dv">2</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓ · Xurrent talebi: 11"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">11</div><div class="db" title="Released ✓ · Karşılık gelen GitHub işi: 14"><div class="fi" style="width:100.00%;background:#2DA44E"></div></div><div class="dv">14</div></div><div class="drow total" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl">Toplam</div><div></div><div class="dv">23</div><div></div><div class="dv">32</div></div></div>
+      <div class="pfoot">Karşılık gelen GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü</div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>GitHub işi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="User Story">User Story</div><div class="db" title="User Story · GitHub işi: 38"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:50.00%"></div></div><div class="dv">19<span>/38</span></div><div class="db" title="User Story · Original Estimate: 300"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:35.33%"></div></div><div class="dv">106<span>/300</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Proje işi">Proje işi</div><div class="db" title="Proje işi · GitHub işi: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div><div class="db" title="Proje işi · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Bug">Bug</div><div class="db" title="Bug · GitHub işi: 6"><div class="tr" style="width:15.79%"></div><div class="fi" style="width:10.53%"></div></div><div class="dv">4<span>/6</span></div><div class="db" title="Bug · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="Task">Task</div><div class="db" title="Task · GitHub işi: 2"><div class="tr" style="width:5.26%"></div><div class="fi" style="width:5.26%"></div></div><div class="dv">2<span>/2</span></div><div class="db" title="Task · Original Estimate: 2"><div class="tr" style="width:0.67%"></div><div class="fi" style="width:0.67%"></div></div><div class="dv">2<span>/2</span></div></div></div>
+      <div class="pfoot">Proje işleri (DD Project Name): —</div></div>
+    <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%18</div>
+  <div class="bar warm"><i style="width:17.95%"></i></div>
+  <div class="cnums two">
+    <div><span>Sprint ortasında gelen</span><b>7<small>iş</small></b></div>
+    <div><span>İlk planlanan</span><b>39<small>iş</small></b></div>
+  </div>
+</div>
+<div class="comp">
+  <div class="clabel">Original Estimate&#x27;a göre</div>
+  <div class="chero">%6</div>
+  <div class="bar warm"><i style="width:5.96%"></i></div>
+  <div class="cnums two">
+    <div><span>Sprint ortasında gelen</span><b>17</b></div>
+    <div><span>İlk planlanan</span><b>285</b></div>
+  </div>
+</div></div>
+      <ul class="names"><li><span class="dot" style="--c:#E5534B"></span>Canlı ihaledeki araç satışlarının iptal olması</li><li><span class="dot" style="--c:#D4A72C"></span>OCR ile belge okumada yaşanan hata</li><li><span class="dot" style="--c:#A475F9"></span>Baicom ve ihale ekranlarında renk güncellemesi</li><li><span class="dot" style="--c:#218BFF"></span>Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz noktalarının mükerrer görünmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Sayfa hızı: görsellerin geç yüklenme (lazy load) kurgusunun düzeltilmesi</li><li><span class="dot" style="--c:#2DA44E"></span>Sayfa hızı: kaynak yükleme önceliklerinin düzenlenmesi</li></ul>
+      <div class="pfoot">"AddedMidSprint" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
+    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r">
+<div class="comp">
+  <div class="clabel">GitHub iş adedine göre</div>
+  <div class="chero">%11</div>
+  <div class="bar warm"><i style="width:10.87%"></i></div>
+  <div class="cnums two">
+    <div><span>Teknik borç</span><b>5<small>iş</small></b></div>
+    <div><span>Toplam</span><b>46<small>iş</small></b></div>
+  </div>
+</div>
+<div class="comp">
+  <div class="clabel">Original Estimate&#x27;a göre</div>
+  <div class="chero">%5</div>
+  <div class="bar warm"><i style="width:5.30%"></i></div>
+  <div class="cnums two">
+    <div><span>Teknik borç</span><b>16</b></div>
+    <div><span>Toplam</span><b>302</b></div>
+  </div>
+</div></div>
+      <ul class="names"><li><span class="dot" style="--c:#A475F9"></span>Araç fotoğraflama ekranının iyileştirilmesi</li><li><span class="dot" style="--c:#218BFF"></span>Ekspertiz krokisi oluşmayan kayıtlar için Jarvis servisi</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz açıklama düzenleme servisinin eksik olması</li><li><span class="dot" style="--c:#2DA44E"></span>Ekspertiz açıklamalarının düzenlenebilmesi</li></ul>
+      <div class="pfoot">"TB" etiketli işler ÷ toplam iş</div></div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = 14 gün · Closed tarihi olmadığı için hariç: #555</div>
+      <div class="lstats"><div><span>Biten GitHub işi</span><b>24</b></div><div><span>Medyan</span><b>10,3<small>gün</small></b></div><div><span>Ortalama</span><b>14,3<small>gün</small></b></div><div><span>En uzun</span><b>46,3<small>gün</small></b></div></div><div class="hist"><div class="hplot"><div class="hcol" title="&lt;1 gün gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="1–3 gün: 0"><div class="hval"></div><div class="hbar" style="height:0.00%;background:var(--ink)"></div></div><div class="hcol" title="3–7 gün: 10"><div class="hval">10</div><div class="hbar" style="height:82.00%;background:var(--ink)"></div></div><div class="hcol" title="7–14 gün: 6"><div class="hval">6</div><div class="hbar" style="height:49.20%;background:var(--ink)"></div></div><div class="hcol" title="14–21 gün: 2"><div class="hval">2</div><div class="hbar" style="height:16.40%;background:var(--ink)"></div></div><div class="hcol" title="21–30 gün: 2"><div class="hval">2</div><div class="hbar" style="height:16.40%;background:var(--ink)"></div></div><div class="hcol" title="30+ gün: 4"><div class="hval">4</div><div class="hbar" style="height:32.80%;background:var(--ink)"></div></div></div><div class="hx"><div>&lt;1 gün</div><div>1–3</div><div>3–7</div><div>7–14</div><div>14–21</div><div>21–30</div><div>30+</div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Metriklerimiz (Takıma özel)">
+  <header>
+    <div><h1>Metriklerimiz <span>(Takıma özel)</span></h1><div class="sub">Auction · Sprint 4 · 19.10.2026 · Original Estimate bazında</div></div>
+    <ul class="legend"><li><span class="dot" style="--c:#E5534B"></span>Todo</li><li><span class="dot" style="--c:#D4A72C"></span>In Progress</li><li><span class="dot" style="--c:#8C959F"></span>Review</li><li><span class="dot" style="--c:#FB8F44"></span>Test</li><li><span class="dot" style="--c:#A475F9"></span>UAT</li><li><span class="dot" style="--c:#218BFF"></span>Done ✓</li><li><span class="dot" style="--c:#2DA44E"></span>Released ✓</li></ul>
+  </header>
+  <div class="grid one">
+    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan · Original Estimate</div><div class="minis">
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Toplam</span><span class="mhero">%36</span></div>
+  <div class="bar"><i style="width:35.76%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>108</b></span><span>Planlanan <b>302</b></span>
+    <span>Kalan <b>194</b></span></div>
+  <div class="cnote">10 işin Original Estimate'ı boş (0 sayıldı)</div>
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Xurrent talepleri</span><span class="mhero">%52</span></div>
+  <div class="bar"><i style="width:51.55%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>100</b></span><span>Planlanan <b>194</b></span>
+    <span>Kalan <b>94</b></span></div>
+  
+</div>
+<div class="mini">
+  <div class="mtop"><span class="mlabel">Ek talepler <small>(Xurrent no'suz)</small></span><span class="mhero">%7</span></div>
+  <div class="bar"><i style="width:7.41%"></i></div>
+  <div class="mnums"><span>Tamamlanan <b>8</b></span><span>Planlanan <b>108</b></span>
+    <span>Kalan <b>100</b></span></div>
+  
+</div></div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı · Original Estimate</div><div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Todo"><span class="dot" style="--c:#E5534B"></span>Todo</div><div class="db" title="Todo · Original Estimate: 13"><div class="fi" style="width:9.56%;background:#E5534B"></div></div><div class="dv">13</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="In Progress"><span class="dot" style="--c:#D4A72C"></span>In Progress</div><div class="db" title="In Progress · Original Estimate: 136"><div class="fi" style="width:100.00%;background:#D4A72C"></div></div><div class="dv">136</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Review"><span class="dot" style="--c:#8C959F"></span>Review</div><div class="db" title="Review · Original Estimate: 8"><div class="fi" style="width:5.88%;background:#8C959F"></div></div><div class="dv">8</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Test"><span class="dot" style="--c:#FB8F44"></span>Test</div><div class="db" title="Test · Original Estimate: 9"><div class="fi" style="width:6.62%;background:#FB8F44"></div></div><div class="dv">9</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="UAT"><span class="dot" style="--c:#A475F9"></span>UAT</div><div class="db" title="UAT · Original Estimate: 28"><div class="fi" style="width:20.59%;background:#A475F9"></div></div><div class="dv">28</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Done ✓"><span class="dot" style="--c:#218BFF"></span>Done ✓</div><div class="db" title="Done ✓ · Original Estimate: 24"><div class="fi" style="width:17.65%;background:#218BFF"></div></div><div class="dv">24</div></div><div class="drow" style="grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 88px"><div class="dl" title="Released ✓"><span class="dot" style="--c:#2DA44E"></span>Released ✓</div><div class="db" title="Released ✓ · Original Estimate: 84"><div class="fi" style="width:61.76%;background:#2DA44E"></div></div><div class="dv">84</div></div></div></div>
+    <div class="panel"><div class="ptitle">Kişi bazında planlanan vs. tamamlanan</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      <div class="dual"><div class="dhead" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><span></span><span>GitHub işi</span><span></span><span>Original Estimate</span><span></span></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="grknksbr">grknksbr</div><div class="db" title="grknksbr · GitHub işi: 11"><div class="tr" style="width:52.38%"></div><div class="fi" style="width:4.76%"></div></div><div class="dv">1<span>/11</span></div><div class="db" title="grknksbr · Original Estimate: 121"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/121</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="burakkarayakali">burakkarayakali</div><div class="db" title="burakkarayakali · GitHub işi: 21"><div class="tr" style="width:100.00%"></div><div class="fi" style="width:71.43%"></div></div><div class="dv">15<span>/21</span></div><div class="db" title="burakkarayakali · Original Estimate: 119"><div class="tr" style="width:98.35%"></div><div class="fi" style="width:52.89%"></div></div><div class="dv">64<span>/119</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="ualyaz">ualyaz</div><div class="db" title="ualyaz · GitHub işi: 11"><div class="tr" style="width:52.38%"></div><div class="fi" style="width:38.10%"></div></div><div class="dv">8<span>/11</span></div><div class="db" title="ualyaz · Original Estimate: 58"><div class="tr" style="width:47.93%"></div><div class="fi" style="width:36.36%"></div></div><div class="dv">44<span>/58</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="sedatates">sedatates</div><div class="db" title="sedatates · GitHub işi: 1"><div class="tr" style="width:4.76%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/1</span></div><div class="db" title="sedatates · Original Estimate: 4"><div class="tr" style="width:3.31%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/4</span></div></div><div class="drow" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 88px minmax(0,1fr) 88px"><div class="dl" title="bcakaner">bcakaner</div><div class="db" title="bcakaner · GitHub işi: 2"><div class="tr" style="width:9.52%"></div><div class="fi" style="width:4.76%"></div></div><div class="dv">1<span>/2</span></div><div class="db" title="bcakaner · Original Estimate: 0"><div class="tr" style="width:0.00%"></div><div class="fi" style="width:0.00%"></div></div><div class="dv">0<span>/0</span></div></div></div></div>
+  </div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Canlıya Çıkmaya Hazır Olan İşler">
+  <header>
+    <div><h1>Canlıya Çıkmaya Hazır Olan İşler</h1><div class="sub">Auction · Sprint 4 · 19.10.2026</div></div>
+    <ul class="legend"><li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li><li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li><li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li></ul>
+  </header>
+  <div class="rgrid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.9fr)">
+    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>0</b></div>
+      <ul class="list" style="--cols:1;--max:30">
+<li class="empty">Bu kriterde iş yok.</li>
+      </ul></div>
+    <div class="rsec done"><div class="rtitle">Bu sprintte canlıya alınanlar <b>18</b> <small>(Released)</small></div>
+      <ul class="list" style="--cols:2;--max:22">
+<li class="lgroup"><span class="khead story">User Story<span>14</span></span></li>
+<li class="" title="Released · User_Data Bilgisinin Eklenmesi (NPS Kurgusu)"><span class="dot" style="--c:#2DA44E"></span><span class="t">User_Data Bilgisinin Eklenmesi (NPS Kurgusu)<span class="part" title="Talebin yalnızca bu GitHub işi">↳ NPS anket kurgusu ve kullanıcı verisinin eklenmesi</span><span class="xno">#84543341</span></span></li>
+<li class="" title="Released · Bana Özel Satıştaki Araç Düzenleme Alanında Ekspertiz PDF İndirme"><span class="dot" style="--c:#2DA44E"></span><span class="t">Bana Özel Satış&#x27;ta araç düzenlerken ekspertiz PDF&#x27;i indirebilme<span class="xno">#82358980</span></span></li>
+<li class="" title="Released · Birden Fazla Plakayı Aynı Anda Aratma"><span class="dot" style="--c:#2DA44E"></span><span class="t">Birden fazla plakayı aynı anda arayabilme<span class="xno">#75931581</span></span></li>
+<li class="" title="Released · Ekspertiz Açıklama Ekranının Düzenlenebilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz açıklamalarının düzenlenebilmesi</span></li>
+<li class="carried" title="Released · İhale Araç Liste Görünümünden &quot;Tramer Tutarı&quot; Kolonunun Kaldırılması"><span class="dot" style="--c:#2DA44E"></span><span class="t">İhale araç listesinden &quot;Tramer Tutarı&quot; kolonunun kaldırılması <span class="carry" title="Original Sprint: Sprint 3">↪ Sprint 3</span><span class="xno">#83328817</span></span></li>
+<li class="" title="Released · Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması BE"><span class="dot" style="--c:#2DA44E"></span><span class="t">Potansiyel müşteriyi dönüştüren kullanıcı bilgisinin kaydedilmesi<span class="xno">#82157476</span></span></li>
+<li class="" title="Released · Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması FE"><span class="dot" style="--c:#2DA44E"></span><span class="t">Potansiyel müşteriyi dönüştüren kullanıcı bilgisinin kaydedilmesi<span class="xno">#82155433</span></span></li>
+<li class="" title="Released · Hero Görsellerin Preload Edilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Sayfa hızı: ana (hero) görsellerin önceden yüklenmesi<span class="xno">#82361641</span></span></li>
+<li class="" title="Released · Hatalı Lazy Load Kurgusunun Düzeltilmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Sayfa hızı: görsellerin geç yüklenme (lazy load) kurgusunun düzeltilmesi<span class="xno">#82363163</span></span></li>
+<li class="" title="Released · Fetchpriority Düzenlemeleri"><span class="dot" style="--c:#2DA44E"></span><span class="t">Sayfa hızı: kaynak yükleme önceliklerinin düzenlenmesi</span></li>
+<li class="" title="Released · Critical CSS Uygulaması"><span class="dot" style="--c:#2DA44E"></span><span class="t">Sayfa hızı: kritik stillerin öncelikli yüklenmesi (Critical CSS)<span class="xno">#82362284</span></span></li>
+<li class="" title="Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi FE
+Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi BE"><span class="dot" style="--c:#2DA44E"></span><span class="t">Toplu ekspertizlerde sıralama yapabilme<span class="xno">#82459728</span></span><span class="cnt">2 talep</span></li>
+<li class="carried" title="Released · Trafik Sigortası için Onay Vermeyen Müşterilere Pop-up Açılması"><span class="dot" style="--c:#2DA44E"></span><span class="t">Trafik sigortası onayı vermeyen müşterilere bilgilendirme pop-up&#x27;ı <span class="carry" title="Original Sprint: Sprint 3">↪ Sprint 3</span><span class="xno">#81973500</span></span></li>
+<li class="carried" title="Released · DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis BE
+Released · DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis İnceleme Taskı
+Released · DATA - Register Süreçleri Funnel Event Entegrasyonu FE - 4h"><span class="dot" style="--c:#2DA44E"></span><span class="t">Üyelik (register) adımlarının funnel analizi için ölçümlenmesi <span class="carry" title="Original Sprint: Sprint 2">↪ Sprint 2</span><span class="xno">#81846810</span></span><span class="cnt">3 talep</span></li>
+<li class="lgroup"><span class="khead bug">Bug<span>4</span></span></li>
+<li class="" title="Released · [BUG] Bnext Araçlarında İmzaya Gönderildi Alanın Disable Gelmesi Hk."><span class="dot" style="--c:#2DA44E"></span><span class="t">BNext araçlarında &quot;İmzaya gönderildi&quot; alanının pasif gelmesi</span></li>
+<li class="" title="Released · [BUG] Ekspertiz Açıklama Ekranının Düzenlenebilmesi BE Servisi Eklenmesi"><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz açıklama düzenleme servisinin eksik olması</span></li>
+<li class="" title="Released · [BUG] Ekspertiz Pointlerinin Çoklaması Hk."><span class="dot" style="--c:#2DA44E"></span><span class="t">Ekspertiz noktalarının mükerrer görünmesi</span></li>
+<li class="" title="Released · [BUG] Jarvis Müşteri Özet Ekranı Hatası"><span class="dot" style="--c:#2DA44E"></span><span class="t">Jarvis müşteri özet ekranındaki hata</span></li>
+      </ul></div>
+  </div>
+  <div class="rnote">Canlıya hazır (release bekleyen): statü Done + "Ready For Release" / "WaitingRelease" etiketi · Canlıya alınan: Released statüsündeki tüm işler (kanbandaki "Canlıda" kolonu) · ↳ = talebin yalnızca bu GitHub işi kriterde</div>
+</section></div>
+
+<div class="frame"><section class="slide" aria-label="Hesaplama Varsayımları">
+  <header>
+    <div><h1>Hesaplama <span>Varsayımları</span></h1><div class="sub">Auction · Sprint 4 · 19.10.2026 · bu sunumdaki metrikler nasıl hesaplandı?</div></div>
+  </header>
+  <div class="agrid"><div class="acard"><div class="atitle">Kapsam</div><ul><li>Sprint: Sprint 4 · 46 GitHub işi değerlendirildi.</li><li>Hariç tutulanlar: statüsü <b>Backlog</b> olan ve <b>RetroAction</b> etiketli işler — bu sprintte: #551.</li><li>Tüm slayt ve metrikler bu kapsam üzerinden hesaplanır.</li></ul></div><div class="acard"><div class="atitle">Sayım birimleri</div><ul><li><b>Xurrent talebi</b>: aynı Xurrent Talep No'ya sahip GitHub işleri tek talep sayılır (BE/FE/App/Web parçaları); talep, tüm işleri bitince tamamlanmış sayılır.</li><li><b>Ek talep</b>: Xurrent Talep No'su boş GitHub işi; her biri ayrı sayılır.</li><li><b>GitHub işi</b>: panodaki her issue. Planlanan vs. tamamlanan toplamı ve iş tipi kırılımı bu birimle hesaplanır; bu yüzden talep sayısından büyük olabilir.</li><li>Xurrent statü dağılımında talep, işleri içinde <b>en geride kalanın</b> statüsünde sayılır; "Karşılık gelen GitHub işi" o talebe bağlı işlerin adedidir.</li></ul></div><div class="acard"><div class="atitle">Statüler ve kolonlar</div><ul><li>Tamamlandı sayılan statüler: <b>Done, Released</b> (lejantta ✓).</li><li>Kanban kolonları — Yapılacak: Todo · Geliştirmede: In Progress, Review · Test: Test, UAT · Tamamlandı: Done · Canlıda: Released.</li><li>Bir talebin rengi/kolonu, işleri içinde en geride kalanın statüsüdür.</li></ul></div><div class="acard"><div class="atitle">İş tipi</div><ul><li>Başlıkta [BUG] → <b>Bug</b>; DD Project Name dolu → <b>Proje işi</b>; toplantı, analiz/inceleme, deployment, kurulum, operasyonel işler → <b>Task</b>; diğerleri → <b>User Story</b>.</li><li>GitHub'ta issue type sütunu dışa aktarılırsa doğrudan o kullanılır.</li></ul></div><div class="acard"><div class="atitle">Etiket bazlı metrikler</div><ul><li>Sprint ortasında gelen iş = "AddedMidSprint" etiketli işler ÷ etiketsiz (ilk planlanan) işler.</li><li>Teknik borç payı = "TB" etiketli işler ÷ toplam iş.</li><li>Etiket karşılaştırmasında büyük/küçük harf, boşluk, - ve _ yok sayılır.</li></ul></div><div class="acard"><div class="atitle">Lead time</div><ul><li>Yalnız <b>Done ve Released</b> işler; süre <b>takvim günü</b> olarak sprint başlangıcından Closed tarihine kadar ölçülür.</li><li>Başlangıç: Original Sprint doluysa o sprintin, değilse işin sprintinin başlangıcı. Tanımlı başlangıç: Sprint 4=2026-10-05; diğer sprintler 14 günlük sprint varsayımıyla bulunur.</li><li>Closed tarihi boş olduğu için hariç: #555.</li></ul></div><div class="acard"><div class="atitle">Canlıya çıkış</div><ul><li>Release bekleyen = statü Done + Ready For Release / WaitingRelease etiketi.</li><li>Canlıya alınan = kanbandaki "Canlıda" kolonundaki tüm işler (etiketten bağımsız).</li><li>Talebin yalnız bir kısmı canlıdaysa o işler GitHub başlığıyla ve ↳ notuyla listelenir.</li></ul></div><div class="acard"><div class="atitle">Diğer</div><ul><li>Original Estimate boş olan 10 iş 0 sayılır (yalnız Takıma özel slaytı etkiler).</li><li>Önceki sprintten aktarılan: Original Sprint, işin sprintinden farklıysa (↪ Sprint N).</li><li>Madde adları, GitHub başlıklarından iş birimi diline çevrilmiş tema adlarıdır; teknik ayrıntı için Xurrent / GitHub numarasına bakılabilir.</li></ul></div></div>
+</section></div>
+
+</div>
+<script>
+(() => {
+  // Her listeyi slayta sığana kadar küçült (az madde varsa büyük kalır), sonra kolonları dengele
+  document.querySelectorAll('.list').forEach(list => {
+    let fs = parseFloat(getComputedStyle(list).getPropertyValue('--max')) || 22;
+    const fits = () => list.scrollWidth <= list.clientWidth + 1 && list.scrollHeight <= list.clientHeight + 1;
+    list.style.setProperty('--fs', fs + 'px');
+    while (!fits() && fs > 11) { fs -= 0.5; list.style.setProperty('--fs', fs + 'px'); }
+    list.style.columnFill = 'balance';
+    if (!fits()) list.style.columnFill = 'auto';
+    list.dataset.fitted = fs;
+  });
+  // Kanban: en kalabalık kolon sığana kadar kart yazısını küçült
+  document.querySelectorAll('.board').forEach(b => {
+    let kf = 18;
+    const over = () => [...b.querySelectorAll('.cards')].some(c => c.scrollHeight > c.clientHeight + 1 || c.scrollWidth > c.clientWidth + 1);
+    b.style.setProperty('--kf', kf + 'px');
+    while (over() && kf > 10) { kf -= 0.5; b.style.setProperty('--kf', kf + 'px'); }
+    b.dataset.fitted = kf;
+  });
+  document.querySelectorAll('.agrid').forEach(g => {
+    let af = 18;
+    const over = () => g.scrollHeight > g.clientHeight + 1 || g.scrollWidth > g.clientWidth + 1;
+    g.style.setProperty('--af', af + 'px');
+    while (over() && af > 11) { af -= 0.5; g.style.setProperty('--af', af + 'px'); }
+  });
+  document.body.dataset.fitted = [...document.querySelectorAll('.list, .board')].map(l => l.dataset.fitted).join('/');
+  const scale = () => document.documentElement.style.setProperty('--s',
+    Math.min(1, (innerWidth - 32) / 1920).toFixed(4));
+  scale(); addEventListener('resize', scale);
+})();
+</script>
+</body>
+</html>
