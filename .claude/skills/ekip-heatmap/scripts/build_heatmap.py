@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ürün Ekipleri Excel'inden board/ürün bazlı ekip heatmap'i üretir.
+"""Ürün Ekipleri Excel'inden board bazlı ekip heatmap'i üretir (kişi kaç farklı board'da?).
 
 Kullanım:
   python build_heatmap.py --input "Ürün Ekipleri-2026-09-03.xlsx" \
@@ -33,6 +33,9 @@ ROLE_COLUMNS = OrderedDict([
 ROLE_PRIORITY = ["Yazılımcı", "Analist", "Testçi", "Product Owner", "Scrum Master"]
 EMPTY_TOKENS = {"", "-", ".", "?", "—", "nan", "none", "yok"}
 UNKNOWN_ROLES = {None, "", "#N/A", "TBD"}
+HEATMAP_SHEET = "Final transposed_board heatmap"
+# Önceki dosyalarda heatmap'in bulunabileceği sayfalar (orijinal elle hazırlanan dosya dahil)
+PREVIOUS_HEATMAP_SHEETS = [HEATMAP_SHEET, "Final transposed_ürün heatmap"]
 
 FILL_HEAD = PatternFill("solid", fgColor="CFE2F3")
 FILL_KEY = PatternFill("solid", fgColor="B6D7A8")
@@ -84,13 +87,13 @@ def read_source(path):
 
 
 def read_previous(path):
-    """Önceki heatmap'ten isim->rol ve Board_Ürün->Aktif mi? haritalarını okur."""
+    """Önceki heatmap'ten isim->rol ve Board / Board_Ürün -> Aktif mi? haritalarını okur."""
     roles, active = {}, {}
     if not path:
         return roles, active
     wb = openpyxl.load_workbook(path, data_only=True)
-    if "Final transposed_ürün heatmap" in wb.sheetnames:
-        ws = wb["Final transposed_ürün heatmap"]
+    for sheet in [s for s in PREVIOUS_HEATMAP_SHEETS if s in wb.sheetnames][:1]:
+        ws = wb[sheet]
         for r in range(2, ws.max_row + 1):
             key = ws.cell(r, 6).value
             names = [ws.cell(r, c).value for c in range(7, ws.max_column + 1)]
@@ -158,22 +161,35 @@ def build(args):
         for k, role in p["people"]:
             seen.setdefault(k, []).append(role)
         p["team"] = seen
-
-    in_heatmap = [p for p in products if p["team"]]
+        p["bname"] = clean(p["board"])
     for p in products:
         if not p["team"]:
             issues.append(("Kişi yok, heatmap'e alınmadı", p["key"], "", ""))
 
-    # Kişi bazında roller ve board'lar
+    # Board bazında birleşik ekip (board'un tüm ürünlerindeki kişiler, tekrarsız)
+    boards = OrderedDict()
+    for p in products:
+        b = boards.setdefault(p["bname"], {"name": p["board"], "ekip": OrderedDict(), "products": [],
+                                           "team": OrderedDict(), "po": OrderedDict(), "sm": OrderedDict()})
+        b["products"].append(p)
+        b["ekip"][clean(p["row"].get("Ekip"))] = 1
+        for k, roles in p["team"].items():
+            b["team"].setdefault(k, Counter()).update(roles)
+        for col, dst in (("Product Manager", "po"), ("Scrum Master", "sm")):
+            for n in split_people(p["row"].get(col)):
+                b[dst][display[norm_key(aliases.get(norm_key(n), n))]] = 1
+    hm_boards = [b for b in boards.values() if b["team"]]
+
+    # Kişi bazında roller, board'lar ve Board_Ürün'ler
     person_roles = defaultdict(Counter)
     person_keys = defaultdict(list)
-    person_boards = defaultdict(set)
-    for p in in_heatmap:
+    person_boards = defaultdict(list)
+    for p in products:
         for k, roles in p["team"].items():
-            for r in roles:
-                person_roles[k][r] += 1
+            person_roles[k].update(roles)
             person_keys[k].append(p["key"])
-            person_boards[k].add(clean(p["board"]))
+            if p["bname"] not in person_boards[k]:
+                person_boards[k].append(p["bname"])
 
     def main_role(k):
         if k in prev_roles:
@@ -182,7 +198,7 @@ def build(args):
         best = max(c.items(), key=lambda kv: (kv[1], -ROLE_PRIORITY.index(kv[0])))
         return best[0], "Türetildi"
 
-    people = sorted(person_keys, key=lambda k: (-len(person_keys[k]), fold(display[k])))
+    people = sorted(person_keys, key=lambda k: (-len(person_boards[k]), -len(person_keys[k]), fold(display[k])))
 
     # Benzer isimler (olası yazım farkı)
     keys = sorted(person_keys, key=fold)
@@ -190,6 +206,12 @@ def build(args):
         for b in keys[a_i + 1:]:
             if difflib.SequenceMatcher(None, fold(a), fold(b)).ratio() >= 0.87:
                 issues.append(("Benzer isim (aynı kişi olabilir)", display[a], display[b], ""))
+
+    def board_active(b):
+        if b["name"] in prev_active:
+            return prev_active[b["name"]]
+        vals = OrderedDict((prev_active[p["key"]], 1) for p in b["products"] if p["key"] in prev_active)
+        return ", ".join(vals) or None
 
     # ------------------------------------------------------------------ çıktı
     wb = openpyxl.Workbook()
@@ -209,7 +231,7 @@ def build(args):
     cols = ["Ekip", "Board Name/Product Grouping", "Type", "Product", "Ürün Adı", "Board_Ürün",
             "Board_Ürün_Value", "Own Solution", "Use Solution", "Scrum/Kanban", "Scrum Master",
             "Product Manager", "Yazılımcılar", "Analistler", "Testerlar", "Not", "TAKIM Formül",
-            "TAKIM Value", "Heatmap'te mi?"]
+            "TAKIM Value", "Kişi var mı?"]
     ws.append(cols)
     for i, p in enumerate(products, start=2):
         r = p["row"]
@@ -220,81 +242,84 @@ def build(args):
                 r.get("Analistler"), r.get("Testerlar"), r.get("Not"),
                 f'=K{i}&","&L{i}&","&M{i}&","&N{i}&","&O{i}',
                 ",".join(clean(r.get(c)) for c in ROLE_COLUMNS),
-                "Evet" if p["team"] else "Hayır (kişi yok)"]
+                "Evet" if p["team"] else "Hayır"]
         ws.append(vals)
     n_prod = len(products) + 1
     style_header(ws)
 
-    # 3) Board list
+    # 3) Board list: her board ve ekibi (tüm ürünlerinin birleşimi) kolonlara bölünmüş
     ws = wb.create_sheet("Board list")
-    ws.append(["Board", "Ekip", "Ürün sayısı", "Unique kişi sayısı"])
-    boards = OrderedDict()
-    for p in products:
-        boards.setdefault(p["board"], {"ekip": p["row"].get("Ekip"), "people": set()})
-        boards[p["board"]]["people"].update(p["team"])
-    for i, (b, d) in enumerate(boards.items(), start=2):
-        ws.append([b, d["ekip"], f"=COUNTIF('Ürünler kopya'!$B$2:$B${n_prod},A{i})", len(d["people"])])
+    max_team = max(len(b["team"]) for b in hm_boards)
+    first_p = 5
+    last_p = get_column_letter(first_p + max_team - 1)
+    ws.append(["Board", "Ekip", "Ürün sayısı", "Kişi sayısı", "TAKIM Value"] + [None] * (max_team - 1))
+    for i, b in enumerate(boards.values(), start=2):
+        ws.cell(i, 1, b["name"])
+        ws.cell(i, 2, ", ".join(e for e in b["ekip"] if e))
+        ws.cell(i, 3, f"=COUNTIF('Ürünler kopya'!$B$2:$B${n_prod},A{i})")
+        ws.cell(i, 4, f"=COUNTA({get_column_letter(first_p)}{i}:{last_p}{i})")
+        for j, k in enumerate(b["team"], start=first_p):
+            ws.cell(i, j, display[k])
+    n_board = len(boards) + 1
+    board_range = f"'Board list'!${get_column_letter(first_p)}$2:${last_p}${n_board}"
     style_header(ws)
 
-    # 4) Board-ürün list
+    # 4) Board-ürün list (ürün detayı)
     ws = wb.create_sheet("Board-ürün list")
-    max_team = max(len(p["team"]) for p in in_heatmap)
-    last_col = get_column_letter(1 + max_team)
-    cnt_col = 2 + max_team
-    ws.append(["Board_Ürün_Value"] + ["TAKIM Value"] + [None] * (max_team - 1) + ["Kişi Sayısı"])
-    for i, p in enumerate(in_heatmap, start=2):
-        names = [display[k] for k in p["team"]]
+    in_prod = [p for p in products if p["team"]]
+    max_pt = max(len(p["team"]) for p in in_prod)
+    last_col = get_column_letter(1 + max_pt)
+    ws.append(["Board_Ürün_Value", "TAKIM Value"] + [None] * (max_pt - 1) + ["Kişi Sayısı"])
+    for i, p in enumerate(in_prod, start=2):
         ws.cell(i, 1, p["key"])
-        for j, n in enumerate(names, start=2):
-            ws.cell(i, j, n)
-        ws.cell(i, cnt_col, f"=COUNTA(B{i}:{last_col}{i})")
-    n_bu = len(in_heatmap) + 1
-    bu_range = f"'Board-ürün list'!$B$2:${last_col}${n_bu}"
+        for j, k in enumerate(p["team"], start=2):
+            ws.cell(i, j, display[k])
+        ws.cell(i, 2 + max_pt, f"=COUNTA(B{i}:{last_col}{i})")
+    bu_range = f"'Board-ürün list'!$B$2:${last_col}${len(in_prod) + 1}"
     style_header(ws)
 
     # 5) Takımlardaki kişiler unique
     ws = wb.create_sheet("Takımlardaki kişiler unique")
-    ws.append(["Kişi", "Rol", "Board_Ürün sayısı", "Farklı board sayısı", "Tüm roller",
-               "Rol kaynağı", "Çalıştığı Board_Ürün'ler"])
+    ws.append(["Kişi", "Rol", "Farklı board sayısı", "Board_Ürün sayısı", "Tüm roller",
+               "Rol kaynağı", "Çalıştığı board'lar"])
     for i, k in enumerate(people, start=2):
         role, srcinfo = main_role(k)
         all_roles = ", ".join(f"{r} ({n})" for r, n in person_roles[k].most_common())
-        ws.append([display[k], role, f"=COUNTIF({bu_range},A{i})", len(person_boards[k]),
-                   all_roles, srcinfo, " | ".join(person_keys[k])])
+        ws.append([display[k], role, f"=COUNTIF({board_range},A{i})", f"=COUNTIF({bu_range},A{i})",
+                   all_roles, srcinfo, " | ".join(person_boards[k])])
     n_people = len(people) + 1
     style_header(ws)
     ws.conditional_formatting.add(f"C2:C{n_people}", heat_rule())
     uniq_range = f"'Takımlardaki kişiler unique'!$A$2:$C${n_people}"
 
-    # 6) Final transposed_ürün heatmap (4 satırlık bloklar: isim / rol / board sayısı / boş)
-    ws = wb.create_sheet("Final transposed_ürün heatmap")
-    for c, h in enumerate(["PO", "SM", "PO - SM Aynı mı?", "Takım kişi sayısı", "Aktif mi?",
-                           "Board_Ürün_Value"], start=1):
+    # 6) Final transposed_board heatmap (4 satırlık bloklar: isim / rol / board sayısı / boş)
+    ws = wb.create_sheet(HEATMAP_SHEET)
+    for c, h in enumerate(["PO", "SM", "PO - SM Aynı mı?", "Takım kişi sayısı", "Aktif mi?", "Board"], start=1):
         ws.cell(1, c, h)
-    kopya = f"'Ürünler kopya'!$G$2:$L${n_prod}"
     count_ranges, last = [], 7 + max_team - 1
     last_letter = get_column_letter(last)
-    for b, p in enumerate(in_heatmap):
-        r = 2 + 4 * b
-        ws.cell(r, 1, f'=IFERROR(VLOOKUP(F{r},{kopya},6,FALSE)&"","")')
-        ws.cell(r, 2, f'=IFERROR(VLOOKUP(F{r},{kopya},5,FALSE)&"","")')
+    for bi, b in enumerate(hm_boards):
+        r = 2 + 4 * bi
+        ws.cell(r, 1, ", ".join(b["po"]))
+        ws.cell(r, 2, ", ".join(b["sm"]))
         ws.cell(r, 3, f"=A{r}=B{r}")
         ws.cell(r, 4, f"=COUNTA(G{r}:{last_letter}{r})")
-        ws.cell(r, 5, prev_active.get(p["key"]))
-        ws.cell(r, 6, p["key"]).font = BOLD
-        for j, k in enumerate(p["team"], start=7):
+        ws.cell(r, 5, board_active(b))
+        ws.cell(r, 6, b["name"]).font = BOLD
+        for j, k in enumerate(b["team"], start=7):
             L = get_column_letter(j)
             ws.cell(r, j, display[k])
             ws.cell(r + 1, j, f'=IFERROR(VLOOKUP({L}{r},{uniq_range},2,FALSE),"")')
             ws.cell(r + 2, j, f'=IFERROR(VLOOKUP({L}{r},{uniq_range},3,FALSE),"")')
-        count_ranges.append(f"G{r + 2}:{get_column_letter(6 + len(p['team']))}{r + 2}")
+        count_ranges.append(f"G{r + 2}:{get_column_letter(6 + len(b['team']))}{r + 2}")
         for rr in range(r, r + 4):
             for c in range(1, 6):
                 ws.cell(rr, c).fill = FILL_HEAD
             ws.cell(rr, 6).fill = FILL_KEY
-        ws.cell(r + 1, 6, "Rol").font = Font(italic=True, color="666666")
-        ws.cell(r + 2, 6, "Kaç Board_Ürün'de?").font = Font(italic=True, color="666666")
-    n_last = 1 + 4 * len(in_heatmap)
+        n_urun = len(b["products"])
+        ws.cell(r + 1, 6, f"Rol  ({n_urun} ürün)" if n_urun > 1 else "Rol").font = Font(italic=True, color="666666")
+        ws.cell(r + 2, 6, "Kaç farklı board'da?").font = Font(italic=True, color="666666")
+    n_last = 1 + 4 * len(hm_boards)
     for c in range(1, 7):
         ws.cell(1, c).font = BOLD
         ws.cell(1, c).fill = FILL_KEY if c == 6 else FILL_HEAD
@@ -303,46 +328,41 @@ def build(args):
                                                                formula=["9"], fill=FILL_RED))
     ws.conditional_formatting.add(f"C2:C{n_last}", FormulaRule(formula=["C2=TRUE"], fill=FILL_YELLOW))
     ws.freeze_panes = "G2"
-    ws.column_dimensions["A"].width = 20
-    ws.column_dimensions["B"].width = 19
-    ws.column_dimensions["C"].width = 10
-    ws.column_dimensions["D"].width = 10
-    ws.column_dimensions["E"].width = 11
-    ws.column_dimensions["F"].width = 42
+    for L, w in zip("ABCDEF", (22, 22, 10, 10, 11, 42)):
+        ws.column_dimensions[L].width = w
     for j in range(7, last + 1):
         ws.column_dimensions[get_column_letter(j)].width = 17
     for row in ws.iter_rows(min_row=1, max_row=n_last):
         for c in row:
-            c.alignment = Alignment(vertical="center", wrap_text=c.column <= 6 and c.row == 1)
+            c.alignment = Alignment(vertical="center", wrap_text=c.row == 1 or c.column <= 2)
 
     # 7) Özet
     ws = wb.create_sheet("Özet", 0)
+    U = "'Takımlardaki kişiler unique'"
     ws.append(["Ekip Heatmap Özeti"])
     ws["A1"].font = Font(bold=True, size=14)
-    ws.append(["Kaynak dosya", args.input.split("/")[-1]])
-    ws.append(["Heatmap'teki Board_Ürün sayısı", f"=COUNTA('Board-ürün list'!A2:A{n_bu})"])
-    ws.append(["Farklı board sayısı", len({clean(p['board']) for p in in_heatmap})])
-    ws.append(["Unique kişi sayısı", f"=COUNTA('Takımlardaki kişiler unique'!A2:A{n_people})"])
-    ws.append(["5+ Board_Ürün'de çalışan kişi", f"=COUNTIF('Takımlardaki kişiler unique'!C2:C{n_people},\">=5\")"])
+    ws.append(["Kaynak dosya", os.path.basename(args.input)])
+    ws.append(["Heatmap'teki board sayısı", len(hm_boards)])
+    ws.append(["Heatmap'teki Board_Ürün sayısı", len(in_prod)])
+    ws.append(["Unique kişi sayısı", f"=COUNTA({U}!A2:A{n_people})"])
+    ws.append(["3+ farklı board'da çalışan kişi", f"=COUNTIF({U}!C2:C{n_people},\">=3\")"])
+    ws.append(["5+ farklı board'da çalışan kişi", f"=COUNTIF({U}!C2:C{n_people},\">=5\")"])
     ws.append([])
-    ws.append(["En çok Board_Ürün'e dağılmış kişiler (darboğaz adayları)"])
+    ws.append(["En çok board'a dağılmış kişiler (darboğaz adayları)"])
     ws.cell(ws.max_row, 1).font = BOLD
-    ws.append(["Kişi", "Rol", "Board_Ürün sayısı", "Farklı board sayısı"])
+    ws.append(["Kişi", "Rol", "Farklı board sayısı", "Board_Ürün sayısı"])
     hdr = ws.max_row
     for c in ws[hdr]:
         c.font = BOLD
         c.fill = FILL_HEAD
     for i in range(2, min(n_people, 21) + 1):
-        ws.append([f"='Takımlardaki kişiler unique'!A{i}", f"='Takımlardaki kişiler unique'!B{i}",
-                   f"='Takımlardaki kişiler unique'!C{i}", f"='Takımlardaki kişiler unique'!D{i}"])
+        ws.append([f"={U}!A{i}", f"={U}!B{i}", f"={U}!C{i}", f"={U}!D{i}"])
     ws.conditional_formatting.add(f"C{hdr + 1}:C{ws.max_row}", heat_rule())
     ws.append([])
-    ws.append(["Not: Board_Ürün sayısı, kişinin kaç ürün satırının ekibinde geçtiğini sayar; "
-               "Farklı board sayısı aynı board'un ürünlerini tek sayar."])
-    ws.column_dimensions["A"].width = 34
-    ws.column_dimensions["B"].width = 22
-    ws.column_dimensions["C"].width = 18
-    ws.column_dimensions["D"].width = 20
+    ws.append(["Not: Heatmap'teki sayı, kişinin kaç farklı board'un ekibinde olduğunu gösterir "
+               "(aynı board'un birden çok ürünü tek sayılır). Board_Ürün sayısı ürün bazlı detaydır."])
+    for L, w in zip("ABCD", (34, 22, 20, 18)):
+        ws.column_dimensions[L].width = w
 
     # 8) Veri kalitesi
     ws = wb.create_sheet("Veri kalitesi")
@@ -353,11 +373,12 @@ def build(args):
 
     wb.save(args.output)
     print(json.dumps({
-        "board_urun_in_heatmap": len(in_heatmap), "board_urun_total": len(products),
-        "boards": len({clean(p['board']) for p in in_heatmap}), "people": len(people),
+        "boards_in_heatmap": len(hm_boards), "boards_total": len(boards),
+        "board_urun_in_heatmap": len(in_prod), "people": len(people),
         "roles_from_previous": sum(1 for k in people if k in prev_roles),
         "issues": Counter(i[0] for i in issues),
-        "top": [(display[k], main_role(k)[0], len(person_keys[k]), len(person_boards[k])) for k in people[:15]],
+        "top": [f"{display[k]} / {main_role(k)[0]} / {len(person_boards[k])} board / {len(person_keys[k])} ürün"
+                for k in people[:15]],
     }, ensure_ascii=False, indent=1))
 
 

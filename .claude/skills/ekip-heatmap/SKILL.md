@@ -32,17 +32,20 @@ python .claude/skills/ekip-heatmap/scripts/build_heatmap.py \
 1. **Ürünler** → board'u olan her satır için `Board_Ürün` anahtarı
    (`Board Name/Product Grouping` + "_" + `Ürün Adı`) ve `TAKIM` birleşimi
    (**Ürünler kopya** sayfası, formüllerle).
-2. **Board list** → unique board'lar, ürün sayısı, unique kişi sayısı.
-3. **Board-ürün list** → her Board_Ürün için ekip kolonlara bölünmüş, satır içinde
-   tekrarlar atılmış (sıra: SM, PO, yazılımcılar, analistler, testçiler).
-   İsimler `,` `;` ve hücre içi alt satır ile ayrılır; `-`, `.` gibi boş işaretler atlanır.
-4. **Takımlardaki kişiler unique** → kişi, ana rol, Board_Ürün sayısı
-   (`COUNTIF` formülü), farklı board sayısı, tüm rolleri, rol kaynağı, çalıştığı
-   Board_Ürün'ler. En çok dağılmış kişi en üstte.
+2. **Board list** → unique board'lar (boşluk farkları birleştirilir); her board'un
+   ekibi = tüm ürünlerindeki kişilerin tekrarsız birleşimi, kolonlara bölünmüş
+   (sıra: SM, PO, yazılımcılar, analistler, testçiler). İsimler `,` `;` ve hücre içi
+   alt satır ile ayrılır; `-`, `.` gibi boş işaretler atlanır.
+3. **Board-ürün list** → aynı dağılımın ürün (Board_Ürün) bazlı detayı.
+4. **Takımlardaki kişiler unique** → kişi, ana rol, **farklı board sayısı**
+   (`COUNTIF` ile Board list üzerinden), Board_Ürün sayısı, tüm rolleri, rol
+   kaynağı, çalıştığı board'lar. En çok board'a dağılmış kişi en üstte.
    - Ana rol: önceki heatmap'te varsa o; yoksa kişinin en sık geçtiği kolon
      (eşitlikte Yazılımcı > Analist > Testçi > Product Owner > Scrum Master).
-5. **Final transposed_ürün heatmap** → her Board_Ürün için 4 satırlık blok:
-   isimler / rol / kişinin kaç Board_Ürün'de olduğu / boş. Solda PO, SM,
+5. **Final transposed_board heatmap** → her **board** için 4 satırlık blok:
+   isimler / rol / kişinin kaç **farklı board**'da olduğu / boş. Board'un birden çok
+   ürünü varsa ekip birleşik gösterilir ("Rol (N ürün)"). Solda PO, SM (board'un
+   tüm ürünlerindeki değerler),
    "PO - SM Aynı mı?" (sarı), "Takım kişi sayısı" (≥9 kırmızı), "Aktif mi?".
    Sayı satırları tek bir renk skalasıyla boyanır: 1 = yeşil (#57BB8A),
    medyan = sarı (#FFD666), en yüksek = kırmızı (#E67C73).
@@ -53,7 +56,7 @@ python .claude/skills/ekip-heatmap/scripts/build_heatmap.py \
 
 ## Sonuçta kullanıcıya söylenecekler
 
-- Kaç Board_Ürün / board / unique kişi çıktığı ve önceki dosyaya göre değişim.
+- Kaç board / Board_Ürün / unique kişi çıktığı ve önceki dosyaya göre değişim.
 - En çok board'a dağılmış ilk ~10 kişi (rolüyle).
 - **Veri kalitesi** sayfasındaki maddeler: yeni benzer isimleri kullanıcıya sor;
   doğrulananları `aliases.json`'a ekle ve yeniden üret.
@@ -61,8 +64,7 @@ python .claude/skills/ekip-heatmap/scripts/build_heatmap.py \
 
 ## Notlar
 
-- "Board_Ürün sayısı" kullanıcının orijinal ölçüsüdür (bir kişinin kaç ürün
-  satırının ekibinde geçtiği). Aynı board'un birden çok ürünü olduğunda bu sayı
-  şişebilir; bu yüzden "Farklı board sayısı" da verilir.
+- Heatmap ölçüsü **farklı board sayısıdır** (kullanıcı isteği): aynı board'un
+  birden çok ürünü tek sayılır. "Board_Ürün sayısı" yalnızca detay olarak verilir.
 - `COUNTUNIQUE` (Google Sheets) yerine Excel uyumlu `COUNTA` kullanılır; kişiler
   satır içinde zaten tekilleştirildiği için sonuç aynıdır.
