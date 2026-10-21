@@ -34,6 +34,8 @@ ROLE_PRIORITY = ["Yazılımcı", "Analist", "Testçi", "Product Owner", "Scrum M
 EMPTY_TOKENS = {"", "-", ".", "?", "—", "nan", "none", "yok"}
 UNKNOWN_ROLES = {None, "", "#N/A", "TBD"}
 HEATMAP_SHEET = "Final transposed_board heatmap"
+# Board adı bu ifadelere uyan satırlar heatmap'e ve sayımlara alınmaz (ör. "henüz çalışnaya başlanmadı")
+EXCLUDE_BOARD_PATTERNS = [r"baslan(ma|mi)di"]
 # Önceki dosyalarda heatmap'in bulunabileceği sayfalar (orijinal elle hazırlanan dosya dahil)
 PREVIOUS_HEATMAP_SHEETS = [HEATMAP_SHEET, "Final transposed_ürün heatmap"]
 
@@ -135,13 +137,17 @@ def build(args):
         spelling[norm_key(p)][p] += 1
         return norm_key(p)
 
-    products = []  # Board'u olan tüm satırlar
+    all_products = []  # Board'u olan tüm satırlar (hariç tutulanlar dahil)
     for i, row in enumerate(rows, start=2):
         board = row.get("Board Name/Product Grouping")
         if board in (None, ""):
             continue
         urun = row.get("Ürün Adı") or row.get("Product") or ""
         key = f"{board}_{urun}"
+        if any(re.search(pat, fold(str(board))) for pat in EXCLUDE_BOARD_PATTERNS):
+            issues.append(("Çalışmaya başlanmadı, heatmap'e alınmadı", key, "", ""))
+            all_products.append({"row": row, "key": key, "board": board, "team": {}, "status": "Hayır (başlanmadı)"})
+            continue
         people = []  # (norm_key, rol)
         for col, role in ROLE_COLUMNS.items():
             raw = row.get(col)
@@ -149,7 +155,8 @@ def build(args):
                 if len(p.split()) >= 4:
                     issues.append(("Ayraç eksik olabilir (tek hücrede 2 kişi?)", key, col, p))
                 people.append((canon(p), role))
-        products.append({"row": row, "key": key, "board": board, "people": people})
+        all_products.append({"row": row, "key": key, "board": board, "people": people})
+    products = [p for p in all_products if "status" not in p]
 
     display = {k: v.most_common(1)[0][0] for k, v in spelling.items()}
     for (old, new), n in used_aliases.items():
@@ -165,6 +172,7 @@ def build(args):
     for p in products:
         if not p["team"]:
             issues.append(("Kişi yok, heatmap'e alınmadı", p["key"], "", ""))
+            p["status"] = "Hayır (kişi yok)"
 
     # Board bazında birleşik ekip (board'un tüm ürünlerindeki kişiler, tekrarsız)
     boards = OrderedDict()
@@ -231,9 +239,9 @@ def build(args):
     cols = ["Ekip", "Board Name/Product Grouping", "Type", "Product", "Ürün Adı", "Board_Ürün",
             "Board_Ürün_Value", "Own Solution", "Use Solution", "Scrum/Kanban", "Scrum Master",
             "Product Manager", "Yazılımcılar", "Analistler", "Testerlar", "Not", "TAKIM Formül",
-            "TAKIM Value", "Kişi var mı?"]
+            "TAKIM Value", "Heatmap'te mi?"]
     ws.append(cols)
-    for i, p in enumerate(products, start=2):
+    for i, p in enumerate(all_products, start=2):
         r = p["row"]
         vals = [r.get("Ekip"), r.get("Board Name/Product Grouping"), r.get("Type"), r.get("Product"),
                 r.get("Ürün Adı") or r.get("Product"), f'=B{i}&"_"&E{i}', p["key"],
@@ -242,9 +250,9 @@ def build(args):
                 r.get("Analistler"), r.get("Testerlar"), r.get("Not"),
                 f'=K{i}&","&L{i}&","&M{i}&","&N{i}&","&O{i}',
                 ",".join(clean(r.get(c)) for c in ROLE_COLUMNS),
-                "Evet" if p["team"] else "Hayır"]
+                p.get("status", "Evet")]
         ws.append(vals)
-    n_prod = len(products) + 1
+    n_prod = len(all_products) + 1
     style_header(ws)
 
     # 3) Board list: her board ve ekibi (tüm ürünlerinin birleşimi) kolonlara bölünmüş

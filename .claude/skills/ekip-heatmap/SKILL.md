@@ -64,6 +64,11 @@ python .claude/skills/ekip-heatmap/scripts/build_heatmap.py \
 
 ## Notlar
 
+- Board adında "başlanmadı" geçen satırlar (ör. "henüz çalışnaya başlanmadı (ajans ile
+  çalışılıyor)", "Foundation - BOM - App henüz çalışnaya başlanmadı") heatmap'e ve tüm
+  sayımlara alınmaz; Ürünler kopya'da "Heatmap'te mi? = Hayır (başlanmadı)" olarak
+  görünür ve Veri kalitesi'nde listelenir. Kural: script'teki `EXCLUDE_BOARD_PATTERNS`.
+
 - Heatmap ölçüsü **farklı board sayısıdır** (kullanıcı isteği): aynı board'un
   birden çok ürünü tek sayılır. "Board_Ürün sayısı" yalnızca detay olarak verilir.
 - `COUNTUNIQUE` (Google Sheets) yerine Excel uyumlu `COUNTA` kullanılır; kişiler
