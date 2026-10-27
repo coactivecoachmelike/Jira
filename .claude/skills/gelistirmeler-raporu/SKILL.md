@@ -118,34 +118,38 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
    bullet (grubun **en geride** kalan işinin statüsü), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
    statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
    işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
-2. **Metriklerimiz - Özet** — sade, yalnız GitHub/talep adedi (Original Estimate yok):
-   - Planlanan vs. tamamlanan: yalnız **Toplam**, **GitHub işi adedi** üzerinden (iş tipi
-     kırılımıyla aynı birim; parantez/alt kırılım yok).
-   - **Xurrent talebi statü dağılımı**: Xurrent talebi | **Karşılık gelen GitHub işi**
-     (= yalnız Xurrent taleplerine bağlı işler, talebin statüsü satırında). Metriklerimiz
-     slaytında da aynı tablo kullanılır. `--ignore-xurrent` takımlarında başlık "Statü
-     dağılımı", tek kolon GitHub işi. En altta **Toplam** satırı; tamamen 0 olan
-     satırlar gizlenir.
-   - İş tipi kırılımı: GitHub işi (planlanan/tamamlanan) + **Toplam** satırı.
-   - Sprint ortasında gelen iş ve teknik borç: yalnız GitHub iş adedine göre.
-   - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla.
-3. **Metriklerimiz** — yalnız adet bazlı, OE yok (iş tipi hariç):
-   - Planlanan vs. tamamlanan: **Toplam GitHub işi** (iş tipi kırılımıyla aynı birim), **distinct Xurrent talebi**
-     (talep, tüm GitHub işleri bitince tamamlanmış sayılır) ve **ek talepler**
-     (Xurrent no'suz GitHub işleri) — üç ayrı oran.
-   - Statü dağılımı: iki kolon — Xurrent talebi (grubun en geri statüsü) | GitHub işi.
-   - İş tipi kırılımı: GitHub işi | Original Estimate (planlanan/tamamlanan).
+2. **Metriklerimiz - Özet** — sade, yalnız adet (Original Estimate yok). Metrik slaytlarında
+   "GitHub" kelimesi geçmez; birim **iş adedi**dir. Panel sırası:
+   - **Planlanan ve aradan gelen işler**: cümleyle — "İlk planlanan N işe sprint içinde M iş
+     eklendi", büyük **%x aradan giren iş** (= `AddedMidSprint` etiketli ÷ etiketsiz ilk planlanan);
+     altında aradan gelen işlerin tema adları.
+   - **Tamamlanma durumu**: "Son durumda toplam N iş içinden D iş tamamlandı", büyük
+     **%y tamamlanma oranı** (iş adedi; iş tipi kırılımıyla aynı birim).
+   - **Statü dağılımı**: tek kolon, yalnız **Xurrent talebi adedi** (talep, işleri içinde en geride
+     kalanın statüsünde); kolon başlığı yok, "Xurrent" yazmaz. En altta **Toplam**; 0 satırlar gizli.
+     `--ignore-xurrent` takımlarında tek kolon iş adedi.
+   - **İş tipi kırılımı**: yalnız iki satır — **Geliştirme taleplerimiz** (User Story + Bug) ve
+     **Proje işleri** (planlanan/tamamlanan iş adedi); Task'lar bu kırılımda yok (notta adedi yazar).
+     Altında proje işlerinin tema adları listelenir (talep adından projeyi özetleyen iş birimi dili —
+     tema adları `temalar.json`'da Claude tarafından yazılır).
+   - **Altyapısal işler** (eski adıyla teknik borç): `TB` etiketli ÷ toplam iş; altında tema adları.
+   - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla, iş adedi üzerinden.
+3. **Metriklerimiz** — adet bazlı (iş tipi, aradan gelen ve altyapısal işlerde OE de var):
+   - Planlanan vs. tamamlanan: **Toplam iş** (iş tipi kırılımıyla aynı birim), **distinct Xurrent talebi**
+     (talep, tüm işleri bitince tamamlanmış sayılır) ve **ek talepler** (Xurrent no'suz işler) — üç oran.
+   - Statü dağılımı: Özet'teki tabloyla aynı (tek kolon, Xurrent talebi adedi).
+   - İş tipi kırılımı: Geliştirme taleplerimiz / Proje işleri — iş adedi | Original Estimate; altında proje listesi.
    - Sprint ortasında gelen iş: `AddedMidSprint` etiketli ÷ ilk planlanan (etiketsiz),
      hem iş adedi hem OE; altında o işlerin tema adları.
-   - Teknik borç payı: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
-   - Lead time histogramı (**GitHub işi** bazında, talep bazında değil — slaytta not olarak yazar; Closed tarihi boş biten işler hariç tutulur ve numaraları notta listelenir): yalnızca **Done ve Released** statüsündeki
+   - Altyapısal işler: `TB` etiketli ÷ toplam, hem iş adedi hem OE; altında tema adları.
+   - Lead time histogramı (iş adedi bazında, talep bazında değil; Closed tarihi boş biten işler hariç tutulur ve numaraları notta listelenir): yalnızca **Done ve Released** statüsündeki
      işler (`--lead-status`; Closed tarihi olup başka statüde olanlar sayılmaz). Süre,
      sprint başlangıcından Closed tarihine kadar geçen gün. `Original Sprint` doluysa o
      sprintin, boşsa işin `Sprint` alanındaki sprintin başlangıcı esas alınır; önceki
      sprintler mevcut sprintten geriye her biri `--sprint-days` (14) gün sayılarak bulunur.
 4. **Metriklerimiz (Takıma özel)** — Original Estimate bazında planlanan vs. tamamlanan
    (toplam / Xurrent talepleri / ek talepler; iş bazında), statü dağılımı (OE) ve kişi
-   bazında planlanan vs. tamamlanan (GitHub işi | OE).
+   bazında planlanan vs. tamamlanan (iş adedi | OE).
 5. **Canlıya Çıkmaya Hazır Olan İşler** — gruplama slayt 1 ile aynıdır (Xurrent Talep No).
    - Sol: **release bekleyen** = statü `Done` + `Ready For Release` / `WaitingRelease` /
      `Waiting For Release` etiketi.
@@ -198,12 +202,12 @@ yeniden kullanılabilir).
 | Seçenek | Varsayılan | Not |
 |---|---|---|
 | `--xurrent-field` | `Xurrent Talep No` | Sütun esastır (başlıktaki numaradan farklı olabilir). Sütun yoksa ya da hücre boşsa başlığın başındaki numara (`82634239 - …`, `+82634239 - …`) kullanılır; boş hücre için uyarı basılır — kullanıcıya bildir |
-| `--ignore-xurrent` | kapalı | **Takım istisnası (Back Office):** Xurrent Talep No yok sayılır; planlanan vs. tamamlanan yalnız "GitHub talepleri" (iş adedi), statü dağılımı tek kolon (GitHub işi), OE paneli yalnız Toplam. Gruplama sadece BE/FE gibi parçalar üzerinden yapılır |
+| `--ignore-xurrent` | kapalı | **Takım istisnası (Back Office):** Xurrent Talep No yok sayılır; planlanan vs. tamamlanan yalnız toplam iş adedi, statü dağılımı tek kolon (iş adedi), OE paneli yalnız Toplam. Gruplama sadece BE/FE gibi parçalar üzerinden yapılır |
 | `--origin-field` | `Original Sprint` | Değer `3` ya da `Sprint 3` olabilir. İşin `Sprint`'inden farklıysa "aktarıldı" belirteci gösterilir (aynıysa gösterilmez); sütun yoksa uyarı verir |
 | `--sprint-field` | `Sprint` | Alt başlıkta gösterilir; lead time başlangıcı |
 | `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
-| `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Teknik borç |
+| `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Altyapısal işler (slaytlarda "teknik borç" yerine bu ad kullanılır) |
 | `--ready-label` / `--ready-status` | `Ready For Release`, `WaitingRelease`, `Waiting For Release` / `Done` | Canlıya hazır (release bekleyen) |
 | `--team` | proje adı | Alt başlıktaki takım adı |
 
@@ -215,7 +219,7 @@ Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok saya
   dönüşleri, modelbuilder, dwh — düzenli ifade, Türkçe küçük harfle aranır) → Task; kalanlar
   User Story. Grubun kategorisi, işlerinin çoğunluk tipidir. Export'a `Type` sütunu
   eklenirse o kullanılır.
-- Konsol çıktısındaki özet sayıları (Xurrent / ek / sprint ortası / teknik borç /
+- Konsol çıktısındaki özet sayıları (Xurrent / ek / sprint ortası / altyapısal işler /
   canlıya hazır) ve uyarıları (eksik sütunlar) kullanıcıya aktar.
 - PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF.
 

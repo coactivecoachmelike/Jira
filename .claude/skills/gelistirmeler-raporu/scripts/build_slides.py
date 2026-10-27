@@ -6,7 +6,7 @@
    kaç GitHub işinden oluştuğu ve önceki sprintten aktarıldıysa belirteçle gösterilir.
 2. Metriklerimiz — planlanan vs. tamamlanan (distinct Xurrent talebi + Xurrent no'suz ek
    talepler), statü dağılımı (Xurrent talebi | GitHub işi), iş tipi kırılımı, sprint
-   ortasında gelen iş oranı (AddedMidSprint), teknik borç oranı (TB), lead time.
+   ortasında gelen iş oranı (AddedMidSprint), altyapısal işler oranı (TB), lead time.
 3. Metriklerimiz (Takıma özel) — Original Estimate bazında planlanan vs. tamamlanan,
    statü dağılımı (OE) ve kişi bazında planlanan vs. tamamlanan.
 4. Canlıya Çıkmaya Hazır Olan İşler — Done statüsünde ve "Ready For Release" etiketli
@@ -32,6 +32,8 @@ from build_report import (COUNT_FIELD, DEFAULT_DONE, NO_STATUS_COLOR,  # noqa: E
                           normalize, pick_estimate_field)
 
 TYPES = ["User Story", "Proje işi", "Bug", "Task"]
+# Metrik slaytlarındaki iş tipi kırılımı: User Story + Bug birlikte, Proje ayrı; Task gösterilmez
+TYPE_BUCKETS = [("Geliştirme taleplerimiz", {"User Story", "Bug"}), ("Proje işleri", {"Proje işi"})]
 CAT_CLASS = {"User Story": "story", "Proje işi": "proj", "Bug": "bug", "Task": "task"}
 # Düzenli ifade; başlığın küçük harfli halinde aranır
 DEFAULT_TASK_KEYWORDS = [r"işlemler(i)?\b", "toplantı", "takvim", "kurulum", "incele", "migration",
@@ -230,6 +232,19 @@ def ratio_block(label: str, num: float, den: float, num_lbl: str, den_lbl: str, 
     <div><span>{esc(num_lbl)}</span><b>{fmt(num)}{u}</b></div>
     <div><span>{esc(den_lbl)}</span><b>{fmt(den)}{u}</b></div>
   </div>
+</div>"""
+
+
+def story_block(sentence: str, done: float, total: float, cap: str, nums: list, warm: bool = False) -> str:
+    """Cümleyle anlatılan oran: üstte cümle, büyük yüzde + açıklaması, altta sayılar."""
+    p = pct(done, total)
+    cells = "".join(f'<div><span>{esc(l)}</span><b>{fmt(v)}<small>{esc(u)}</small></b></div>' for l, v, u in nums)
+    return f"""
+<div class="comp story">
+  <div class="clabel">{sentence}</div>
+  <div class="chero">%{p:.0f}<span class="hcap">{esc(cap)}</span></div>
+  <div class="bar{' warm' if warm else ''}"><i style="width:{min(p, 100):.2f}%"></i></div>
+  <div class="cnums" style="grid-template-columns:repeat({len(nums)},1fr)">{cells}</div>
 </div>"""
 
 
@@ -494,15 +509,15 @@ def build(a) -> None:
     # Toplam, iş tipi kırılımıyla aynı birim: GitHub işi adedi
     all_done = sum(r["done"] for r in rows)
     if a.ignore_xurrent:
-        comp = completion_block("GitHub talepleri", e_done_n, len(ek), "talep")
+        comp = completion_block("Toplam", all_done, len(rows), "iş")
     else:
-        comp = (mini_comp("Toplam GitHub işi", all_done, len(rows), "iş")
+        comp = (mini_comp("Toplam iş", all_done, len(rows), "iş")
                 + mini_comp("Xurrent talepleri <small>(distinct)</small>", x_done, len(xg), "talep")
                 + mini_comp("Ek talepler <small>(Xurrent no'suz)</small>", e_done_n, len(ek), "talep"))
-    comp_note = ("GitHub işi (talep) adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
+    comp_note = ("İş adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
                  if a.ignore_xurrent else
-                 "Toplam = GitHub işi adedi (iş tipi kırılımıyla aynı) · Xurrent talebi, tüm GitHub işleri "
-                 "bitince tamamlanır · ek talep = Xurrent no'suz GitHub işi")
+                 "Toplam = iş adedi (iş tipi kırılımıyla aynı) · Xurrent talebi, tüm işleri "
+                 "bitince tamamlanır · ek talep = Xurrent no'suz iş")
     status_rows = []
     for o in used_opts:
         mem = [r for r in rows if r["status"] == o["name"]]
@@ -510,16 +525,17 @@ def build(a) -> None:
                             "x": sum(1 for g in xg if g["status"] == o["name"]),
                             "c": len(mem), "e": sum(r["est"] for r in mem)})
     type_rows = []
-    for t in TYPES:
-        mem = [r for r in rows if r["kind"] == t]
-        type_rows.append({"label": t, "c": len(mem), "cd": sum(1 for r in mem if r["done"]),
+    for lbl, kinds in TYPE_BUCKETS:
+        mem = [r for r in rows if r["kind"] in kinds]
+        type_rows.append({"label": lbl, "c": len(mem), "cd": sum(1 for r in mem if r["done"]),
                           "e": sum(r["est"] for r in mem), "ed": sum(r["est"] for r in mem if r["done"])})
+    n_task = sum(1 for r in rows if r["kind"] == "Task")
     projects = collections.Counter(r["fields"].get(a.project_field) for r in rows if r["kind"] == "Proje işi")
     proj_txt = " · ".join(f"{esc(n)} <b>{c}</b>" for n, c in projects.most_common()) or "—"
 
     mid = [r for r in rows if r["mid"]]
     plan = [r for r in rows if not r["mid"]]
-    midp = (ratio_block("GitHub iş adedine göre", len(mid), len(plan), "Sprint ortasında gelen",
+    midp = (ratio_block("İş adedine göre", len(mid), len(plan), "Sprint ortasında gelen",
                         "İlk planlanan", "iş")
             + ratio_block(f"{est_label}'a göre", sum(r["est"] for r in mid), sum(r["est"] for r in plan),
                           "Sprint ortasında gelen", "İlk planlanan", unit))
@@ -528,11 +544,13 @@ def build(a) -> None:
         return "".join(f'<li><span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
                        f'{esc(g["name"])}</li>' for g in gs)
     mid_list = name_list(mid)
+    proj_rows = [r for r in rows if r["kind"] == "Proje işi"]
+    proj_list = name_list(proj_rows) or '<li class="none">Bu sprintte proje işi yok</li>'
     tb = [r for r in rows if r["tb"]]
     tb_list = name_list(tb)
-    tbp = (ratio_block("GitHub iş adedine göre", len(tb), len(rows), "Teknik borç", "Toplam", "iş")
+    tbp = (ratio_block("İş adedine göre", len(tb), len(rows), "Altyapısal iş", "Toplam", "iş")
            + ratio_block(f"{est_label}'a göre", sum(r["est"] for r in tb), sum(r["est"] for r in rows),
-                         "Teknik borç", "Toplam", unit))
+                         "Altyapısal iş", "Toplam", unit))
 
     closed = [r for r in rows if r["lead"] is not None]
     bins = []
@@ -548,7 +566,7 @@ def build(a) -> None:
     lead_missing = (f" · Closed tarihi olmadığı için hariç: {', '.join('#' + n for n in no_close)}"
                     if no_close else "")
     if leads:
-        lead_stats = (f'<div><span>Biten GitHub işi</span><b>{len(leads)}</b></div>'
+        lead_stats = (f'<div><span>Biten iş</span><b>{len(leads)}</b></div>'
                       f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
                       f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
@@ -557,32 +575,33 @@ def build(a) -> None:
         lead_stats, hist = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
 
     # ---- Özet slaytı: yalnız adet bazlı, sadeleştirilmiş
+    sum_comp = story_block(f"Son durumda toplam <b>{fmt(len(rows))}</b> iş içinden <b>{fmt(all_done)}</b> iş tamamlandı",
+                           all_done, len(rows), "tamamlanma oranı",
+                           [("Toplam", len(rows), "iş"), ("Tamamlanan", all_done, "iş"),
+                            ("Kalan", len(rows) - all_done, "iş")])
     if a.ignore_xurrent:
-        sum_comp = completion_block("GitHub talepleri", e_done_n, len(ek), "talep")
         sum_status_rows = [{"label": r["label"], "color": r["color"], "c": r["c"]} for r in status_rows]
-        sum_status_cols = [{"key": "c", "head": "GitHub işi"}]
+        sum_status_cols = [{"key": "c", "head": ""}]
         sum_status_total = {"label": "Toplam", "c": len(rows)}
     else:
-        sum_comp = completion_block("Toplam", all_done, len(rows), "iş")
-        # GitHub işi = yalnız Xurrent taleplerine bağlı işler (talebin statüsüne göre)
-        sum_status_rows = [{"label": r["label"], "color": r["color"], "x": r["x"],
-                            "c": sum(len(g["items"]) for g in xg if g["status"] == o["name"])}
-                           for r, o in zip(status_rows, used_opts)]
-        sum_status_cols = [{"key": "x", "head": "Xurrent talebi"}, {"key": "c", "head": "Karşılık gelen GitHub işi"}]
-        sum_status_total = {"label": "Toplam", "x": len(xg), "c": sum(len(g["items"]) for g in xg)}
+        # yalnız Xurrent talepleri; talep, işleri içinde en geride kalanın statüsünde
+        sum_status_rows = [{"label": r["label"], "color": r["color"], "x": r["x"]} for r in status_rows]
+        sum_status_cols = [{"key": "x", "head": ""}]
+        sum_status_total = {"label": "Toplam", "x": len(xg)}
     sum_status_rows = [r for r in sum_status_rows if any(r[c["key"]] for c in sum_status_cols)]
     sum_status = multi_table(sum_status_rows, sum_status_cols, total=sum_status_total)
-    sum_types = multi_table(type_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"}],
-                            total={"label": "Toplam", "c": sum(t["c"] for t in type_rows),
-                                   "cd": sum(t["cd"] for t in type_rows)})
-    sum_mid = ratio_block("GitHub iş adedine göre", len(mid), len(plan), "Sprint ortasında gelen",
-                          "İlk planlanan", "iş")
-    sum_tb = ratio_block("GitHub iş adedine göre", len(tb), len(rows), "Teknik borç", "Toplam", "iş")
-    sum_status_note = ("GitHub işi: tüm işler" if a.ignore_xurrent else
-                       "Karşılık gelen GitHub işi: yalnız Xurrent taleplerine bağlı işler · satır = talebin statüsü")
-    status_title = "Statü dağılımı" if a.ignore_xurrent else "Xurrent talebi statü dağılımı"
-    sum_comp_note = ("GitHub işi (talep) adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
-                     if a.ignore_xurrent else "GitHub işi adedi üzerinden (iş tipi kırılımıyla aynı birim)")
+    sum_types = multi_table(type_rows, [{"key": "c", "done": "cd", "head": "İş adedi"}])
+    sum_mid = story_block(f"İlk planlanan <b>{fmt(len(plan))}</b> işe sprint içinde <b>{fmt(len(mid))}</b> iş eklendi",
+                          len(mid), len(plan), "aradan giren iş",
+                          [("İlk planlanan", len(plan), "iş"), ("Aradan gelen", len(mid), "iş")], warm=True)
+    sum_tb = ratio_block("İş adedine göre", len(tb), len(rows), "Altyapısal iş", "Toplam", "iş")
+    sum_status_note = ("İş adedi · tüm işler" if a.ignore_xurrent else
+                       "Talep adedi · talep, işleri içinde en geride kalanın statüsünde sayılır")
+    status_title = "Statü dağılımı"
+    sum_comp_note = ("İş adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
+                     if a.ignore_xurrent else "İş adedi üzerinden (iş tipi kırılımıyla aynı birim)")
+    types_note = (f"Geliştirme taleplerimiz = User Story + Bug · Proje = {esc(a.project_field)} dolu işler"
+                  + (f" · toplantı/analiz gibi {n_task} task bu kırılıma dahil değil" if n_task else ""))
 
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
@@ -653,13 +672,13 @@ def build(a) -> None:
                    ["<b>Xurrent talebi</b>: aynı Xurrent Talep No'ya sahip GitHub işleri tek talep sayılır "
                     "(BE/FE/App/Web parçaları); talep, tüm işleri bitince tamamlanmış sayılır.",
                     "<b>Ek talep</b>: Xurrent Talep No'su boş GitHub işi; her biri ayrı sayılır.",
-                    "<b>GitHub işi</b>: panodaki her issue. Planlanan vs. tamamlanan toplamı ve iş tipi kırılımı "
-                    "bu birimle hesaplanır; bu yüzden talep sayısından büyük olabilir.",
-                    "Xurrent statü dağılımında talep, işleri içinde <b>en geride kalanın</b> statüsünde sayılır; "
-                    "\"Karşılık gelen GitHub işi\" o talebe bağlı işlerin adedidir."])
+                    "<b>İş</b>: panodaki her GitHub issue'su. Tamamlanma oranı, aradan gelen iş, altyapısal işler "
+                    "ve iş tipi kırılımı bu birimle hesaplanır; bu yüzden talep sayısından büyük olabilir.",
+                    "Statü dağılımı yalnız Xurrent taleplerini sayar; talep, işleri içinde "
+                    "<b>en geride kalanın</b> statüsünde sayılır."])
     cards = [
         ("Kapsam", [f"Sprint: {esc(', '.join(sorted({r['sprint'] for r in rows} - {''})) or '—')} · "
-                    f"{len(rows)} GitHub işi değerlendirildi.",
+                    f"{len(rows)} iş değerlendirildi.",
                     f"Hariç tutulanlar: statüsü <b>{esc(', '.join(a.exclude_status))}</b> olan ve "
                     f"<b>{esc(', '.join(a.exclude_label))}</b> etiketli işler — bu sprintte: {nums(excluded)}.",
                     "Tüm slayt ve metrikler bu kapsam üzerinden hesaplanır."]),
@@ -670,10 +689,12 @@ def build(a) -> None:
         ("İş tipi", ["Başlıkta [BUG] → <b>Bug</b>; DD Project Name dolu → <b>Proje işi</b>; "
                      "toplantı, analiz/inceleme, deployment, kurulum, operasyonel işler → <b>Task</b>; "
                      "diğerleri → <b>User Story</b>.",
+                     "Metrik slaytlarında <b>Geliştirme taleplerimiz</b> = User Story + Bug; <b>Proje işleri</b> "
+                     "ayrı gösterilir ve altında listelenir; Task'lar bu kırılıma dahil edilmez.",
                      "GitHub'ta issue type sütunu dışa aktarılırsa doğrudan o kullanılır."]),
-        ("Etiket bazlı metrikler", [f"Sprint ortasında gelen iş = \"{esc(a.mid_label[0])}\" etiketli işler ÷ "
+        ("Etiket bazlı metrikler", [f"Aradan giren iş oranı = \"{esc(a.mid_label[0])}\" etiketli işler ÷ "
                                     "etiketsiz (ilk planlanan) işler.",
-                                    f"Teknik borç payı = \"{esc(a.tb_label[0])}\" etiketli işler ÷ toplam iş.",
+                                    f"Altyapısal işler payı = \"{esc(a.tb_label[0])}\" etiketli işler ÷ toplam iş.",
                                     "Etiket karşılaştırmasında büyük/küçük harf, boşluk, - ve _ yok sayılır."]),
         ("Lead time", ["Yalnız <b>Done ve Released</b> işler; süre <b>takvim günü</b> olarak sprint "
                        "başlangıcından Closed tarihine kadar ölçülür.",
@@ -707,17 +728,17 @@ def build(a) -> None:
         n_groups=len(groups), n_items=len(rows), n_carry=n_carry,
         comp=comp, comp_note=comp_note,
         status=sum_status, status_title=status_title, sum_comp_note=sum_comp_note,
-        types=multi_table(type_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
-                                      {"key": "e", "done": "ed", "head": est_label}]),
+        types=multi_table(type_rows, [{"key": "c", "done": "cd", "head": "İş adedi"},
+                                      {"key": "e", "done": "ed", "head": est_label}], label_fr=3.2),
         projects=proj_txt, pfield=esc(a.project_field), midp=midp, tbp=tbp,
         mid_label=esc(a.mid_label[0]), tb_label=esc(a.tb_label[0]), mid_list=mid_list, tb_list=tb_list,
         lead_stats=lead_stats, hist=hist, sprint_days=a.sprint_days, lead_missing=lead_missing, oe=oe, est_label=esc(est_label),
         status_oe=multi_table(status_rows, [{"key": "e", "head": est_label}]),
-        people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "GitHub işi"},
+        people=multi_table(people_rows, [{"key": "c", "done": "cd", "head": "İş adedi"},
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
         assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
-        sum_mid=sum_mid, sum_tb=sum_tb,
+        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
         released=released_html, n_released=len(rel_groups),
         rel_cols=2 if len(rel_groups) > 12 else 1,
@@ -733,7 +754,7 @@ def build(a) -> None:
           f"({len(xg)} Xurrent talebi, {len(ek)} ek iş)")
     print(f"  Xurrent: {sum(g['done'] for g in xg)}/{len(xg)} tamam · ek: {sum(r['done'] for r in ek)}/{len(ek)}")
     print(f"  sprint ortası: {len(mid)}/{len(plan)} iş, {fmt(sum(r['est'] for r in mid))}/"
-          f"{fmt(sum(r['est'] for r in plan))} OE · teknik borç: {len(tb)}/{len(rows)} iş, "
+          f"{fmt(sum(r['est'] for r in plan))} OE · altyapısal: {len(tb)}/{len(rows)} iş, "
           f"{fmt(sum(r['est'] for r in tb))}/{fmt(sum(r['est'] for r in rows))} OE")
     print(f"  canlıya hazır: {len(ready_rows)} iş / {len(ready_groups)} tema · aktarılan tema: {n_carry}")
     if leads:
@@ -797,6 +818,11 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .cnums span {{ font-size:14px; color:var(--muted); }}
 .cnums b {{ font-size:28px; font-variant-numeric:tabular-nums; white-space:nowrap; }}
 .cnums small, .lstats small {{ font-size:14px; font-weight:400; color:var(--muted); margin-left:3px; }}
+.chero .hcap {{ font-size:20px; font-weight:600; letter-spacing:0; color:var(--muted); margin-left:12px; }}
+.story .clabel {{ font-weight:500; font-size:19px; line-height:1.35; }}
+.story .clabel b {{ font-weight:800; color:var(--ink); }}
+.names.one {{ columns:1; }}
+.names li.none {{ color:var(--muted); }}
 .cnote {{ font-size:14px; color:var(--muted); margin-top:8px; }}
 .minis {{ display:flex; flex-direction:column; justify-content:space-evenly; flex:1; gap:18px; }}
 .mini .mtop {{ display:flex; align-items:baseline; justify-content:space-between; }}
@@ -938,22 +964,23 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <ul class="legend">{legend}</ul>
   </header>
   <div class="grid">
-    <div class="panel"><div class="ptitle">Planlanan vs. tamamlanan</div><div class="minis">{sum_comp}</div>
+    <div class="panel"><div class="ptitle">Planlanan ve aradan gelen işler</div><div class="comps r one">{sum_mid}</div>
+      <ul class="names">{mid_list}</ul>
+      <div class="pfoot">Aradan gelen = "{mid_label}" etiketli işler · oran = aradan gelen ÷ ilk planlanan</div></div>
+    <div class="panel"><div class="ptitle">Tamamlanma durumu</div><div class="comps r one">{sum_comp}</div>
       <div class="pfoot">{sum_comp_note}</div></div>
     <div class="panel"><div class="ptitle">{status_title}</div>{sum_status}
       <div class="pfoot">{sum_status_note}</div></div>
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
       {sum_types}
-      <div class="pfoot">GitHub'taki talep (iş) sayısı üzerinden · Proje işleri ({pfield}): {projects}</div></div>
-    <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r one">{sum_mid}</div>
-      <ul class="names">{mid_list}</ul>
-      <div class="pfoot">"{mid_label}" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
-    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r one">{sum_tb}</div>
+      <ul class="names one">{proj_list}</ul>
+      <div class="pfoot">{types_note}</div></div>
+    <div class="panel"><div class="ptitle">Altyapısal işler</div><div class="comps r one">{sum_tb}</div>
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · iş adedi üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -971,15 +998,16 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
       {types}
-      <div class="pfoot">Proje işleri ({pfield}): {projects}</div></div>
+      <ul class="names one">{proj_list}</ul>
+      <div class="pfoot">{types_note}</div></div>
     <div class="panel"><div class="ptitle">Sprint ortasında gelen iş</div><div class="comps r">{midp}</div>
       <ul class="names">{mid_list}</ul>
       <div class="pfoot">"{mid_label}" etiketli işler ÷ ilk planlanan işler (etiketsizler)</div></div>
-    <div class="panel"><div class="ptitle">Teknik borç payı</div><div class="comps r">{tbp}</div>
+    <div class="panel"><div class="ptitle">Altyapısal işler</div><div class="comps r">{tbp}</div>
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
     <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · GitHub'taki talep (iş) sayısı üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · iş adedi üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
       <div class="lstats">{lead_stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -1095,7 +1123,7 @@ def main() -> None:
     ap.add_argument("--task-keyword", action="append",
                     help="Başlıkta geçerse Task sayılır (regex, tekrarlanabilir; varsayılanı değiştirir)")
     ap.add_argument("--mid-label", action="append", default=None, help="Sprint ortasında gelen iş etiketi")
-    ap.add_argument("--tb-label", action="append", default=None, help="Teknik borç etiketi")
+    ap.add_argument("--tb-label", action="append", default=None, help="Altyapısal iş etiketi (TB)")
     ap.add_argument("--ready-label", action="append", default=None, help="Canlıya hazır etiketi")
     ap.add_argument("--ready-status", action="append", default=None, help="Canlıya hazır statüsü")
     ap.add_argument("--themes", help="Tema adları JSON'u (grup anahtarı → ad)")
