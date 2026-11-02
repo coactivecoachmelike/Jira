@@ -784,27 +784,30 @@ def build(a) -> None:
            + ratio_block(f"{est_label}'a göre", sum(r["est"] for r in tb), sum(r["est"] for r in rows),
                          "Altyapısal iş", "Toplam", unit))
 
-    closed = [r for r in rows if r["lead"] is not None]
-    bins = []
-    for lo, hi, label in LEAD_BINS:
-        bins.append({"label": label,
-                     "c": sum(1 for r in closed if r["lead"] >= lo and (hi is None or r["lead"] < hi))})
-    while len(bins) > 4 and not bins[-1]["c"]:
-        bins.pop()
-    leads = [r["lead"] for r in closed]
-    fin = {sk(x) for x in a.lead_status}
-    no_close = [(r.get("url") or "").rsplit("/", 1)[-1] for r in rows
-                if sk(r["status"]) in fin and r["lead"] is None]
-    lead_missing = (f" · Closed tarihi olmadığı için hariç: {', '.join('#' + n for n in no_close)}"
-                    if no_close else "")
-    if leads:
-        lead_stats = (f'<div><span>Biten iş</span><b>{len(leads)}</b></div>'
-                      f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
-                      f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
-                      f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
-        hist = histogram(bins, "c", "var(--ink)")
-    else:
-        lead_stats, hist = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
+    def lead_block(rs):
+        closed = [r for r in rs if r["lead"] is not None]
+        bins = []
+        for lo, hi, label in LEAD_BINS:
+            bins.append({"label": label,
+                         "c": sum(1 for r in closed if r["lead"] >= lo and (hi is None or r["lead"] < hi))})
+        while len(bins) > 4 and not bins[-1]["c"]:
+            bins.pop()
+        leads = [r["lead"] for r in closed]
+        fin = {sk(x) for x in a.lead_status}
+        no_close = [(r.get("url") or "").rsplit("/", 1)[-1] for r in rs
+                    if sk(r["status"]) in fin and r["lead"] is None]
+        missing = (f" · Closed tarihi olmadığı için hariç: {', '.join('#' + n for n in no_close)}"
+                   if no_close else "")
+        if leads:
+            stats = (f'<div><span>Biten iş</span><b>{len(leads)}</b></div>'
+                     f'<div><span>Medyan</span><b>{fmt(round(statistics.median(leads), 1))}<small>gün</small></b></div>'
+                     f'<div><span>Ortalama</span><b>{fmt(round(statistics.mean(leads), 1))}<small>gün</small></b></div>'
+                     f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
+            hg = histogram(bins, "c", "var(--ink)")
+        else:
+            stats, hg = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
+        return stats, hg, missing, leads, no_close
+    lead_stats, hist, lead_missing, leads, no_close = lead_block(rows)
 
     # ---- Özet slaytı: yalnız adet bazlı, sadeleştirilmiş
     sum_comp = story_block(f"Son durumda toplam <b>{fmt(len(rows))}</b> iş içinden <b>{fmt(all_done)}</b> iş tamamlandı",
@@ -867,9 +870,9 @@ def build(a) -> None:
     def key_of(r):
         return r.get("url") or id(r)
 
-    def subset_entries(ids):
+    def subset_entries(ids, gs=None):
         out = []
-        for g in groups:
+        for g in (groups if gs is None else gs):
             sel = [i for i in g["items"] if key_of(i) in ids]
             if not sel:
                 continue
@@ -963,6 +966,100 @@ def build(a) -> None:
     focus_key = (f'<li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li>'
                  f'<li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li>'
                  f'<li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li>')
+    # ---- Çok sprintli veri: odaklandığımız işler ve özet metriklerin toplam versiyonları
+    br_focus = br_sum = br_release = ""
+    if multi:
+        rng = " & ".join(f"Sprint {n}" for n in snos) if len(snos) <= 2 else f"Sprint {snos[0]} – Sprint {snos[-1]}"
+        bsub = " · ".join(x for x in [a.team or proj.get("title"), rng, dt.date.today().strftime("%d.%m.%Y")] if x)
+        br_focus = f"""
+<div class="frame"><section class="slide" aria-label="Sprint'te Odaklandığımız İşler - {esc(rng)}">
+  <header>
+    <div><h1>Sprint'te Odaklandığımız İşler <span>- {esc(rng)}</span></h1>
+      <div class="sub">{esc(bsub)} · {len(all_groups)} talep ({len(br_rows)} GitHub işi)</div></div>
+    <ul class="legend">{legend}<li class="sep"></li>{focus_key}</ul>
+  </header>
+  {kanban(all_groups, hexes, order)}
+</section></div>
+"""
+        b_mid = [r for r in br_rows if r["mid"]]
+        b_plan = [r for r in br_rows if not r["mid"]]
+        b_done = sum(r["done"] for r in br_rows)
+        b_midblk = story_block(f"İlk planlanan <b>{fmt(len(b_plan))}</b> işe sprintler içinde <b>{fmt(len(b_mid))}</b> iş eklendi",
+                               len(b_mid), len(b_plan), "aradan giren iş",
+                               [("İlk planlanan", len(b_plan), "iş"), ("Aradan gelen", len(b_mid), "iş")], warm=True)
+        b_comp = story_block(f"Son durumda toplam <b>{fmt(len(br_rows))}</b> iş içinden <b>{fmt(b_done)}</b> iş tamamlandı",
+                             b_done, len(br_rows), "tamamlanma oranı",
+                             [("Toplam", len(br_rows), "iş"), ("Tamamlanan", b_done, "iş"),
+                              ("Kalan", len(br_rows) - b_done, "iş")])
+        bxg = [g for g in all_groups if g["xno"]]
+        if a.ignore_xurrent:
+            b_st = [{"label": o["name"] + (" ✓" if o["done"] else ""), "color": o["hex"],
+                     "x": sum(1 for r in br_rows if r["status"] == o["name"])} for o in used_opts]
+            b_tot = len(br_rows)
+        else:
+            b_st = [{"label": o["name"] + (" ✓" if o["done"] else ""), "color": o["hex"],
+                     "x": sum(1 for g in bxg if g["status"] == o["name"])} for o in used_opts]
+            b_tot = len(bxg)
+        b_status = multi_table([r for r in b_st if r["x"]], [{"key": "x", "head": ""}],
+                               total={"label": "Toplam", "x": b_tot})
+        b_types_rows = []
+        for lbl, kinds in TYPE_BUCKETS:
+            mem = [r for r in br_rows if r["kind"] in kinds]
+            b_types_rows.append({"label": lbl, "c": len(mem), "cd": sum(1 for r in mem if r["done"])})
+        b_ntask = sum(1 for r in br_rows if r["kind"] == "Task")
+        b_types_note = ("Geliştirme taleplerimiz = User Story + Bug · altında proje adları"
+                        + (f" · {b_ntask} task bu kırılıma dahil değil" if b_ntask else ""))
+        b_lstats, b_hist, b_missing, _, _ = lead_block(br_rows)
+        b_ready = [r for r in br_rows if sk(r["status"]) in ready_st and has_label(r, a.ready_label)]
+        b_ready_g = subset_entries({key_of(r) for r in b_ready}, all_groups)
+        b_rel = [r for r in br_rows if sk(r["status"]) in live_st]
+        b_rel_g = subset_entries({key_of(r) for r in b_rel}, all_groups)
+        b_wide = len(b_rel_g) > 12
+        br_release = f"""
+<div class="frame"><section class="slide" aria-label="Canlıya Çıkmaya Hazır Olan İşler - {esc(rng)}">
+  <header>
+    <div><h1>Canlıya Çıkmaya Hazır Olan İşler <span>- {esc(rng)}</span></h1><div class="sub">{esc(bsub)} · iki sprintin toplamı</div></div>
+    <ul class="legend">{focus_key}</ul>
+  </header>
+  <div class="rgrid" style="grid-template-columns:{"minmax(0,1fr) minmax(0,1.9fr)" if b_wide else "1fr 1fr"}">
+    <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>{len(b_ready_g)}</b></div>
+      <ul class="list" style="--cols:1;--max:30">
+{grouped_list(b_ready_g, hexes, a.origin_field, "Bu kriterde iş yok.")}
+      </ul></div>
+    <div class="rsec done"><div class="rtitle">{esc(rng)} içinde canlıya alınanlar <b>{len(b_rel_g)}</b> <small>({esc(", ".join(sorted({r["status"] for r in b_rel})) or "—")})</small></div>
+      <ul class="list" style="--cols:{2 if b_wide else 1};--max:22">
+{grouped_list(b_rel_g, hexes, a.origin_field, "Yok.")}
+      </ul></div>
+  </div>
+  <div class="rnote">{ready_note}</div>
+</section></div>
+"""
+        br_sum = f"""
+<div class="frame"><section class="slide" aria-label="Metriklerimiz - Özet {esc(rng)}">
+  <header>
+    <div><h1>Metriklerimiz <span>- Özet · {esc(rng)}</span></h1><div class="sub">{esc(bsub)} · iki sprintin toplamı</div></div>
+    <ul class="legend">{legend}</ul>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Planlanan ve aradan gelen işler</div><div class="comps r one">{b_midblk}</div>
+      <ul class="names">{name_list(b_mid)}</ul>
+      <div class="pfoot">Aradan gelen = "{esc(a.mid_label[0])}" etiketli işler · oran = aradan gelen ÷ ilk planlanan</div></div>
+    <div class="panel"><div class="ptitle">Tamamlanma durumu</div><div class="comps r one">{b_comp}</div>
+      <div class="pfoot">İş adedi · iki sprintteki tüm işler, bugünkü statüsüne göre</div></div>
+    <div class="panel"><div class="ptitle">Statü dağılımı</div>{b_status}
+      <div class="pfoot">{"İş adedi" if a.ignore_xurrent else "Talep adedi · talep, işleri içinde en geride kalanın statüsünde sayılır"}</div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      {multi_table(b_types_rows, [{"key": "c", "done": "cd", "head": "İş adedi"}])}
+      <ul class="names one">{project_list(br_rows, "Bu sprintlerde proje işi yok")}</ul>
+      <div class="pfoot">{b_types_note}</div></div>
+    <div class="panel span2"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · iş adedi üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {a.sprint_days} gün{b_missing}</div>
+      <div class="lstats">{b_lstats}</div>{b_hist}</div>
+  </div>
+</section></div>
+"""
+
     page = TEMPLATE.format(
         subtitle=esc(subtitle), legend=legend, focus_key=focus_key, focus=focus,
         n_groups=len(groups), n_items=len(rows), n_carry=n_carry,
@@ -978,7 +1075,7 @@ def build(a) -> None:
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
         assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
-        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note, br_slide=br_slide,
+        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note, br_slide=br_slide, br_focus=br_focus, br_sum=br_sum, br_release=br_release,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
         released=released_html, n_released=len(rel_groups),
         rel_cols=2 if len(rel_groups) > 12 else 1,
@@ -1062,6 +1159,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .story .clabel {{ font-weight:500; font-size:19px; line-height:1.35; }}
 .story .clabel b {{ font-weight:800; color:var(--ink); }}
 .names.one {{ columns:1; }}
+.panel.span2 {{ grid-column:span 2; }}
 .srows {{ display:flex; flex-direction:column; justify-content:space-evenly; flex:0 0 auto; gap:6px; }}
 .srow {{ display:grid; grid-template-columns:150px 108px minmax(0,1fr); align-items:center; column-gap:12px;
   border-top:1px solid var(--rule); padding:8px 0; }}
@@ -1218,6 +1316,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </header>
   {focus}
 </section></div>
+{br_focus}
 
 <div class="frame"><section class="slide" aria-label="Metriklerimiz - Özet">
   <header>
@@ -1246,6 +1345,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </div>
 </section></div>
 
+{br_sum}
 {br_slide}
 <div class="frame"><section class="slide" aria-label="Metriklerimiz">
   <header>
@@ -1305,7 +1405,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </div>
   <div class="rnote">{ready_note}</div>
 </section></div>
-
+{br_release}
 <div class="frame"><section class="slide" aria-label="Hesaplama Varsayımları">
   <header>
     <div><h1>Hesaplama <span>Varsayımları</span></h1><div class="sub">{subtitle} · bu sunumdaki metrikler nasıl hesaplandı?</div></div>

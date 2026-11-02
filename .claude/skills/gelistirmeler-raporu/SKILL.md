@@ -91,7 +91,7 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
-## Sprint sunumu (6 slayt; çok sprintli veride +1 karşılaştırma slaytı; 16:9, HTML + PNG)
+## Sprint sunumu (6 slayt; çok sprintli veride 10 slayt; 16:9, HTML + PNG)
 
 Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
 (veri kaynağı seçenekleri `build_report.py` ile aynı).
@@ -134,6 +134,15 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
      tema adları `temalar.json`'da Claude tarafından yazılır).
    - **Altyapısal işler** (eski adıyla teknik borç): `TB` etiketli ÷ toplam iş; altında tema adları.
    - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla, iş adedi üzerinden.
+**Çok sprintli veri (ör. iki sprint birlikte export edildiğinde) slayt sırası:**
+1. Sprint'te Odaklandığımız İşler (son sprint) → 2. **Sprint'te Odaklandığımız İşler - Sprint N & M**
+   (tüm sprintlerin işleri tek kanbanda, bugünkü statüleriyle) → 3. Metriklerimiz - Özet (son sprint) →
+4. **Metriklerimiz - Özet · Sprint N & M** (iki sprintin **toplam** verisi; karşılaştırma değil; yalnız
+   5 kutu: Planlanan ve aradan gelen işler, Tamamlanma durumu, Statü dağılımı, İş tipi kırılımı,
+   Lead time — altyapısal işler yok) → 5. Sprint karşılaştırması (aşağıda) → Metriklerimiz →
+   Takıma özel → Canlıya Çıkmaya Hazır (son sprint) → **Canlıya Çıkmaya Hazır - Sprint N & M**
+   (iki sprintin toplamı: release bekleyenler + bu sprintlerde canlıya alınanlar) → Hesaplama Varsayımları.
+
 2b. **Metriklerimiz - Sprint N & Sprint M** (business review) — yalnız export'ta **birden fazla
    sprint** varsa üretilir (Özet'ten hemen sonra). Bu durumda diğer slaytlar **son sprint**
    için üretilir (`Sprint` alanı = son sprint); bu slayt tüm sprintleri yan yana karşılaştırır.
