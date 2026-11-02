@@ -601,7 +601,12 @@ def sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project
         "Bir iş, ilk sprintinden (Original Sprint, yoksa Sprint) bittiği sprinte kadar her sprintin "
         "kapsamındadır; bittiği sprint Closed tarihinin düştüğü sprinttir.",
         "Aradan gelen iş, etiketin eklendiği sprintte (ilk sprint ile oluşturulma tarihinin sprinti, hangisi sonraysa) sayılır."])
-    return html, card
+    summary = [{"sprint": s["label"], "kapsam": len(s["scope"]), "tamamlanan": len(s["done"]),
+                "tamamlanma_pct": round(pct(len(s["done"]), len(s["scope"]))), "aradan_gelen": len(s["mid"]),
+                "sonraki_sprinte_aktarilan": len(s["carry"]), "acik_kalan": len(s["open"]),
+                "lead_gelistirme_medyan": round(statistics.median(s["lead"]), 1) if s["lead"] else None}
+               for s in per]
+    return html, card, summary
 
 
 BR_COLORS = ["#9AA9BD", "var(--ink)", "var(--accent)", "var(--warm)"]
@@ -847,9 +852,9 @@ def build(a) -> None:
                   + (f" · toplantı/analiz gibi {n_task} task bu kırılıma dahil değil" if n_task else ""))
 
     # ---- Sprint karşılaştırma slaytı (business review): birden fazla sprint verildiğinde
-    br_slide, br_card = "", None
+    br_slide, br_card, br_summary = "", None, []
     if multi and a.sprint_start:
-        br_slide, br_card = sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project_list)
+        br_slide, br_card, br_summary = sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project_list)
 
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
@@ -975,6 +980,73 @@ def build(a) -> None:
     focus_key = (f'<li><span class="cat story">Kategori</span>&nbsp;= iş tipi grubu</li>'
                  f'<li><span class="kmeta">N talep</span>&nbsp;= GitHub işi adedi (birden fazlaysa)</li>'
                  f'<li><span class="carry">↪ Sprint N</span>&nbsp;= o sprintten aktarıldı</li>')
+    # ---- Retro sinyalleri (Claude içgörü yazarken kullanır) ve Retro İçgörüleri slaytı
+    if a.signals:
+        cur_no = max((sprint_no(r["sprint"]) or 0) for r in rows) if rows else 0
+        opn = [r for r in rows if not r["done"]]
+        by_st = {}
+        for r in opn:
+            d = by_st.setdefault(r["status"], {"is": 0, "oe": 0.0})
+            d["is"] += 1; d["oe"] += r["est"]
+        by_p = {}
+        for r in rows:
+            for pp in r["assignees"] or ["Atanmamış"]:
+                d = by_p.setdefault(pp, {"toplam": 0, "acik": 0, "acik_oe": 0.0})
+                d["toplam"] += 1
+                if not r["done"]:
+                    d["acik"] += 1; d["acik_oe"] += r["est"]
+        old_open = [{"no": "#" + (r.get("url") or "").rsplit("/", 1)[-1], "tema": r.get("theme"), "statu": r["status"],
+                     "ilk_sprint": r["origin"]} for r in opn
+                    if r["origin"] and sprint_no(r["origin"]) and cur_no - sprint_no(r["origin"]) >= 2]
+        projs = {}
+        for r in rows:
+            if r["kind"] == "Proje işi":
+                d = projs.setdefault(r["project"], {"is": 0, "tamamlanan": 0, "oe": 0.0, "statuler": []})
+                d["is"] += 1; d["tamamlanan"] += r["done"]; d["oe"] += r["est"]; d["statuler"].append(r["status"])
+        def med(kinds):
+            xs = [r["lead"] for r in rows if r["lead"] is not None and r["kind"] in kinds]
+            return {"biten": len(xs), "medyan": round(statistics.median(xs), 1) if xs else None,
+                    "en_uzun": round(max(xs), 1) if xs else None}
+        sig = {
+            "sprint": ", ".join(sprints), "toplam_is": len(rows), "tamamlanan_is": all_done,
+            "tamamlanma_pct": round(pct(all_done, len(rows))),
+            "oe_toplam": sum(r["est"] for r in rows), "oe_tamamlanan": sum(r["est"] for r in rows if r["done"]),
+            "oe_bos_is": missing,
+            "acik_isler_statu": by_st, "kisi_yuku": by_p,
+            "aradan_gelen": {"is": len(mid), "ilk_planlanan": len(plan)},
+            "altyapisal": {"is": len(tb), "toplam": len(rows)},
+            "proje": projs, "iki_sprintten_uzun_acik": old_open,
+            "release_bekleyen": len(ready_groups),
+            "lead_gelistirme": med(DEV_KINDS), "lead_proje": med(PROJ_KINDS),
+            "closed_tarihi_eksik": ["#" + n for n in no_close],
+            "veri_uyarilari": warnings, "sprint_karsilastirma": br_summary,
+        }
+        with open(a.signals, "w", encoding="utf-8") as fh:
+            json.dump(sig, fh, ensure_ascii=False, indent=2)
+    retro = ""
+    if a.insights and os.path.exists(a.insights):
+        with open(a.insights, encoding="utf-8") as fh:
+            ins = json.load(fh)
+        tone_lbl = {"risk": "Dikkat", "good": "İyi giden", "action": "Öneri", "data": "Veri kalitesi"}
+        cards_html = "".join(
+            f'<div class="rcard {esc(c.get("tone", "risk"))}"><div class="rtag">{esc(tone_lbl.get(c.get("tone", "risk"), ""))}</div>'
+            f'<div class="rhead">{esc(c["title"])}</div>'
+            + (f'<p>{c["text"]}</p>' if c.get("text") else "")
+            + ("<ul>" + "".join(f"<li>{b}</li>" for b in c.get("bullets", [])) + "</ul>" if c.get("bullets") else "")
+            + "</div>" for c in ins.get("cards", []))
+        qs = "".join(f"<li>{q}</li>" for q in ins.get("questions", []))
+        retro = f"""
+<div class="frame"><section class="slide" aria-label="Retro İçgörüleri">
+  <header>
+    <div><h1>Retro <span>İçgörüleri</span></h1><div class="sub">{esc(ins.get("subtitle") or subtitle)}</div></div>
+  </header>
+  <div class="rlayout">
+    <div class="agrid rgridc">{cards_html}</div>
+    {f'<div class="rq"><div class="rqt">Retroda konuşalım</div><ol>{qs}</ol></div>' if qs else ''}
+  </div>
+</section></div>
+"""
+
     # ---- Çok sprintli veri: odaklandığımız işler ve özet metriklerin toplam versiyonları
     br_focus = br_sum = br_release = ""
     if multi:
@@ -1085,7 +1157,7 @@ def build(a) -> None:
         assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
         sum_mid=sum_mid, sum_tb=sum_tb, dl_stats=dl_stats, dl_hist=dl_hist, dl_missing=dl_missing,
-        pl_stats=pl_stats, pl_hist=pl_hist, pl_missing=pl_missing, proj_list=proj_list, types_note=types_note, br_slide=br_slide, br_focus=br_focus, br_sum=br_sum, br_release=br_release,
+        pl_stats=pl_stats, pl_hist=pl_hist, pl_missing=pl_missing, proj_list=proj_list, types_note=types_note, br_slide=br_slide, br_focus=br_focus, br_sum=br_sum, br_release=br_release, retro=retro,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
         released=released_html, n_released=len(rel_groups),
         rel_cols=2 if len(rel_groups) > 12 else 1,
@@ -1170,6 +1242,18 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .story .clabel b {{ font-weight:800; color:var(--ink); }}
 .names.one {{ columns:1; }}
 .panel.span2 {{ grid-column:span 2; }}
+.rlayout {{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 440px; gap:22px; }}
+.rlayout .agrid {{ columns:2; }}
+.rcard {{ break-inside:avoid; border:1px solid var(--rule); border-top:5px solid var(--c, var(--ink)); border-radius:12px;
+  padding:12px 18px; margin-bottom:16px; font-size:var(--af); line-height:1.4; color:var(--ink-2); }}
+.rcard.risk {{ --c:#E5484D; }} .rcard.good {{ --c:#2EA043; }} .rcard.action {{ --c:#1F8FA0; }} .rcard.data {{ --c:#8B95A5; }}
+.rtag {{ font-size:calc(var(--af) * .7); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--c); }}
+.rhead {{ font-size:calc(var(--af) * 1.1); font-weight:800; color:var(--ink); margin:2px 0 4px; }}
+.rcard p {{ margin:0 0 4px; }} .rcard ul {{ margin:0; padding-left:1.1em; }} .rcard li {{ margin:2px 0; }}
+.rcard b {{ color:var(--ink); }}
+.rq {{ background:#F4F6F9; border-radius:14px; padding:20px 24px; font-size:19px; line-height:1.45; color:var(--ink-2); overflow:hidden; }}
+.rqt {{ font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }}
+.rq ol {{ margin:0; padding-left:1.2em; }} .rq li {{ margin:0 0 10px; }}
 .grid.g7 {{ grid-template-columns:repeat(12, minmax(0,1fr)); }}
 .grid.g7 > .panel {{ grid-column:span 4; }}
 .grid.g7 > .panel:nth-child(n+4) {{ grid-column:span 3; }}
@@ -1425,6 +1509,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   <div class="rnote">{ready_note}</div>
 </section></div>
 {br_release}
+{retro}
 <div class="frame"><section class="slide" aria-label="Hesaplama Varsayımları">
   <header>
     <div><h1>Hesaplama <span>Varsayımları</span></h1><div class="sub">{subtitle} · bu sunumdaki metrikler nasıl hesaplandı?</div></div>
@@ -1513,6 +1598,8 @@ def main() -> None:
     ap.add_argument("--ready-label", action="append", default=None, help="Canlıya hazır etiketi")
     ap.add_argument("--ready-status", action="append", default=None, help="Canlıya hazır statüsü")
     ap.add_argument("--themes", help="Tema adları JSON'u (grup anahtarı → ad)")
+    ap.add_argument("--signals", help="Retro sinyallerini (metrik özeti) bu JSON'a yaz")
+    ap.add_argument("--insights", help="Claude'un yazdığı retro içgörüleri JSON'u → Retro İçgörüleri slaytı")
     ap.add_argument("--dump-themes", help="Grup anahtarlarını ve varsayılan adları bu JSON'a yaz")
     ap.add_argument("--team", help="Alt başlıkta proje adı yerine gösterilecek takım adı")
     ap.add_argument("--done-status", action="append")

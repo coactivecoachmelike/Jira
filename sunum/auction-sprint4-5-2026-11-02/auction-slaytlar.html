@@ -58,6 +58,18 @@ h1 span { color:var(--accent); font-weight:600; }
 .story .clabel b { font-weight:800; color:var(--ink); }
 .names.one { columns:1; }
 .panel.span2 { grid-column:span 2; }
+.rlayout { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 440px; gap:22px; }
+.rlayout .agrid { columns:2; }
+.rcard { break-inside:avoid; border:1px solid var(--rule); border-top:5px solid var(--c, var(--ink)); border-radius:12px;
+  padding:12px 18px; margin-bottom:16px; font-size:var(--af); line-height:1.4; color:var(--ink-2); }
+.rcard.risk { --c:#E5484D; } .rcard.good { --c:#2EA043; } .rcard.action { --c:#1F8FA0; } .rcard.data { --c:#8B95A5; }
+.rtag { font-size:calc(var(--af) * .7); font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--c); }
+.rhead { font-size:calc(var(--af) * 1.1); font-weight:800; color:var(--ink); margin:2px 0 4px; }
+.rcard p { margin:0 0 4px; } .rcard ul { margin:0; padding-left:1.1em; } .rcard li { margin:2px 0; }
+.rcard b { color:var(--ink); }
+.rq { background:#F4F6F9; border-radius:14px; padding:20px 24px; font-size:19px; line-height:1.45; color:var(--ink-2); overflow:hidden; }
+.rqt { font-size:15px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.rq ol { margin:0; padding-left:1.2em; } .rq li { margin:0 0 10px; }
 .grid.g7 { grid-template-columns:repeat(12, minmax(0,1fr)); }
 .grid.g7 > .panel { grid-column:span 4; }
 .grid.g7 > .panel:nth-child(n+4) { grid-column:span 3; }
@@ -565,6 +577,17 @@ Released · DATA - Register Süreçleri Funnel Event Entegrasyonu FE - 4h"><span
       </ul></div>
   </div>
   <div class="rnote">Canlıya hazır (release bekleyen): statü Done + "Ready For Release" / "WaitingRelease" etiketi · Canlıya alınan: Released statüsündeki tüm işler (kanbandaki "Canlıda" kolonu) · ↳ = talebin yalnızca bu GitHub işi kriterde</div>
+</section></div>
+
+
+<div class="frame"><section class="slide" aria-label="Retro İçgörüleri">
+  <header>
+    <div><h1>Retro <span>İçgörüleri</span></h1><div class="sub">Auction · Sprint 4 &amp; Sprint 5 · metriklerden çıkan konular</div></div>
+  </header>
+  <div class="rlayout">
+    <div class="agrid rgridc"><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">Test aşamasında yığılma var</div><p>Sprint 5 sonunda açık işlerin efor olarak <b>%70'i Test'te</b> bekliyor (9 iş, 160 saat); 5 iş de Review'da. İşler geliştirilip doğrulamada sıraya giriyor.</p><ul><li>Test ve Review için WIP limiti (ör. aynı anda en fazla 4 iş)</li><li>Yeni işe başlamadan önce testteki işi bitirmeye yardım (swarming)</li></ul></div><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">Tamamlanma oranı 62% → 34%</div><p>Sprint 4'te 45 işin 28'i biterken Sprint 5'te 32 işin 11'i bitti. Sprint 5'te planlanan 274 saatlik eforun yalnız <b>45 saati</b> tamamlandı.</p></div><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">Proje işleri büyük parçalar halinde ilerliyor</div><p>Sprint 5 eforunun <b>%67'si proje işi</b> (184 saat) ve 11 proje işinin hiçbiri bitmedi. One Click Auction işleri 16–36 saatlik, hepsi Test'te.</p><ul><li>Proje işlerini 1–2 günde test edilebilir dilimlere bölmek</li><li>Projelerin hepsini aynı sprintte açmak yerine sıralamak</li></ul></div><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">Aktarılan iş ve UAT beklemesi</div><p>Sprint 4'teki işlerin <b>%38'i</b> Sprint 5'e aktarıldı. 4 iş Sprint 3'ten beri açık; ikisi UAT'de iş biriminin onayını bekliyor (devir kartı noter alanı, yarı römork şasi kısıtı).</p><ul><li>UAT için iş biriminde sorumlu ve hedef süre belirlemek</li></ul></div><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">İş yükü tek kişide yoğunlaşıyor</div><p>Açık eforun yaklaşık <b>%60'ı tek geliştiricide</b>; One Click Auction'ın tüm parçaları da aynı kişide. Darboğaz ve bilgi tekeli riski.</p></div><div class="rcard good"><div class="rtag">İyi giden</div><div class="rhead">Plan disiplini ve canlıya çıkış akışı iyi</div><p>Aradan giren iş düşük (%5 → %3). İki sprintte <b>29 talep canlıya alındı</b>; release bekleyen yalnız 1 talep var. Geliştirme taleplerinin 47'sinden 37'si tamamlandı.</p></div><div class="rcard risk"><div class="rtag">Dikkat</div><div class="rhead">Lead time uzuyor</div><p>Geliştirme işlerinde medyan lead time <b>9,4 → 17,5 gün</b>. Sprint 5'te biten işlerin çoğu 14 günden uzun sürdü; işler sprint içinde bitmek yerine taşınıyor.</p></div><div class="rcard data"><div class="rtag">Veri kalitesi</div><div class="rhead">Veri hijyeni metrikleri etkiliyor</div><ul><li>Released olup Closed tarihi boş: #777, #555, #112</li><li>Sprint 4'te kapanmış ama Sprint alanı 5: #390, #389, #156</li><li>Aynı işin parçalarında farklı Xurrent no: 82157476 / 82155433</li><li>DD Project Name boş; proje işleri yalnız "Project" etiketiyle tanınıyor</li><li>Bug'larda Original Estimate boş</li></ul></div></div>
+    <div class="rq"><div class="rqt">Retroda konuşalım</div><ol><li>Test'teki işler neden bekliyor: test ortamı mı, test kapasitesi mi, hatalar mı geri dönüyor?</li><li>Bir sonraki sprintte yeni işe başlamadan önce Test'teki 9 işi bitirmeyi hedefleyebilir miyiz?</li><li>One Click Auction'ı nasıl daha küçük, ayrı ayrı canlıya çıkabilecek parçalara bölebiliriz?</li><li>Proje işleri için sprint kapasitesinin ne kadarını ayırmalıyız?</li><li>UAT'de bekleyen işler için iş biriminden kim, ne kadar sürede dönüş verecek?</li><li>Board güncelliği (Closed tarihi, Sprint alanı, Xurrent no) için kim, ne zaman kontrol edecek?</li></ol></div>
+  </div>
 </section></div>
 
 <div class="frame"><section class="slide" aria-label="Hesaplama Varsayımları">

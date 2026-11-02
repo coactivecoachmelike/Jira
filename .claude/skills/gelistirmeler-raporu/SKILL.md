@@ -233,6 +233,8 @@ yeniden kullanılabilir).
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
 | `--project-label` | `Project`, `Proje` | DD Project Name boşsa bu etiketi taşıyan iş de **Proje işi** sayılır |
 | `--parent-field` | `Parent issue` | Proje adı türetirken kullanılan üst iş sütunu |
+| `--signals` | — | Retro sinyallerini JSON'a yazar (Claude içgörü yazarken kullanır) |
+| `--insights` | — | Claude'un yazdığı içgörü JSON'u → Retro İçgörüleri slaytı |
 | `--single-sprint` | kapalı | Çok sprintli veride karşılaştırma slaytını üretme |
 | `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Altyapısal işler (slaytlarda "teknik borç" yerine bu ad kullanılır) |
 | `--ready-label` / `--ready-status` | `Ready For Release`, `WaitingRelease`, `Waiting For Release` / `Done` | Canlıya hazır (release bekleyen) |
@@ -249,6 +251,26 @@ Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok saya
 - Konsol çıktısındaki özet sayıları (Xurrent / ek / sprint ortası / altyapısal işler /
   canlıya hazır) ve uyarıları (eksik sütunlar) kullanıcıya aktar.
 - PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF.
+
+## Retro içgörüleri (her sunumda)
+
+Sunumu ürettikten sonra takım retrosu için içgörü de üret:
+1. `--signals <klasör>/retro-sinyalleri.json` ile metrik özetini al: tamamlanma (iş ve OE), açık
+   işlerin statü bazında adedi/eforu, kişi bazında açık yük, aradan gelen, altyapısal, proje
+   işleri ve statüleri, 2+ sprinttir açık işler, release bekleyen, lead time (geliştirme/proje),
+   eksik Closed tarihleri, veri uyarıları ve (çok sprintli veride) sprint karşılaştırması.
+2. Sinyallere ve slaytlara bakarak `<klasör>/retro-icgoruler.json` yaz:
+   `{"subtitle": "...", "cards": [{"tone": "risk|good|action|data", "title": "...", "text": "...",
+   "bullets": ["..."]}], "questions": ["..."]}` — 6–8 kart, 4–6 retro sorusu. Her kart **somut
+   sayıya** dayansın (ör. "açık eforun %70'i Test'te"), mümkünse bir öneri içersin. En az bir
+   "iyi giden" kartı olsun. Bakılacaklar: darboğaz statüsü (Test/Review/UAT yığılması),
+   tamamlanma ve OE tamamlanma düşüşü, büyük/bölünmemiş proje işleri, aktarılan ve uzun süredir
+   açık işler, UAT beklemesi, yükün tek kişide toplanması, lead time değişimi, aradan gelen iş,
+   veri hijyeni. **Kişi adı/kullanıcı adı yazma**; yükü "tek geliştirici" gibi anonim anlat.
+   Metin `text`/`bullets` içinde `<b>` kullanılabilir. Sayıları sinyallerden doğrula.
+3. `--insights <klasör>/retro-icgoruler.json` ile yeniden üret → **Retro İçgörüleri** slaytı
+   (Hesaplama Varsayımları'ndan önce): solda renkli kartlar (Dikkat / İyi giden / Öneri / Veri
+   kalitesi), sağda "Retroda konuşalım" soru listesi. İçgörüleri kullanıcıya sohbette de özetle.
 
 ## Proje adları
 
