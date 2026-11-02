@@ -1,0 +1,157 @@
+{
+  "sprint": "Sprint 5",
+  "toplam_is": 34,
+  "tamamlanan_is": 12,
+  "tamamlanma_pct": 35,
+  "oe_toplam": 280.0,
+  "oe_tamamlanan": 45.0,
+  "oe_bos_is": 4,
+  "acik_isler_statu": {
+    "Todo": {
+      "is": 3,
+      "oe": 13.0
+    },
+    "In Progress": {
+      "is": 1,
+      "oe": 4.0
+    },
+    "Review": {
+      "is": 5,
+      "oe": 40.0
+    },
+    "Test": {
+      "is": 9,
+      "oe": 160.0
+    },
+    "UAT": {
+      "is": 4,
+      "oe": 18.0
+    }
+  },
+  "kisi_yuku": {
+    "ualyaz": {
+      "toplam": 9,
+      "acik": 5,
+      "acik_oe": 24.0
+    },
+    "grknksbr": {
+      "toplam": 16,
+      "acik": 11,
+      "acik_oe": 143.0
+    },
+    "burakkarayakali": {
+      "toplam": 8,
+      "acik": 6,
+      "acik_oe": 68.0
+    },
+    "sedatates": {
+      "toplam": 1,
+      "acik": 0,
+      "acik_oe": 0.0
+    }
+  },
+  "aradan_gelen": {
+    "is": 2,
+    "ilk_planlanan": 32
+  },
+  "altyapisal": {
+    "is": 4,
+    "toplam": 34
+  },
+  "proje": {
+    "Renk Değişimi": {
+      "is": 6,
+      "tamamlanan": 0,
+      "oe": 68.0,
+      "statuler": [
+        "Review",
+        "Review",
+        "Review",
+        "Test",
+        "Test",
+        "UAT"
+      ]
+    },
+    "One Click Auction": {
+      "is": 5,
+      "tamamlanan": 0,
+      "oe": 116.0,
+      "statuler": [
+        "Test",
+        "Test",
+        "Test",
+        "Test",
+        "Test"
+      ]
+    }
+  },
+  "iki_sprintten_uzun_acik": [
+    {
+      "no": "#283",
+      "tema": "One Click Auction - Araçların İhaleye Eklenmesi",
+      "statu": "Test",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#279",
+      "tema": "One Click Auction - Araç Bilgilerinin SmartIq'dan Jarvise İletilmesi",
+      "statu": "Test",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#382",
+      "tema": "Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#45",
+      "tema": "Yarı Römork İşlemlerinde Şasi Kısıtlaması",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#153",
+      "tema": "Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    }
+  ],
+  "release_bekleyen": 1,
+  "lead_gelistirme": {
+    "biten": 11,
+    "medyan": 17.5,
+    "en_uzun": 38.5
+  },
+  "lead_proje": {
+    "biten": 0,
+    "medyan": null,
+    "en_uzun": null
+  },
+  "closed_tarihi_eksik": [
+    "#777"
+  ],
+  "veri_uyarilari": [],
+  "sprint_karsilastirma": [
+    {
+      "sprint": "Sprint 4",
+      "kapsam": 33,
+      "tamamlanan": 17,
+      "tamamlanma_pct": 52,
+      "aradan_gelen": 1,
+      "sonraki_sprinte_aktarilan": 16,
+      "acik_kalan": 0,
+      "lead_gelistirme_medyan": 3.5
+    },
+    {
+      "sprint": "Sprint 5",
+      "kapsam": 31,
+      "tamamlanan": 9,
+      "tamamlanma_pct": 29,
+      "aradan_gelen": 1,
+      "sonraki_sprinte_aktarilan": 0,
+      "acik_kalan": 22,
+      "lead_gelistirme_medyan": 17.5
+    }
+  ]
+}

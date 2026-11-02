@@ -115,7 +115,7 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
    üzerinde ayrıca tür etiketi yoktur; tür alt başlıktan okunur. İşler **Xurrent Talep No**'ya göre
    gruplanır (aynı talebin BE/FE/Jarvis işleri tek madde); talep no'su olmayan işler, sade
    başlıkları aynıysa (yalnızca BE/FE son eki farklı) birleşir. Her maddede: statü renginde
-   bullet (grubun **en geride** kalan işinin statüsü), iş birimi diliyle **tema adı**; kolonda birden fazla statü varsa
+   bullet (grubun **en geride** kalan işinin statüsü), GitHub'taki **talep adı** (paraphrase edilmez); kolonda birden fazla statü varsa
    statü adı, grup birden fazla GitHub işinden oluşuyorsa **"N talep"**. `Original Sprint`
    işin sprintinden farklıysa sarı **"↪ Sprint N"** etiketi ve sarı vurgu.
 2. **Metriklerimiz - Özet** — sade, yalnız adet (Original Estimate yok). Metrik slaytlarında
@@ -130,8 +130,7 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
      `--ignore-xurrent` takımlarında tek kolon iş adedi.
    - **İş tipi kırılımı**: yalnız iki satır — **Geliştirme taleplerimiz** (User Story + Bug) ve
      **Proje işleri** (planlanan/tamamlanan iş adedi); Task'lar bu kırılımda yok (notta adedi yazar).
-     Altında proje işlerinin tema adları listelenir (talep adından projeyi özetleyen iş birimi dili —
-     tema adları `temalar.json`'da Claude tarafından yazılır).
+     Altında proje adları listelenir (DD Project Name; boşsa başlık ön eki / parent — bkz. "Proje adları").
    - **Altyapısal işler** (eski adıyla teknik borç): `TB` etiketli ÷ toplam iş; altında tema adları.
    - Lead time **iki ayrı kutu**: **Geliştirme işleri** (User Story + Bug) ve **Proje işleri**;
      takvim günü, iş adedi. (Satır 2 dört kutu: iş tipi, altyapısal işler, iki lead time.)
@@ -197,29 +196,24 @@ S=.claude/skills/gelistirmeler-raporu/scripts
 D=sunum/<takım>-<yyyy-mm-dd>
 # 1) Grupları ve varsayılan adları çıkar
 python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --dump-themes $D/temalar-taslak.json -o $D/slaytlar.html
-# 2) temalar.json yaz: her grup anahtarı → iş biriminin anlayacağı tema adı
+# 2) Gerekirse temalar.json: yalnız _projects (proje adları) ve Back Office birleştirmeleri
 # 3) Son hali üret ve PNG'ye çevir
 python3 $S/build_slides.py --from-export veri.tsv --team "<Takım>" --sprint-start "Sprint 4=2026-10-05" --themes $D/temalar.json -o $D/slaytlar.html
 node $S/export_png.mjs $D/slaytlar.html $D/slayt      # -> slayt-1..5.png (1920x1080)
 ```
 
-Önceki bir sprintin `temalar.json`'u varsa yeni taslaktaki başlıkları eskisininkilerle
-eşleştirerek adları taşı, yalnızca yeni temaları yaz.
+Önceki bir sprintin `temalar.json`'undaki `_projects` eşlemesi yeni sprintte de kullanılabilir.
 
-**Tema adları (2. adım) Claude'un işidir:** taslaktaki her grubun `titles` listesine
-bakıp müşterinin / iş biriminin anlayacağı kısa bir ad yaz — BE/FE/servis/Jarvis gibi
-teknik ekleri, talep numarasını, "Hk." gibi kısaltmaları at; ne yapıldığını sonuç
-diliyle söyle (ör. "Yeni Üyelik | ... Hatırlatma Maili BE/FE" → "Evraklarını
-tamamlamayan yeni üyelere otomatik hatırlatma e-postası"). Başlıkta olmayan bilgi
-uydurma; emin değilsen başlığa sadık kal. Bug'larda sorunu anlat ("... yaşanan hata").
-`temalar.json` biçimi `{"<grup anahtarı>": "<ad>"}`; talep no'su olmayan farklı
-anahtarlara **aynı ad** verilirse tek madde olarak birleşir (bunu yalnız Xurrent'ı
-kullanmayan takımlarda, ör. Back Office, yap; Xurrent kullanan takımlarda gruplama yalnız
-Xurrent Talep No'ya göredir, no'suz işlere ayrı adlar ver) ve yanında "N talep" yazar — aynı
-talebin otomatik birleşmeyen parçalarını (ör. "Toplu Sevk BE İhtiyaçları" + "Toplu Sevk FE
-Bağlamalar", "(SAP)" + "(Boomi)") böyle birleştir; anahtarlar taslaktakiyle birebir
-aynı olmalı. Dosyayı çıktı klasöründe sakla (sonraki sprintte aynı talepler için
-yeniden kullanılabilir).
+**Talep adları GitHub'taki gibi kalır — paraphrase etme.** Madde adı, GitHub başlığının
+kendisidir; yalnız biçimsel temizlik yapılır: baştaki talep numarası (`82162937 - `), `+`/`++`
+işaretleri ve `[BUG]:` biçimi; birden fazla işi olan grupta (BE/FE gibi) BE/FE/`- 4h` son ekleri
+atılmış başlık, farklı başlıklar varsa en kısası kullanılır. `temalar.json`'a iş birimi diliyle
+yeni ad **yazma**. `temalar.json` yalnız şunlar için kullanılır:
+- `"_projects"`: proje adları (aşağıdaki "Proje adları" bölümü);
+- Xurrent kullanmayan takımlarda (Back Office) otomatik birleşmeyen parçaları birleştirmek için
+  ilgili anahtarlara **GitHub başlıklarından birini aynen** ad olarak vermek (ör. "Toplu Sevk BE
+  İhtiyaçları" + "Toplu Sevk FE Bağlamalar" → ikisine de "Toplu Sevk BE İhtiyaçları"). Anahtarlar
+  taslaktakiyle birebir aynı olmalı; dosyayı çıktı klasöründe sakla.
 
 ### Alanlar ve etiketler
 
@@ -280,7 +274,7 @@ Proje işleri (iş tipi kırılımı altındaki listeler) **proje adına göre**
 2. Boşsa başlığın ön eki (`One Click Auction - ...` → "One Click Auction", `Renk Değişimi - ...`).
 3. Ön ek yoksa Parent issue başlığı (export'ta URL değil başlık varsa), o da yoksa talebin tema adı.
 4. `temalar.json` içindeki `"_projects"` eşlemesi en son uygulanır: anahtar `#issue_no` ya da
-   türetilen ad, değer iş birimi diliyle proje adı. `--dump-themes` taslağında `_projects`
+   türetilen ad, değer proje adı (DD Project Name'deki veya başlıktaki proje adını aynen kullan; yalnız alan ve ön ek yoksa talep/parent adından kısa bir proje adı türet). `--dump-themes` taslağında `_projects`
    bölümü türetilen adları ve altındaki başlıkları listeler; **Claude talep ve parent
    adlarından feyz alarak** anlaşılır proje adları yazar, aynı projeye ait farklı ön ekleri
    aynı ada eşler (ör. "Renk Değişimi" ve "İhale ekranları renk değişimi" → tek proje).

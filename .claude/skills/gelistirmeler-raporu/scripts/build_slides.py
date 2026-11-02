@@ -74,7 +74,7 @@ def has_label(it: dict, wanted: list[str]) -> bool:
 def base_title(t: str) -> str:
     """Talep no, '+', [BUG], '- 4h' ve BE/FE gibi son ekleri atılmış sade başlık."""
     t = XNO_RE.sub("", t)
-    t = re.sub(r"^\s*\+\s*", "", t)
+    t = re.sub(r"^\s*\++\s*", "", t)
     t = re.sub(r"\[bug\]:?\s*", "", t, flags=re.I)
     t = re.sub(r"\s+-\s*\d+\s*h\s*$", "", t, flags=re.I)
     prev = None
@@ -85,7 +85,7 @@ def base_title(t: str) -> str:
 
 def display_title(t: str) -> str:
     t = XNO_RE.sub("", t)
-    t = re.sub(r"^\s*\+\s*", "", t)
+    t = re.sub(r"^\s*\++\s*", "", t)
     return re.sub(r"\[BUG\]:\s*", "[BUG] ", re.sub(r"\s+", " ", t)).strip()
 
 
