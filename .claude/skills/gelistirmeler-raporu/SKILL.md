@@ -133,7 +133,10 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
      Altında proje işlerinin tema adları listelenir (talep adından projeyi özetleyen iş birimi dili —
      tema adları `temalar.json`'da Claude tarafından yazılır).
    - **Altyapısal işler** (eski adıyla teknik borç): `TB` etiketli ÷ toplam iş; altında tema adları.
-   - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla, iş adedi üzerinden.
+   - Lead time **iki ayrı kutu**: **Geliştirme işleri** (User Story + Bug) ve **Proje işleri**;
+     takvim günü, iş adedi. (Satır 2 dört kutu: iş tipi, altyapısal işler, iki lead time.)
+     Task'lar iki kutuya da girmez. İki sprinti birleştiren slaytlarda (toplam özet ve sprint
+     karşılaştırması) lead time **yalnız geliştirme işleri** için gösterilir.
 **Çok sprintli veri (ör. iki sprint birlikte export edildiğinde) slayt sırası:**
 1. Sprint'te Odaklandığımız İşler (son sprint) → 2. **Sprint'te Odaklandığımız İşler - Sprint N & M**
    (tüm sprintlerin işleri tek kanbanda, bugünkü statüleriyle) → 3. Metriklerimiz - Özet (son sprint) →

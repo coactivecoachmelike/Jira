@@ -34,6 +34,8 @@ from build_report import (COUNT_FIELD, DEFAULT_DONE, NO_STATUS_COLOR,  # noqa: E
 TYPES = ["User Story", "Proje işi", "Bug", "Task"]
 # Metrik slaytlarındaki iş tipi kırılımı: User Story + Bug birlikte, Proje ayrı; Task gösterilmez
 TYPE_BUCKETS = [("Geliştirme taleplerimiz", {"User Story", "Bug"}), ("Proje işleri", {"Proje işi"})]
+DEV_KINDS = TYPE_BUCKETS[0][1]
+PROJ_KINDS = TYPE_BUCKETS[1][1]
 CAT_CLASS = {"User Story": "story", "Proje işi": "proj", "Bug": "bug", "Task": "task"}
 # Düzenli ifade; başlığın küçük harfli halinde aranır
 DEFAULT_TASK_KEYWORDS = [r"işlemler(i)?\b", "toplantı", "takvim", "kurulum", "incele", "migration",
@@ -495,7 +497,8 @@ def sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project
             "mid": [r for r in sc_ if r["br_mid"] == n],
             "carry": [r for r in sc_ if r["br_done"] != n and max(r["br_scope"]) > n],
             "open": [r for r in sc_ if r["br_done"] != n and max(r["br_scope"]) == n],
-            "lead": [r["lead"] for r in sc_ if r["br_done"] == n and r["lead"] is not None]})
+            "lead": [r["lead"] for r in sc_ if r["br_done"] == n and r["lead"] is not None
+                     and r["kind"] in DEV_KINDS]})
 
     comp = sprint_rows_block([{"label": s["label"], "num": len(s["done"]), "den": len(s["scope"]),
                                "text": f'Toplam <b>{len(s["scope"])}</b> iş içinden <b>{len(s["done"])}</b> iş tamamlandı'}
@@ -586,8 +589,8 @@ def sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project
       <div class="pfoot">Geliştirme taleplerimiz = User Story + Bug · altta proje adları (iki sprint toplamı)</div></div>
     <div class="panel"><div class="ptitle">Tamamlanan talepler</div>{reqs}
       <div class="pfoot">Talep adedi · Xurrent talebi tüm işleri bitince, son işin bittiği sprintte sayılır · ek talep = Xurrent no'suz iş</div></div>
-    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Takvim günü · iş adedi · Done ve Released işler, bittiği sprinte göre</div>
+    <div class="panel"><div class="ptitle">Lead time · Geliştirme işleri (gün)</div>
+      <div class="lsub">Sprint başlangıcı → Closed · takvim günü · User Story + Bug · Done ve Released işler, bittiği sprinte göre</div>
       <div class="lsrows">{stats}</div>{hist}</div>
   </div>
 </section></div>
@@ -784,7 +787,7 @@ def build(a) -> None:
            + ratio_block(f"{est_label}'a göre", sum(r["est"] for r in tb), sum(r["est"] for r in rows),
                          "Altyapısal iş", "Toplam", unit))
 
-    def lead_block(rs):
+    def lead_block(rs, empty="Sprint başlangıç tarihi / Closed verisi yok."):
         closed = [r for r in rs if r["lead"] is not None]
         bins = []
         for lo, hi, label in LEAD_BINS:
@@ -805,9 +808,13 @@ def build(a) -> None:
                      f'<div><span>En uzun</span><b>{fmt(round(max(leads), 1))}<small>gün</small></b></div>')
             hg = histogram(bins, "c", "var(--ink)")
         else:
-            stats, hg = "", '<div class="emptymsg">Sprint başlangıç tarihi / Closed verisi yok.</div>'
+            stats, hg = "", f'<div class="emptymsg">{esc(empty if a.sprint_start else "Sprint başlangıç tarihi verilmedi.")}</div>'
         return stats, hg, missing, leads, no_close
     lead_stats, hist, lead_missing, leads, no_close = lead_block(rows)
+    dl_stats, dl_hist, dl_missing, _, _ = lead_block([r for r in rows if r["kind"] in DEV_KINDS],
+                                                     "Bu sprintte biten geliştirme işi yok.")
+    pl_stats, pl_hist, pl_missing, _, _ = lead_block([r for r in rows if r["kind"] in PROJ_KINDS],
+                                                     "Bu sprintte biten proje işi yok.")
 
     # ---- Özet slaytı: yalnız adet bazlı, sadeleştirilmiş
     sum_comp = story_block(f"Son durumda toplam <b>{fmt(len(rows))}</b> iş içinden <b>{fmt(all_done)}</b> iş tamamlandı",
@@ -825,7 +832,7 @@ def build(a) -> None:
         sum_status_total = {"label": "Toplam", "x": len(xg)}
     sum_status_rows = [r for r in sum_status_rows if any(r[c["key"]] for c in sum_status_cols)]
     sum_status = multi_table(sum_status_rows, sum_status_cols, total=sum_status_total)
-    sum_types = multi_table(type_rows, [{"key": "c", "done": "cd", "head": "İş adedi"}])
+    sum_types = multi_table(type_rows, [{"key": "c", "done": "cd", "head": "İş adedi"}], label_fr=2.4)
     sum_mid = story_block(f"İlk planlanan <b>{fmt(len(plan))}</b> işe sprint içinde <b>{fmt(len(mid))}</b> iş eklendi",
                           len(mid), len(plan), "aradan giren iş",
                           [("İlk planlanan", len(plan), "iş"), ("Aradan gelen", len(mid), "iş")], warm=True)
@@ -937,7 +944,9 @@ def build(a) -> None:
                                     "etiketsiz (ilk planlanan) işler.",
                                     f"Altyapısal işler payı = \"{esc(a.tb_label[0])}\" etiketli işler ÷ toplam iş.",
                                     "Etiket karşılaştırmasında büyük/küçük harf, boşluk, - ve _ yok sayılır."]),
-        ("Lead time", ["Yalnız <b>Done ve Released</b> işler; süre <b>takvim günü</b> olarak sprint "
+        ("Lead time", ["Özet slaytında iki ayrı kutu: <b>geliştirme işleri</b> (User Story + Bug) ve "
+                       "<b>proje işleri</b>; iki sprinti birleştiren slaytlarda yalnız geliştirme işleri. Task'lar dahil değil.",
+                       "Yalnız <b>Done ve Released</b> işler; süre <b>takvim günü</b> olarak sprint "
                        "başlangıcından Closed tarihine kadar ölçülür.",
                        f"Başlangıç: Original Sprint doluysa o sprintin, değilse işin sprintinin başlangıcı. "
                        f"Tanımlı başlangıç: {esc(starts)}; diğer sprintler {a.sprint_days} günlük sprint varsayımıyla bulunur.",
@@ -1009,7 +1018,7 @@ def build(a) -> None:
         b_ntask = sum(1 for r in br_rows if r["kind"] == "Task")
         b_types_note = ("Geliştirme taleplerimiz = User Story + Bug · altında proje adları"
                         + (f" · {b_ntask} task bu kırılıma dahil değil" if b_ntask else ""))
-        b_lstats, b_hist, b_missing, _, _ = lead_block(br_rows)
+        b_lstats, b_hist, b_missing, _, _ = lead_block([r for r in br_rows if r["kind"] in DEV_KINDS])
         b_ready = [r for r in br_rows if sk(r["status"]) in ready_st and has_label(r, a.ready_label)]
         b_ready_g = subset_entries({key_of(r) for r in b_ready}, all_groups)
         b_rel = [r for r in br_rows if sk(r["status"]) in live_st]
@@ -1053,8 +1062,8 @@ def build(a) -> None:
       {multi_table(b_types_rows, [{"key": "c", "done": "cd", "head": "İş adedi"}])}
       <ul class="names one">{project_list(br_rows, "Bu sprintlerde proje işi yok")}</ul>
       <div class="pfoot">{b_types_note}</div></div>
-    <div class="panel span2"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · iş adedi üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {a.sprint_days} gün{b_missing}</div>
+    <div class="panel span2"><div class="ptitle">Lead time · Geliştirme işleri (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · User Story + Bug · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {a.sprint_days} gün{b_missing}</div>
       <div class="lstats">{b_lstats}</div>{b_hist}</div>
   </div>
 </section></div>
@@ -1075,7 +1084,8 @@ def build(a) -> None:
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
         assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
-        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note, br_slide=br_slide, br_focus=br_focus, br_sum=br_sum, br_release=br_release,
+        sum_mid=sum_mid, sum_tb=sum_tb, dl_stats=dl_stats, dl_hist=dl_hist, dl_missing=dl_missing,
+        pl_stats=pl_stats, pl_hist=pl_hist, pl_missing=pl_missing, proj_list=proj_list, types_note=types_note, br_slide=br_slide, br_focus=br_focus, br_sum=br_sum, br_release=br_release,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
         released=released_html, n_released=len(rel_groups),
         rel_cols=2 if len(rel_groups) > 12 else 1,
@@ -1160,6 +1170,12 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .story .clabel b {{ font-weight:800; color:var(--ink); }}
 .names.one {{ columns:1; }}
 .panel.span2 {{ grid-column:span 2; }}
+.grid.g7 {{ grid-template-columns:repeat(12, minmax(0,1fr)); }}
+.grid.g7 > .panel {{ grid-column:span 4; }}
+.grid.g7 > .panel:nth-child(n+4) {{ grid-column:span 3; }}
+.grid.g7 .lt .lstats {{ grid-template-columns:repeat(2,1fr); gap:4px 10px; }}
+.grid.g7 .lt .lstats b {{ font-size:20px; }}
+.grid.g7 .lt .lsub {{ margin-top:-4px; }}
 .srows {{ display:flex; flex-direction:column; justify-content:space-evenly; flex:0 0 auto; gap:6px; }}
 .srow {{ display:grid; grid-template-columns:150px 108px minmax(0,1fr); align-items:center; column-gap:12px;
   border-top:1px solid var(--rule); padding:8px 0; }}
@@ -1323,7 +1339,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <div><h1>Metriklerimiz <span>- Özet</span></h1><div class="sub">{subtitle}</div></div>
     <ul class="legend">{legend}</ul>
   </header>
-  <div class="grid">
+  <div class="grid g7">
     <div class="panel"><div class="ptitle">Planlanan ve aradan gelen işler</div><div class="comps r one">{sum_mid}</div>
       <ul class="names">{mid_list}</ul>
       <div class="pfoot">Aradan gelen = "{mid_label}" etiketli işler · oran = aradan gelen ÷ ilk planlanan</div></div>
@@ -1339,9 +1355,12 @@ h1 span {{ color:var(--accent); font-weight:600; }}
     <div class="panel"><div class="ptitle">Altyapısal işler</div><div class="comps r one">{sum_tb}</div>
       <ul class="names">{tb_list}</ul>
       <div class="pfoot">"{tb_label}" etiketli işler ÷ toplam iş</div></div>
-    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
-      <div class="lsub">Takvim günü kullanılarak hesaplanmıştır · iş adedi üzerinden · Done ve Released işler · başlangıç: Original Sprint, yoksa Sprint · sprint = {sprint_days} gün{lead_missing}</div>
-      <div class="lstats">{lead_stats}</div>{hist}</div>
+    <div class="panel lt"><div class="ptitle">Lead time · Geliştirme işleri</div>
+      <div class="lsub">Sprint başlangıcı → Closed, takvim günü · User Story + Bug · Done ve Released{dl_missing}</div>
+      <div class="lstats">{dl_stats}</div>{dl_hist}</div>
+    <div class="panel lt"><div class="ptitle">Lead time · Proje işleri</div>
+      <div class="lsub">Sprint başlangıcı → Closed, takvim günü · proje işleri · Done ve Released{pl_missing}</div>
+      <div class="lstats">{pl_stats}</div>{pl_hist}</div>
   </div>
 </section></div>
 
