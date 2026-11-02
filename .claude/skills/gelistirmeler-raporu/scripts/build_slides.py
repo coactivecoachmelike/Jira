@@ -87,14 +87,14 @@ def display_title(t: str) -> str:
     return re.sub(r"\[BUG\]:\s*", "[BUG] ", re.sub(r"\s+", " ", t)).strip()
 
 
-def classify(it: dict, project_field: str, task_kw: list[str]) -> str:
+def classify(it: dict, project_field: str, task_kw: list[str], project_labels=()) -> str:
     """İş tipi: GitHub issue type varsa o; yoksa başlık/alan kuralları.
     Sıra: Bug > Proje işi (proje alanı dolu) > Task > User Story."""
     t = (it.get("issueType") or "").lower()
     title = tr_lower(it["raw_title"])
     if t == "bug" or "[bug]" in title:
         return "Bug"
-    if (it["fields"].get(project_field) or "").strip():
+    if (it["fields"].get(project_field) or "").strip() or (project_labels and has_label(it, project_labels)):
         return "Proje işi"
     if t in ("task", "görev"):
         return "Task"
@@ -103,6 +103,31 @@ def classify(it: dict, project_field: str, task_kw: list[str]) -> str:
     if any(re.search(k, title) for k in task_kw):
         return "Task"
     return "User Story"
+
+
+PROJ_SPLIT_RE = re.compile(r"\s+[-–|]\s+")
+
+
+def project_name(r: dict, project_field: str, parent_field: str, projmap: dict) -> tuple[str, str]:
+    """Proje işinin proje adı: DD Project Name → başlığın ön eki ("One Click Auction - ...")
+    → Parent issue başlığı → talebin tema adı. temalar.json'daki "_projects" eşlemesi
+    (#issue_no veya türetilen ad → iş birimi diliyle proje adı) en son uygulanır.
+    Döner: (gösterilecek ad, türetilen ham ad)."""
+    num = "#" + (r.get("url") or "").rsplit("/", 1)[-1]
+    dd = str(r["fields"].get(project_field) or "").strip()
+    if dd:
+        derived = dd
+    else:
+        title = XNO_RE.sub("", display_title(r["raw_title"]))
+        parts = PROJ_SPLIT_RE.split(title)
+        parent = str(r["fields"].get(parent_field) or "").strip()
+        if len(parts) > 1 and len(parts[0]) <= 40:
+            derived = parts[0].strip()
+        elif parent and not parent.lower().startswith("http"):
+            derived = parent
+        else:
+            derived = r.get("theme") or title
+    return projmap.get(num) or projmap.get(derived) or derived, derived
 
 
 def parse_ts(s):
@@ -405,6 +430,180 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
             + "".join(out) + "</div>")
 
 
+# --------------------------------------------------------------------------- sprint karşılaştırması
+
+def sprint_rows_block(entries: list[dict], warm: bool = False) -> str:
+    """Her sprint için bir satır: ad, büyük yüzde, çubuk ve açıklama cümlesi."""
+    out = []
+    for e in entries:
+        p = pct(e["num"], e["den"])
+        out.append(f'<div class="srow"><div class="sname">{esc(e["label"])}</div>'
+                   f'<div class="shero">%{p:.0f}</div>'
+                   f'<div class="sbody"><div class="bar{" warm" if warm else ""}"><i style="width:{min(p, 100):.2f}%"></i></div>'
+                   f'<div class="stext">{e["text"]}</div></div></div>')
+    if len(entries) > 1:
+        d = pct(entries[-1]["num"], entries[-1]["den"]) - pct(entries[-2]["num"], entries[-2]["den"])
+        out.append(f'<div class="sdelta">{esc(entries[-2]["label"])} → {esc(entries[-1]["label"])}: '
+                   f'<b>{"+" if d >= 0 else "−"}{abs(d):.0f} puan</b></div>')
+    return '<div class="srows">' + "".join(out) + "</div>"
+
+
+def grouped_hist(bins: list[dict], keys: list[str], colors: list[str]) -> str:
+    mx = max([b[k] for b in bins for k in keys] + [1])
+    cols = "".join(
+        '<div class="gcol">' + "".join(
+            f'<div class="gbar" title="{esc(b["label"])} gün: {fmt(b[k])}" style="height:{b[k] / mx * 82:.2f}%;'
+            f'background:{c}"><span>{fmt(b[k]) if b[k] else ""}</span></div>' for k, c in zip(keys, colors))
+        + "</div>" for b in bins)
+    labels = "".join(f'<div>{esc(b["label"])}</div>' for b in bins)
+    return f'<div class="hist"><div class="hplot ghplot">{cols}</div><div class="hx">{labels}</div></div>'
+
+
+def sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project_list):
+    """İşleri sprintlere atar ve karşılaştırma slaytını üretir (altyapısal işler yok).
+    Kapsam: işin ilk sprinti (Original Sprint, yoksa Sprint) ile bittiği sprint (Closed tarihinin
+    düştüğü sprint; bitmediyse şimdiki Sprint) arasındaki her sprint. Tamamlanma bittiği sprinte,
+    aradan gelen etiketi eklendiği sprinte (ilk sprint ile oluşturulma sprintinin büyüğü) yazılır."""
+    lo, hi = snos[0] - 30, snos[-1] + 30
+
+    def sprint_of(d):
+        if not d:
+            return None
+        for n in range(lo, hi):
+            s, e = start_of(f"Sprint {n}"), start_of(f"Sprint {n + 1}")
+            if s and e and s <= d < e:
+                return n
+        return None
+
+    for r in br_rows:
+        sc = sprint_no(r["sprint"])
+        so = sprint_no(r["origin"]) or sc
+        ds = sprint_of(parse_ts(r.get("closed"))) if r["done"] else None
+        end = ds if ds else sc
+        begin = min(so, end)
+        r["br_scope"] = [n for n in snos if begin <= n <= end]
+        r["br_done"] = end if r["done"] else None
+        cs = sprint_of(parse_ts(r.get("created")))
+        r["br_mid"] = max(so, cs or so) if r["mid"] else None
+
+    per = []
+    for n in snos:
+        sc_ = [r for r in br_rows if n in r["br_scope"]]
+        per.append({
+            "n": n, "label": f"Sprint {n}", "scope": sc_,
+            "done": [r for r in sc_ if r["br_done"] == n],
+            "mid": [r for r in sc_ if r["br_mid"] == n],
+            "carry": [r for r in sc_ if r["br_done"] != n and max(r["br_scope"]) > n],
+            "open": [r for r in sc_ if r["br_done"] != n and max(r["br_scope"]) == n],
+            "lead": [r["lead"] for r in sc_ if r["br_done"] == n and r["lead"] is not None]})
+
+    comp = sprint_rows_block([{"label": s["label"], "num": len(s["done"]), "den": len(s["scope"]),
+                               "text": f'Toplam <b>{len(s["scope"])}</b> iş içinden <b>{len(s["done"])}</b> iş tamamlandı'}
+                              for s in per])
+    midb = sprint_rows_block([{"label": s["label"], "num": len(s["mid"]), "den": len(s["scope"]) - len(s["mid"]),
+                               "text": f'İlk planlanan <b>{len(s["scope"]) - len(s["mid"])}</b> işe '
+                                       f'<b>{len(s["mid"])}</b> iş eklendi'} for s in per], warm=True)
+    carry_entries = [{"label": f'{s["label"]} → Sprint {s["n"] + 1}', "num": len(s["carry"]), "den": len(s["scope"]),
+                      "text": f'<b>{len(s["carry"])}</b> iş sonraki sprinte aktarıldı'} for s in per[:-1]]
+    last = per[-1]
+    carry_entries.append({"label": f'{last["label"]} sonu', "num": len(last["open"]), "den": len(last["scope"]),
+                          "text": f'<b>{len(last["open"])}</b> iş devam ediyor'})
+    carryb = sprint_rows_block(carry_entries, warm=True).replace('<div class="sdelta">', '<div class="sdelta" hidden>')
+
+    def theme_names(key, color):
+        out = []
+        for s in per:
+            seen = []
+            for r in s[key]:
+                if r["theme"] not in seen:
+                    seen.append(r["theme"])
+            out += [f'<li><span class="dot" style="--c:{color}"></span>{esc(nm)} '
+                    f'<span class="kmeta">{esc(s["label"])}</span></li>' for nm in seen]
+        return "".join(out)
+
+    type_rows = []
+    for lbl, kinds in TYPE_BUCKETS:
+        row = {"label": lbl}
+        for s in per:
+            mem = [r for r in s["scope"] if r["kind"] in kinds]
+            row[f"c{s['n']}"] = len(mem)
+            row[f"d{s['n']}"] = sum(1 for r in mem if r["br_done"] == s["n"])
+        type_rows.append(row)
+    types = multi_table(type_rows, [{"key": f"c{s['n']}", "done": f"d{s['n']}", "head": s["label"]} for s in per],
+                        label_fr=3.4)
+    projects = project_list(br_rows, "Bu sprintlerde proje işi yok")
+
+    # Tamamlanan talepler: talep (Xurrent) tüm işleri bitince, son işin bittiği sprintte sayılır
+    req_rows = []
+    if not a.ignore_xurrent:
+        row = {"label": "Xurrent talebi"}
+        for s in per:
+            row[f"c{s['n']}"] = sum(1 for g in all_groups if g["xno"] and g["done"]
+                                    and max(i["br_done"] or 0 for i in g["items"]) == s["n"])
+        req_rows.append(row)
+    row = {"label": "Ek talep" if not a.ignore_xurrent else "Talep"}
+    for s in per:
+        row[f"c{s['n']}"] = sum(1 for r in s["done"] if not r["xno"])
+    req_rows.append(row)
+    total = {"label": "Toplam", **{f"c{s['n']}": sum(rw[f"c{s['n']}"] for rw in req_rows) for s in per}}
+    reqs = multi_table(req_rows, [{"key": f"c{s['n']}", "head": s["label"]} for s in per], label_fr=1.3, total=total)
+
+    stats = "".join(
+        f'<div class="lsrow"><span class="sname"><i style="background:{c}"></i>{esc(s["label"])}</span>'
+        f'<span>Biten iş<b>{len(s["lead"])}</b></span>'
+        f'<span>Medyan<b>{fmt(round(statistics.median(s["lead"]), 1)) if s["lead"] else "—"}</b><small>gün</small></span>'
+        f'<span>Ortalama<b>{fmt(round(statistics.mean(s["lead"]), 1)) if s["lead"] else "—"}</b><small>gün</small></span></div>'
+        for s, c in zip(per, BR_COLORS))
+    bins = []
+    for lo_, hi_, label in LEAD_BINS:
+        b = {"label": label}
+        for s in per:
+            b[f"c{s['n']}"] = sum(1 for x in s["lead"] if x >= lo_ and (hi_ is None or x < hi_))
+        bins.append(b)
+    hist = grouped_hist(bins, [f"c{s['n']}" for s in per], BR_COLORS[:len(per)])
+
+    rng = f"{per[0]['label']} – {per[-1]['label']}" if len(per) > 2 else " & ".join(s["label"] for s in per)
+    team = a.team or ""
+    sub = " · ".join(x for x in [team, "Business review", rng, dt.date.today().strftime("%d.%m.%Y")] if x)
+    html = f"""
+<div class="frame"><section class="slide" aria-label="Sprint karşılaştırması">
+  <header>
+    <div><h1>Metriklerimiz <span>- {esc(rng)}</span></h1><div class="sub">{esc(sub)}</div></div>
+  </header>
+  <div class="grid">
+    <div class="panel"><div class="ptitle">Tamamlanma oranı</div>{comp}
+      <div class="pfoot">İş adedi · iş, bittiği sprintte tamamlanmış sayılır (Closed tarihi)</div></div>
+    <div class="panel"><div class="ptitle">Planlanan ve aradan gelen işler</div>{midb}
+      <ul class="names">{theme_names("mid", "var(--warm)")}</ul>
+      <div class="pfoot">Aradan gelen = "{esc(a.mid_label[0])}" etiketli işler · oran = aradan gelen ÷ ilk planlanan</div></div>
+    <div class="panel"><div class="ptitle">Sonraki sprinte aktarılan işler</div>{carryb}
+      <ul class="names">{theme_names("carry", "var(--warm)")}</ul>
+      <div class="pfoot">Sprintin kapsamında olup o sprintte bitmeyen işler</div></div>
+    <div class="panel"><div class="ptitle">İş tipi kırılımı</div>
+      <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
+      {types}
+      <ul class="names one">{projects}</ul>
+      <div class="pfoot">Geliştirme taleplerimiz = User Story + Bug · altta proje adları (iki sprint toplamı)</div></div>
+    <div class="panel"><div class="ptitle">Tamamlanan talepler</div>{reqs}
+      <div class="pfoot">Talep adedi · Xurrent talebi tüm işleri bitince, son işin bittiği sprintte sayılır · ek talep = Xurrent no'suz iş</div></div>
+    <div class="panel"><div class="ptitle">Lead time (Sprint başlangıcı → Closed, gün)</div>
+      <div class="lsub">Takvim günü · iş adedi · Done ve Released işler, bittiği sprinte göre</div>
+      <div class="lsrows">{stats}</div>{hist}</div>
+  </div>
+</section></div>
+"""
+    card = ("Sprint karşılaştırması", [
+        f"{esc(rng)} birlikte verildiği için ana slaytlar son sprint ({esc(per[-1]['label'])}) için, "
+        "karşılaştırma slaytı tüm sprintler için üretildi; bu slaytta altyapısal işler yer almaz.",
+        "Bir iş, ilk sprintinden (Original Sprint, yoksa Sprint) bittiği sprinte kadar her sprintin "
+        "kapsamındadır; bittiği sprint Closed tarihinin düştüğü sprinttir.",
+        "Aradan gelen iş, etiketin eklendiği sprintte (ilk sprint ile oluşturulma tarihinin sprinti, hangisi sonraysa) sayılır."])
+    return html, card
+
+
+BR_COLORS = ["#9AA9BD", "var(--ink)", "var(--accent)", "var(--warm)"]
+
+
 # --------------------------------------------------------------------------- build
 
 def load(a) -> tuple[dict, list[dict], list[str]]:
@@ -466,7 +665,7 @@ def build(a) -> None:
         r["sprint"] = sprint_label(r["fields"].get(a.sprint_field))
         # Original Sprint, işin şimdiki sprintinden farklıysa önceki sprintten aktarılmıştır
         r["carried"] = bool(r["origin"]) and sprint_no(r["origin"]) != sprint_no(r["sprint"])
-        r["kind"] = classify(r, a.project_field, task_kw)
+        r["kind"] = classify(r, a.project_field, task_kw, a.project_label)
         r["lead"] = lead_days(r, start_of, {sk(s) for s in a.lead_status})
         r["mid"] = has_label(r, a.mid_label)
         r["tb"] = has_label(r, a.tb_label)
@@ -480,16 +679,38 @@ def build(a) -> None:
     if not has_origin:
         warnings.append(f"'{a.origin_field}' sütunu yok; aktarılan iş belirteci gösterilemedi")
 
+    # Birden fazla sprint verilirse: ana slaytlar son sprint için, karşılaştırma slaytı hepsi için
+    br_rows = rows
+    snos = sorted({sprint_no(r["sprint"]) for r in rows} - {None})
+    multi = len(snos) > 1 and not a.single_sprint
+    if multi:
+        rows = [r for r in rows if sprint_no(r["sprint"]) == snos[-1]]
+        if not a.sprint_start:
+            warnings.append("Birden fazla sprint var ama --sprint-start verilmedi; karşılaştırma slaytı üretilmedi")
+
     themes = {}
     if a.themes and os.path.exists(a.themes):
         with open(a.themes, encoding="utf-8") as fh:
             themes = json.load(fh)
     order = mc["order"]
+    all_groups = group_items(br_rows, order, themes)
+    for g in all_groups:
+        for i in g["items"]:
+            i["theme"] = g["name"]
     groups = group_items(rows, order, themes)
+    projmap = themes.get("_projects") or {}
+    raw_projects: dict[str, list[str]] = {}
+    for r in br_rows:
+        r["project"] = None
+        if r["kind"] == "Proje işi":
+            r["project"], raw = project_name(r, a.project_field, a.parent_field, projmap)
+            raw_projects.setdefault(raw, []).append(r["title"])
     if a.dump_themes:
+        dump = {g["key"]: {"name": g["name"], "titles": [display_title(i["raw_title"]) for i in g["items"]]}
+                for g in all_groups}
+        dump["_projects"] = {k: {"name": projmap.get(k, k), "titles": v} for k, v in raw_projects.items()}
         with open(a.dump_themes, "w", encoding="utf-8") as fh:
-            json.dump({g["key"]: {"name": g["name"], "titles": [display_title(i["raw_title"]) for i in g["items"]]}
-                       for g in groups}, fh, ensure_ascii=False, indent=2)
+            json.dump(dump, fh, ensure_ascii=False, indent=2)
 
     est_label, unit = a.estimate_label, a.unit
     hexes = {o["name"]: o["hex"] for o in mc["options"]}
@@ -544,8 +765,19 @@ def build(a) -> None:
         return "".join(f'<li><span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
                        f'{esc(g["name"])}</li>' for g in gs)
     mid_list = name_list(mid)
-    proj_rows = [r for r in rows if r["kind"] == "Proje işi"]
-    proj_list = name_list(proj_rows) or '<li class="none">Bu sprintte proje işi yok</li>'
+    def project_list(rs, empty="Bu sprintte proje işi yok"):
+        by: dict[str, list] = {}
+        for r in rs:
+            if r["kind"] == "Proje işi":
+                by.setdefault(r["project"], []).append(r)
+        out = []
+        for name, its in sorted(by.items(), key=lambda kv: (-len(kv[1]), tr_lower(kv[0]))):
+            st = min((i["status"] for i in its), key=lambda s: order.get(s, 999))
+            d = sum(1 for i in its if i["done"])
+            out.append(f'<li><span class="dot" style="--c:{hexes.get(st, NO_STATUS_COLOR)}"></span>{esc(name)} '
+                       f'<span class="kmeta">{len(its)} iş · {d} tamamlandı</span></li>')
+        return "".join(out) or f'<li class="none">{esc(empty)}</li>'
+    proj_list = project_list(rows)
     tb = [r for r in rows if r["tb"]]
     tb_list = name_list(tb)
     tbp = (ratio_block("İş adedine göre", len(tb), len(rows), "Altyapısal iş", "Toplam", "iş")
@@ -600,8 +832,14 @@ def build(a) -> None:
     status_title = "Statü dağılımı"
     sum_comp_note = ("İş adedi üzerinden; Xurrent Talep No bu takımda kullanılmıyor"
                      if a.ignore_xurrent else "İş adedi üzerinden (iş tipi kırılımıyla aynı birim)")
-    types_note = (f"Geliştirme taleplerimiz = User Story + Bug · Proje = {esc(a.project_field)} dolu işler"
+    types_note = (f"Geliştirme taleplerimiz = User Story + Bug · Proje = {esc(a.project_field)} dolu ya da "
+                  f"\"{esc(a.project_label[0])}\" etiketli işler; altında proje adları"
                   + (f" · toplantı/analiz gibi {n_task} task bu kırılıma dahil değil" if n_task else ""))
+
+    # ---- Sprint karşılaştırma slaytı (business review): birden fazla sprint verildiğinde
+    br_slide, br_card = "", None
+    if multi and a.sprint_start:
+        br_slide, br_card = sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project_list)
 
     # ---- Slayt 3: takıma özel (Original Estimate)
     xe = [r for r in rows if r["xno"]]
@@ -710,6 +948,8 @@ def build(a) -> None:
                    "Madde adları, GitHub başlıklarından iş birimi diline çevrilmiş tema adlarıdır; "
                    "teknik ayrıntı için Xurrent / GitHub numarasına bakılabilir."]),
     ]
+    if br_card:
+        cards.insert(-1, br_card)
     if warnings:
         cards.append(("Veri uyarıları", [esc(w) for w in warnings]))
     assumptions = "".join(
@@ -738,7 +978,7 @@ def build(a) -> None:
                                          {"key": "e", "done": "ed", "head": est_label}], 1.6),
         assumptions=assumptions,
         sum_comp=sum_comp, sum_status=sum_status, sum_status_note=sum_status_note, sum_types=sum_types,
-        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note,
+        sum_mid=sum_mid, sum_tb=sum_tb, proj_list=proj_list, types_note=types_note, br_slide=br_slide,
         ready=ready_html, ready_note=ready_note, n_ready=len(ready_groups),
         released=released_html, n_released=len(rel_groups),
         rel_cols=2 if len(rel_groups) > 12 else 1,
@@ -822,6 +1062,27 @@ h1 span {{ color:var(--accent); font-weight:600; }}
 .story .clabel {{ font-weight:500; font-size:19px; line-height:1.35; }}
 .story .clabel b {{ font-weight:800; color:var(--ink); }}
 .names.one {{ columns:1; }}
+.srows {{ display:flex; flex-direction:column; justify-content:space-evenly; flex:0 0 auto; gap:6px; }}
+.srow {{ display:grid; grid-template-columns:150px 108px minmax(0,1fr); align-items:center; column-gap:12px;
+  border-top:1px solid var(--rule); padding:8px 0; }}
+.srow:first-child {{ border-top:0; }}
+.sname {{ font-size:17px; font-weight:600; color:var(--ink-2); display:flex; align-items:center; gap:7px; }}
+.sname i {{ width:12px; height:12px; border-radius:3px; display:inline-block; }}
+.shero {{ font-size:44px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1; }}
+.sbody .bar {{ margin:2px 0 6px; height:12px; }}
+.stext {{ font-size:16px; color:var(--ink-2); }}
+.stext b {{ color:var(--ink); }}
+.sdelta {{ font-size:16px; color:var(--muted); padding-top:6px; }}
+.sdelta b {{ color:var(--ink); }}
+.lsrows {{ display:flex; flex-direction:column; gap:4px; margin-bottom:6px; }}
+.lsrow {{ display:grid; grid-template-columns:120px 0.8fr 1fr 1fr; align-items:baseline; font-size:13px; color:var(--muted);
+  border-top:1px solid var(--rule); padding-top:4px; white-space:nowrap; }}
+.lsrow .sname {{ font-size:16px; }}
+.lsrow b {{ font-size:20px; color:var(--ink); margin-left:6px; font-variant-numeric:tabular-nums; }}
+.lsrow small {{ margin-left:3px; }}
+.ghplot .gcol {{ flex:1; display:flex; align-items:flex-end; gap:3px; height:100%; }}
+.gbar {{ flex:1; position:relative; border-radius:4px 4px 0 0; min-height:0; }}
+.gbar span {{ position:absolute; top:-20px; left:0; right:0; text-align:center; font-size:13px; font-weight:600; color:var(--ink); }}
 .names li.none {{ color:var(--muted); }}
 .cnote {{ font-size:14px; color:var(--muted); margin-top:8px; }}
 .minis {{ display:flex; flex-direction:column; justify-content:space-evenly; flex:1; gap:18px; }}
@@ -985,6 +1246,7 @@ h1 span {{ color:var(--accent); font-weight:600; }}
   </div>
 </section></div>
 
+{br_slide}
 <div class="frame"><section class="slide" aria-label="Metriklerimiz">
   <header>
     <div><h1>Metriklerimiz</h1><div class="sub">{subtitle}</div></div>
@@ -1124,6 +1386,11 @@ def main() -> None:
                     help="Başlıkta geçerse Task sayılır (regex, tekrarlanabilir; varsayılanı değiştirir)")
     ap.add_argument("--mid-label", action="append", default=None, help="Sprint ortasında gelen iş etiketi")
     ap.add_argument("--tb-label", action="append", default=None, help="Altyapısal iş etiketi (TB)")
+    ap.add_argument("--project-label", action="append", default=None,
+                    help="Proje işi etiketi (DD Project Name boşsa bu etiket de proje işi sayılır)")
+    ap.add_argument("--parent-field", default="Parent issue", help="Üst iş (parent) sütunu")
+    ap.add_argument("--single-sprint", action="store_true",
+                    help="Birden fazla sprint olsa da tek sunum üret (karşılaştırma slaytı yok)")
     ap.add_argument("--ready-label", action="append", default=None, help="Canlıya hazır etiketi")
     ap.add_argument("--ready-status", action="append", default=None, help="Canlıya hazır statüsü")
     ap.add_argument("--themes", help="Tema adları JSON'u (grup anahtarı → ad)")
@@ -1137,6 +1404,7 @@ def main() -> None:
     a = ap.parse_args()
     a.mid_label = a.mid_label or ["AddedMidSprint"]
     a.tb_label = a.tb_label or ["TB", "Teknik Borç", "Tech Debt"]
+    a.project_label = a.project_label or ["Project", "Proje"]
     a.ready_label = a.ready_label or ["Ready For Release", "WaitingRelease", "Waiting For Release"]
     a.ready_status = a.ready_status or ["Done"]
     a.lead_status = a.lead_status or ["Done", "Released"]

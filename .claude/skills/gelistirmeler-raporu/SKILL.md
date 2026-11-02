@@ -1,6 +1,6 @@
 ---
 name: gelistirmeler-raporu
-description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu ve 6 slaytlık sprint sunumu (Sprint'te Odaklandığımız İşler kanbanı, Metriklerimiz - Özet, Metriklerimiz, Metriklerimiz (Takıma özel), Canlıya Çıkmaya Hazır Olan İşler, Hesaplama Varsayımları) üretir; girdi GitHub Projects TSV/CSV dışa aktarımı veya API olabilir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "sprint sunumu", "metriklerimiz", "canlıya hazır işler", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
+description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu ve 6 slaytlık sprint sunumu (Sprint'te Odaklandığımız İşler kanbanı, Metriklerimiz - Özet, Metriklerimiz, Metriklerimiz (Takıma özel), Canlıya Çıkmaya Hazır Olan İşler, Hesaplama Varsayımları) üretir; iki/çok sprintlik veride business review için sprint karşılaştırma slaytı da ekler; girdi GitHub Projects TSV/CSV dışa aktarımı veya API olabilir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "sprint sunumu", "metriklerimiz", "canlıya hazır işler", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
 ---
 
 # Geliştirmeler Raporu
@@ -91,7 +91,7 @@ Diğer seçenekler: `--title` (varsayılan "Geliştirmeler"), `--unit` (efor bir
 5. Statü sırası/rengi yanlış görünüyorsa bunlar GitHub'daki Status alanından gelir;
    betikte değil projede düzeltilmesi gerekir.
 
-## Sprint sunumu (6 slayt, 16:9, HTML + PNG)
+## Sprint sunumu (6 slayt; çok sprintli veride +1 karşılaştırma slaytı; 16:9, HTML + PNG)
 
 Kullanıcı slayt / sunum / sprint sunumu / 16:9 / PNG isterse `build_slides.py` kullan
 (veri kaynağı seçenekleri `build_report.py` ile aynı).
@@ -134,6 +134,18 @@ UAT **mor** · Done mavi · Released yeşil (tüm slaytlarda aynı).
      tema adları `temalar.json`'da Claude tarafından yazılır).
    - **Altyapısal işler** (eski adıyla teknik borç): `TB` etiketli ÷ toplam iş; altında tema adları.
    - Lead time: "Takvim günü kullanılarak hesaplanmıştır" notuyla, iş adedi üzerinden.
+2b. **Metriklerimiz - Sprint N & Sprint M** (business review) — yalnız export'ta **birden fazla
+   sprint** varsa üretilir (Özet'ten hemen sonra). Bu durumda diğer slaytlar **son sprint**
+   için üretilir (`Sprint` alanı = son sprint); bu slayt tüm sprintleri yan yana karşılaştırır.
+   **Altyapısal işler (teknik borç) bu slaytta yoktur.** Paneller: tamamlanma oranı (sprint
+   başına + puan farkı), planlanan ve aradan gelen işler, sonraki sprinte aktarılan işler (son
+   sprint için "devam eden"), iş tipi kırılımı (Geliştirme taleplerimiz / Proje işleri + proje
+   adları), tamamlanan talepler (Xurrent talebi / ek talep), lead time (sprint başına medyan,
+   ortalama + gruplu histogram). Sprint ataması: iş, ilk sprintinden (Original Sprint, yoksa
+   Sprint) **Closed tarihinin düştüğü** sprinte kadar her sprintin kapsamındadır ve bittiği
+   sprintte tamamlanmış sayılır (bitmediyse şimdiki Sprint'e kadar). Aradan gelen iş, ilk sprint
+   ile oluşturulma tarihinin sprintinden hangisi sonraysa orada sayılır. `--sprint-start` şarttır;
+   tek sunum isteniyorsa `--single-sprint`.
 3. **Metriklerimiz** — adet bazlı (iş tipi, aradan gelen ve altyapısal işlerde OE de var):
    - Planlanan vs. tamamlanan: **Toplam iş** (iş tipi kırılımıyla aynı birim), **distinct Xurrent talebi**
      (talep, tüm işleri bitince tamamlanmış sayılır) ve **ek talepler** (Xurrent no'suz işler) — üç oran.
@@ -207,6 +219,9 @@ yeniden kullanılabilir).
 | `--sprint-field` | `Sprint` | Alt başlıkta gösterilir; lead time başlangıcı |
 | `--sprint-start` | — | **Zorunlu (lead time için):** `'Sprint 4=2026-10-05'`; tekrarlanabilir. Tanımlanmayan sprintler numarası ve `--sprint-days` (14) ile türetilir. Export'ta sprint tarihi yoktur — kullanıcıya sor veya bilinen bir tarihten çıkar ve varsayımı söyle |
 | `--mid-label` | `AddedMidSprint` | Sprint ortasında gelen iş |
+| `--project-label` | `Project`, `Proje` | DD Project Name boşsa bu etiketi taşıyan iş de **Proje işi** sayılır |
+| `--parent-field` | `Parent issue` | Proje adı türetirken kullanılan üst iş sütunu |
+| `--single-sprint` | kapalı | Çok sprintli veride karşılaştırma slaytını üretme |
 | `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Altyapısal işler (slaytlarda "teknik borç" yerine bu ad kullanılır) |
 | `--ready-label` / `--ready-status` | `Ready For Release`, `WaitingRelease`, `Waiting For Release` / `Done` | Canlıya hazır (release bekleyen) |
 | `--team` | proje adı | Alt başlıktaki takım adı |
@@ -222,6 +237,19 @@ Etiket eşleşmesi büyük/küçük harf, boşluk, `-` ve `_` farkını yok saya
 - Konsol çıktısındaki özet sayıları (Xurrent / ek / sprint ortası / altyapısal işler /
   canlıya hazır) ve uyarıları (eksik sütunlar) kullanıcıya aktar.
 - PNG için Node + `playwright` gerekir; yoksa HTML'i tarayıcıda açıp yazdır → PDF.
+
+## Proje adları
+
+Proje işleri (iş tipi kırılımı altındaki listeler) **proje adına göre** toplanır ve
+"N iş · D tamamlandı" ile gösterilir. Ad şu sırayla bulunur:
+1. **DD Project Name** doluysa o.
+2. Boşsa başlığın ön eki (`One Click Auction - ...` → "One Click Auction", `Renk Değişimi - ...`).
+3. Ön ek yoksa Parent issue başlığı (export'ta URL değil başlık varsa), o da yoksa talebin tema adı.
+4. `temalar.json` içindeki `"_projects"` eşlemesi en son uygulanır: anahtar `#issue_no` ya da
+   türetilen ad, değer iş birimi diliyle proje adı. `--dump-themes` taslağında `_projects`
+   bölümü türetilen adları ve altındaki başlıkları listeler; **Claude talep ve parent
+   adlarından feyz alarak** anlaşılır proje adları yazar, aynı projeye ait farklı ön ekleri
+   aynı ada eşler (ör. "Renk Değişimi" ve "İhale ekranları renk değişimi" → tek proje).
 
 ## Dışa aktarılan TSV/CSV ile çalışma
 
