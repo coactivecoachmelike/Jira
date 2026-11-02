@@ -1,0 +1,32 @@
+{
+  "subtitle": "Auction · Sprint 4 & Sprint 5 · metriklerden çıkan konular",
+  "cards": [
+    {"tone": "risk", "title": "Test aşamasında yığılma var",
+     "text": "Sprint 5 sonunda açık işlerin efor olarak <b>%70'i Test'te</b> bekliyor (9 iş, 160 saat); 5 iş de Review'da. İşler geliştirilip doğrulamada sıraya giriyor.",
+     "bullets": ["Test ve Review için WIP limiti (ör. aynı anda en fazla 4 iş)", "Yeni işe başlamadan önce testteki işi bitirmeye yardım (swarming)"]},
+    {"tone": "risk", "title": "Tamamlanma oranı %60 → %33",
+     "text": "Sprint 4'te 45 işin 27'si biterken Sprint 5'te 33 işin 11'i bitti. Sprint 5'te planlanan 274 saatlik eforun yalnız <b>45 saati</b> tamamlandı."},
+    {"tone": "risk", "title": "Proje işleri büyük parçalar halinde ilerliyor",
+     "text": "Sprint 5 eforunun <b>%67'si proje işi</b> (184 saat) ve 11 proje işinin hiçbiri bitmedi. One Click Auction'ın 5 işi 16–36 saatlik, hepsi Test'te.",
+     "bullets": ["Proje işlerini 1–2 günde test edilebilir dilimlere bölmek", "Projelerin hepsini aynı sprintte açmak yerine sıralamak"]},
+    {"tone": "risk", "title": "Aktarılan iş ve UAT beklemesi",
+     "text": "Sprint 4'teki işlerin <b>%40'ı</b> (18 iş) Sprint 5'e aktarıldı. 4 iş Sprint 3'ten beri açık; 2'si UAT'de iş biriminin onayını bekliyor.",
+     "bullets": ["UAT için iş biriminde sorumlu ve hedef süre belirlemek"]},
+    {"tone": "risk", "title": "İş yükü tek kişide yoğunlaşıyor",
+     "text": "Açık eforun yaklaşık <b>%60'ı tek geliştiricide</b>; One Click Auction'ın tüm parçaları da aynı kişide. Darboğaz ve bilgi tekeli riski."},
+    {"tone": "good", "title": "Plan disiplini ve canlıya çıkış akışı iyi",
+     "text": "Aradan giren iş düşük (%5 → %3). İki sprintte <b>29 talep canlıya alındı</b>; release bekleyen yalnız 1 talep var. Geliştirme taleplerinin 47'sinden 36'sı tamamlandı."},
+    {"tone": "risk", "title": "Lead time uzuyor",
+     "text": "Geliştirme işlerinde medyan lead time <b>8,5 → 17,5 gün</b>. Sprint 5'te biten 10 geliştirme işinin 9'u 14 günden uzun sürdü."},
+    {"tone": "data", "title": "Veri hijyeni metrikleri etkiliyor",
+     "bullets": ["Released olup Closed tarihi boş: #777, #555, #112", "#153 iki sprintlik export'ta UAT (Closed tarihi dolu), Sprint 5 export'unda yok", "İki export'ta statü farklı: #194, #644 (Review / Test)", "Aynı işin parçalarında farklı Xurrent no: 82157476 / 82155433", "DD Project Name boş; Bug'larda Original Estimate boş"]}
+  ],
+  "questions": [
+    "Test'teki işler neden bekliyor: test ortamı mı, test kapasitesi mi, hatalar mı geri dönüyor?",
+    "Bir sonraki sprintte yeni işe başlamadan önce Test'teki 9 işi bitirmeyi hedefleyebilir miyiz?",
+    "One Click Auction'ı nasıl daha küçük, ayrı ayrı canlıya çıkabilecek parçalara bölebiliriz?",
+    "Proje işleri için sprint kapasitesinin ne kadarını ayırmalıyız?",
+    "UAT'de bekleyen işler için iş biriminden kim, ne kadar sürede dönüş verecek?",
+    "Board güncelliği (Closed tarihi, Sprint alanı, Xurrent no) için kim, ne zaman kontrol edecek?"
+  ]
+}

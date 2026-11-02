@@ -614,8 +614,10 @@ BR_COLORS = ["#9AA9BD", "var(--ink)", "var(--accent)", "var(--warm)"]
 
 # --------------------------------------------------------------------------- build
 
-def load(a) -> tuple[dict, list[dict], list[str]]:
-    if a.from_json:
+def load(a, export=None) -> tuple[dict, list[dict], list[str]]:
+    if export:
+        data = load_export(export, a.status_field)
+    elif a.from_json:
         with open(a.from_json, encoding="utf-8") as fh:
             data = json.load(fh)
     elif a.from_export:
@@ -630,8 +632,9 @@ def load(a) -> tuple[dict, list[dict], list[str]]:
     return data, items, warnings
 
 
-def build(a) -> None:
-    data, items, warnings = load(a)
+def prepare(a, export=None):
+    """Veriyi yükler, hariç tutar ve her işi (tür, Xurrent no, sprint, lead time...) zenginleştirir."""
+    data, items, warnings = load(a, export)
     # Backlog statüsündeki ve RetroAction etiketli işler hiçbir slayta/metriğe girmez
     ex_st = {sk(x) for x in a.exclude_status}
     excluded = [i for i in items if sk(i["fields"].get(a.status_field)) in ex_st
@@ -686,6 +689,11 @@ def build(a) -> None:
         warnings.append("--sprint-start verilmedi; lead time hesaplanamadı")
     if not has_origin:
         warnings.append(f"'{a.origin_field}' sütunu yok; aktarılan iş belirteci gösterilemedi")
+    return data, mc, rows, excluded, warnings, start_of
+
+
+def build(a) -> None:
+    data, mc, rows, excluded, warnings, start_of = prepare(a)
 
     # Birden fazla sprint verilirse: ana slaytlar son sprint için, karşılaştırma slaytı hepsi için
     br_rows = rows
@@ -693,6 +701,25 @@ def build(a) -> None:
     multi = len(snos) > 1 and not a.single_sprint
     if multi:
         rows = [r for r in rows if sprint_no(r["sprint"]) == snos[-1]]
+        if a.sprint_export:
+            # Son sprint slaytları ayrı verilen tek sprintlik export'tan üretilir
+            _, _, cur_rows, _, w2, _ = prepare(a, a.sprint_export)
+            warnings += [w for w in w2 if w not in warnings]
+            cur_rows = [r for r in cur_rows if sprint_no(r["sprint"]) == snos[-1]] or cur_rows
+            a_ids = {r.get("url") for r in rows}
+            b_ids = {r.get("url") for r in cur_rows}
+            diff_st = sorted("#" + (r.get("url") or "").rsplit("/", 1)[-1] for r in cur_rows
+                             for q in rows if q.get("url") == r.get("url") and q["status"] != r["status"])
+            if a_ids != b_ids or diff_st:
+                parts = []
+                if b_ids - a_ids:
+                    parts.append("yalnız sprint export'unda: " + ", ".join(sorted("#" + u.rsplit("/", 1)[-1] for u in b_ids - a_ids if u)))
+                if a_ids - b_ids:
+                    parts.append("yalnız çok sprintli export'ta: " + ", ".join(sorted("#" + u.rsplit("/", 1)[-1] for u in a_ids - b_ids if u)))
+                if diff_st:
+                    parts.append("statüsü farklı: " + ", ".join(diff_st))
+                warnings.append("İki export arasında fark var (" + "; ".join(parts) + ")")
+            rows = cur_rows
         if not a.sprint_start:
             warnings.append("Birden fazla sprint var ama --sprint-start verilmedi; karşılaştırma slaytı üretilmedi")
 
@@ -706,9 +733,13 @@ def build(a) -> None:
         for i in g["items"]:
             i["theme"] = g["name"]
     groups = group_items(rows, order, themes)
+    for g in groups:
+        for i in g["items"]:
+            i.setdefault("theme", g["name"])
     projmap = themes.get("_projects") or {}
     raw_projects: dict[str, list[str]] = {}
-    for r in br_rows:
+    br_ids = {id(r) for r in br_rows}
+    for r in br_rows + [r for r in rows if id(r) not in br_ids]:
         r["project"] = None
         if r["kind"] == "Proje işi":
             r["project"], raw = project_name(r, a.project_field, a.parent_field, projmap)
@@ -962,10 +993,13 @@ def build(a) -> None:
                            "Talebin yalnız bir kısmı canlıdaysa o işler GitHub başlığıyla ve ↳ notuyla listelenir."]),
         ("Diğer", [f"Original Estimate boş olan {missing} iş 0 sayılır (yalnız Takıma özel slaytı etkiler).",
                    "Önceki sprintten aktarılan: Original Sprint, işin sprintinden farklıysa (↪ Sprint N).",
-                   "Madde adları, GitHub başlıklarından iş birimi diline çevrilmiş tema adlarıdır; "
+                   "Madde adları GitHub başlıklarıdır (yalnız talep no, + işaretleri ve BE/FE ekleri atılır); "
                    "teknik ayrıntı için Xurrent / GitHub numarasına bakılabilir."]),
     ]
     if br_card:
+        if a.sprint_export:
+            br_card[1].insert(1, "Son sprint slaytları ayrı verilen tek sprintlik export'tan, iki sprintlik "
+                                 "slaytlar (Sprint N & M başlıklılar) çok sprintli export'tan üretildi.")
         cards.insert(-1, br_card)
     if warnings:
         cards.append(("Veri uyarıları", [esc(w) for w in warnings]))
@@ -1593,6 +1627,8 @@ def main() -> None:
     ap.add_argument("--project-label", action="append", default=None,
                     help="Proje işi etiketi (DD Project Name boşsa bu etiket de proje işi sayılır)")
     ap.add_argument("--parent-field", default="Parent issue", help="Üst iş (parent) sütunu")
+    ap.add_argument("--sprint-export",
+                    help="Çok sprintli veriyle birlikte: son sprint slaytları için ayrı tek sprintlik TSV/CSV")
     ap.add_argument("--single-sprint", action="store_true",
                     help="Birden fazla sprint olsa da tek sunum üret (karşılaştırma slaytı yok)")
     ap.add_argument("--ready-label", action="append", default=None, help="Canlıya hazır etiketi")

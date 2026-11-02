@@ -229,6 +229,7 @@ yeni ad **yazma**. `temalar.json` yalnız şunlar için kullanılır:
 | `--parent-field` | `Parent issue` | Proje adı türetirken kullanılan üst iş sütunu |
 | `--signals` | — | Retro sinyallerini JSON'a yazar (Claude içgörü yazarken kullanır) |
 | `--insights` | — | Claude'un yazdığı içgörü JSON'u → Retro İçgörüleri slaytı |
+| `--sprint-export` | — | Çok sprintli `--from-export` ile birlikte: son sprint slaytları bu tek sprintlik dosyadan üretilir; iki dosya arasındaki farklar (eksik iş, farklı statü) Veri uyarıları'na yazılır ve kullanıcıya söylenir |
 | `--single-sprint` | kapalı | Çok sprintli veride karşılaştırma slaytını üretme |
 | `--tb-label` | `TB`, `Teknik Borç`, `Tech Debt` | Altyapısal işler (slaytlarda "teknik borç" yerine bu ad kullanılır) |
 | `--ready-label` / `--ready-status` | `Ready For Release`, `WaitingRelease`, `Waiting For Release` / `Done` | Canlıya hazır (release bekleyen) |
