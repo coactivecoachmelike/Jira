@@ -1,0 +1,10 @@
+{
+  "bullets": [
+    "<b>Plana göre geride:</b> sürenin %40'ı geçti, taleplerin %23'ü bitti (beklenen ~80, gerçekleşen 46). Bu hızla çeyrek sonunda ~116 talep (%58).",
+    "<b>Hız iki katına çıkmalı:</b> sprint başına 16,5 talep bitiyor; kalan 155 talep için ~37 gerekiyor.",
+    "<b>Listenin yarısı hazır değil:</b> 111 talep planlama / netleştirme veya hold / backlog'da, 55 talebin sprint'i yok, Q4/4'e 48 talep yazılmış. Önceliklendirme gerekli.",
+    "<b>Q3'ten devreden iş:</b> 28 Q3 talebi Q4 sprintlerine alındı (22'si bitti); Q4/1'de devreden talep (23) Q4 talebinden (20) fazla.",
+    "<b>Plan dışı iş:</b> son 2 sprintte 87 GitHub işinin 32'si (%37) planda yok: 11 sprint ortası, 10 bug, 10 listede karşılığı olmayan iş.",
+    "<b>Sonradan gelen kolonu:</b> listede yalnız 2 talep işaretli, GitHub'da 11 iş AddedMidSprint etiketli."
+  ]
+}

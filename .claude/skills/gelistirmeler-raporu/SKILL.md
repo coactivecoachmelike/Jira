@@ -1,6 +1,6 @@
 ---
 name: gelistirmeler-raporu
-description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu ve 6 slaytlık sprint sunumu (Sprint'te Odaklandığımız İşler kanbanı, Metriklerimiz - Özet, Metriklerimiz, Metriklerimiz (Takıma özel), Canlıya Çıkmaya Hazır Olan İşler, Hesaplama Varsayımları) üretir; iki/çok sprintlik veride business review için sprint karşılaştırma slaytı da ekler; girdi GitHub Projects TSV/CSV dışa aktarımı veya API olabilir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "sprint sunumu", "metriklerimiz", "canlıya hazır işler", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
+description: GitHub Projects (v2) panosundaki işlerden "Geliştirmeler" listesi raporu ve 6 slaytlık sprint sunumu (Sprint'te Odaklandığımız İşler kanbanı, Metriklerimiz - Özet, Metriklerimiz, Metriklerimiz (Takıma özel), Canlıya Çıkmaya Hazır Olan İşler, Hesaplama Varsayımları) üretir; iki/çok sprintlik veride business review için sprint karşılaştırma slaytı da ekler; çeyreklik talep listesi (Excel) + GitHub ile iş birimli Sprint Review sunumu (Q4 talep planı, son 2 sprint canlıya çıkanlar, devam eden işler) üretir; girdi GitHub Projects TSV/CSV dışa aktarımı veya API olabilir — statü renkli bullet'lar, sayfa üstünde statü lejantı ve Original Estimate üzerinden planlanan vs. tamamlanan iş grafikleri (KPI'lar, ilerleme çubuğu, statü ve kişi bazında efor). Kullanıcı "geliştirmeler listesi", "geliştirmeler raporu/sunumu", "proje panosundan liste çıkar", "planlanan vs tamamlanan", "sprint sunumu", "metriklerimiz", "canlıya hazır işler", "borusanotomotiv project 34" gibi bir şey istediğinde veya bir github.com/orgs/<org>/projects/<n>/views/<v> linki verip liste/rapor istediğinde kullan.
 ---
 
 # Geliştirmeler Raporu
@@ -266,6 +266,45 @@ Sunumu ürettikten sonra takım retrosu için içgörü de üret:
 3. `--insights <klasör>/retro-icgoruler.json` ile yeniden üret → **Retro İçgörüleri** slaytı
    (Hesaplama Varsayımları'ndan önce): solda renkli kartlar (Dikkat / İyi giden / Öneri / Veri
    kalitesi), sağda "Retroda konuşalım" soru listesi. İçgörüleri kullanıcıya sohbette de özetle.
+
+## İş birimli Sprint Review (çeyreklik talep listesi + GitHub)
+
+Kullanıcı çeyreklik talep listesini (Excel, ör. "BNEXT Product Talep Listesi"; Retail için
+**"Bnext + BO"** sayfası) ve GitHub sprint export'unu verip "iş birimli sprint review",
+"çeyrek / quarter durumu", "son 2 sprint canlıya çıkanlar" isterse `scripts/build_review.py`:
+
+```bash
+python3 $S/build_review.py --plan <liste.xlsx> --sheet "Bnext + BO" --export <github.tsv> \
+  --quarter Q4 --quarter-start 2026-10-05 --today <YYYY-MM-DD> --team Retail \
+  --dump-matches $D/eslesme-taslak.json --signals $D/review-sinyalleri.json -o $D/retail-review.html
+# eşleşmeyi gözden geçir → $D/eslesme.json yaz → içgörüleri yaz → yeniden üret:
+python3 $S/build_review.py ... --matches $D/eslesme.json --insights $D/review-icgoruler.json -o $D/retail-review.html
+node $S/export_png.mjs $D/retail-review.html $D/retail-review
+```
+(Excel'i okumak için `openpyxl` gerekir.) Slaytlar:
+1. **Q4 Talep Planı - Neredeyiz?** Quarter = Q4 talepleri (iptal hariç): tamamlanma; **geçen süre %
+   vs tamamlanan %** (süreye göre beklenen, sprint başına hız, kalan için gereken hız, bu hızla
+   çeyrek sonu); talep durum dağılımı; sprint bazında planlanan/tamamlanan (Q4 talebi + **devreden**
+   = Quarter'ı başka ama Sprint'i Q4/x olan talepler); sonradan gelen ("Sonradan Gelen" = evet) ve
+   **plan dışı iş** (son N sprintteki GitHub işlerinden Q4 talebine bağlanamayanlar: önceki
+   çeyrekten / bug / AddedMidSprint / listede karşılığı yok; adet ve efor payı); içgörüler.
+2. **Son N sprint - Canlıya çıkanlar ve hazır olanlar** (Sprint kolonu son N sprint olan talepler;
+   canlı = işlerin hepsi Released ya da listede Tamamlandı; hazır = hepsi bitmiş, en az biri Done).
+3. **Son N sprint - Devam eden işler** kanbanı: Başlanmadı (Todo / GitHub'da iş yok) · Geliştirmede ·
+   Test · UAT · Bekliyor (hold / tasarım / planlama); sprint alt başlıkları, devreden ve sonradan
+   gelen rozetleri.
+4. **Hesaplama varsayımları** ve GitHub'da işi bulunamayan talepler.
+
+Eşleşme: 4Me Talep No ↔ GitHub "Xurrent Talep No" veya başlıktaki numara → başlık benzerliği
+(numarasıyla başka talebe ait işler hariç) → kardeş işler (aynı başlığın BE/FE/App parçaları) →
+`--matches` (`{"<4Me no | talep başlığı>": ["#800", ...]}`, `[]` = eşleşme yok). **Claude taslağı
+gözden geçirir**: son sprint kapsamındaki eşleşmeyen taleplere GitHub'da açıklama/başlıkça karşılık
+gelen işleri (ör. "360 derece video" → App/Web/BE işleri) elle bağlar, yanlış başlık eşleşmelerini
+kaldırır; numara çelişkilerini kullanıcıya söyler. Talep adları listedeki gibi kalır. GitHub sprint
+adı "(2026-Q4/3)" içeriyorsa çeyrek etiketi oradan, diğer sprintler numara farkından bulunur
+(gerekirse `--sprint-map "Sprint 5=Q4/2"`). İçgörüler (`{"bullets": [...]}`, 5–6 madde) sinyallerdeki
+sayılara dayanır: geride/ileride, gereken hız, hazır olmayan talep yükü, devreden ve plan dışı işin
+etkisi, veri kalitesi.
 
 ## Proje adları
 

@@ -1,0 +1,212 @@
+{
+  "ceyrek": "Q4",
+  "bugun": "2026-11-12",
+  "gecen_gun": 39,
+  "toplam_gun": 98,
+  "gecen_sure_pct": 40,
+  "simdiki_sprint": "Q4/3",
+  "planlanan_talep": 201,
+  "iptal": 2,
+  "tamamlanan_talep": 46,
+  "tamamlanma_pct": 23,
+  "sureye_gore_beklenen": 80.0,
+  "bu_hizla_ceyrek_sonu": 115.6,
+  "sprint_basina_tamamlanan": 16.5,
+  "kalan_icin_sprint_basina_gereken": 36.8,
+  "sprint_bazinda": [
+    {
+      "label": "Q4/1",
+      "c": 20,
+      "cd": 13,
+      "k": 23,
+      "kd": 22
+    },
+    {
+      "label": "Q4/2",
+      "c": 25,
+      "cd": 11,
+      "k": 1,
+      "kd": 0
+    },
+    {
+      "label": "Q4/3 (şimdiki)",
+      "c": 32,
+      "cd": 2,
+      "k": 4,
+      "kd": 0
+    },
+    {
+      "label": "Q4/4 (ileri)",
+      "c": 48,
+      "cd": 4,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/5 (ileri)",
+      "c": 9,
+      "cd": 0,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/6 (ileri)",
+      "c": 12,
+      "cd": 1,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/7 (ileri)",
+      "c": 0,
+      "cd": 0,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Sprint atanmamış",
+      "c": 55,
+      "cd": 15,
+      "k": 0,
+      "kd": 0
+    }
+  ],
+  "durum_dagilimi": {
+    "Tamamlandı": 46,
+    "Planlama / netleştirme": 84,
+    "Geliştirme / test sürüyor": 21,
+    "Sprint'e alındı (GitHub'da iş yok)": 13,
+    "Hold / backlog": 28,
+    "Tasarım bekleniyor": 9
+  },
+  "sonradan_gelen": [
+    {
+      "talep": "Bnext App - Randevu Düzenleme Fonksiyonun Geliştirilmesi",
+      "durum": "Todo",
+      "sprint": "Q4/3"
+    },
+    {
+      "talep": "DATA - View/Select Promotion Event Kurulumları",
+      "durum": "Sprint Backlog",
+      "sprint": "Q4/3"
+    }
+  ],
+  "devreden_talep": 28,
+  "devreden_tamamlanan": 22,
+  "devreden_son_sprintlerde": [
+    "Q4/3 BNext | Servis APP Tasarım Güncellemeleri (In Progress)",
+    "Q4/2 BNext | Servis Anasayfa — Check-up & Mobil Uygulama/QR Kart Bloğu (Test)",
+    "Q4/3 BNext - Toplu Araç Satışı - Dijital Plaftorm (Hold)",
+    "Q4/3 BNext | Araba Al — Filtresiz sayfada model başlığı ile listelenen araçlar uyuşmuyor (Sprinte Alındı)",
+    "Q4/3 BNext APP | Servis Anasayfa — Check-up CMS ile yönetilebilen kart bloğu (APP) (In Progress)"
+  ],
+  "son_sprintler": [
+    "Q4/2",
+    "Q4/3"
+  ],
+  "son_sprint_isleri": 87,
+  "plan_disi_is": 32,
+  "plan_disi_pct": 37,
+  "plan_disi_efor_pct": 12,
+  "plan_disi_kirilim": {
+    "Sprint ortası eklenen": [
+      "#876 Satın Alma Süreci > Değerleme Özeti Alanının Gösterimi",
+      "#846 Borusan Next App | Size Özel Araçlar Alanının Kaldırılması",
+      "#839 App > Araba Sat Akışı Alım Kriterlerinin İlk Sıraya Mevcut Kurallar ile Taşınması",
+      "#838 Web > Araba Sat Akışı Alım Kriterlerinin İlk Sıraya Mevcut Kurallar ile Taşınması",
+      "#845 Borusan Next Web | Size Özel Araçlar Alanının Kaldırılması",
+      "#610 BNext MCP Entegrasyonu",
+      "#415 Dependabot ve Critical Code Geliştirmeleri",
+      "#753 SIQ'nun LeadSource ve Partner API a Entegre Edilmesi",
+      "#847 EV (Elektrikli Araç) Projesi – FE Canlıya Geçiş Hazırlıkları",
+      "#848 EV Elektirikli Araç > Araba Al Sayfası – Batarya Kontrol Filtresi ve EV İkon Revizyonu",
+      "#763 Tabloya Taşıyarak Dinamikleştirilen Başvuru Kaynak Alanlarının Switch Edilmesi"
+    ],
+    "Bug düzeltmesi": [
+      "#776 [BUG]: Blog Yazısı Start Data Alanının Çalışmaması",
+      "#603 [BUG] Jarvis -> Rol Ekranı Paging Hatası",
+      "#672 [BUG]: Ekspertiz Lastik Seçiminde Default seçimlerin Sabit Kalması",
+      "#697 [BUG]: App Kayıtlı Arabalarım> CustomercontactID Alamama Sorunu",
+      "#741 [BUG]: Değerleme Marj Farkı",
+      "#607 [BUG]: Toplu Veri Yollama/Sorgulama Güvenlik Problemi > Denetim Bulgusu",
+      "#748 [BUG]: Fırsat Aracı Badge i Opsiyon Var ise Kaldırılmama Sorunu",
+      "#750 [BUG]: Lead üzerindeki aranma izni kontrolünün CanCalll yerine Etk Call alanı üzerinden yapılması",
+      "#762 [BUG]: Araba Sat ve Servis Sekmesi Fırsat Araçlar ve Son Eklenen ve Suv Araçlar Alanının Görüntülenmesi",
+      "#828 [BUG]: BNext | Araba Bilgi Formu PDF’inde Kaporta Ekspertiz alanları dolmuyor"
+    ],
+    "Önceki çeyrekten": [
+      "#367 82835529 - App BNext | Web Araç Detay – Ekspertiz Sekmesinin Sadeleştirilmesi ve Rapor İndirme Akışının Güncellenmesi"
+    ],
+    "Listede karşılığı yok": [
+      "#23 82021717 - FE | Servis Sayfası Maksimum Model Yılı Güncellemesi - 4h - BCF-1609",
+      "#771 App Icon Revizesi – Google Play Store & Apple App Store",
+      "#854 Karşılaştır Ekranında Checkbox Çiftlenme Sorununun Giderilmesi",
+      "#696 BNext MCP Pentest Bulguları",
+      "#338 Kampanya Detay Sayfalarının Açılmama Sorununun SSR ile Giderilmesi",
+      "#752 Ekspertiz Randevu Düzenleme CF engelinin Kaldırılması İçin url de Düzenleme",
+      "#529 83700546 - CMS İçeriklerinin Araç Listeleme ve Detay Alanlarında Gösterilmesi",
+      "#528 83700546 - CMS > Araç Listeleme ve Detay Alanlarındaki İçeriklerin CMS’ten Yönetilmesi (JLR Borusan Next - Approved Sertifikalı Araçlar)",
+      "#594 Araç Görüntüleme Yetkisinin Dealer Tablosundaki Grup Yapısına Taşınması",
+      "#844 Kişiselleştirme Projesi -Opsiyonlu Araçlar"
+    ]
+  },
+  "son_sprint_kapsami": 62,
+  "canlida": 6,
+  "canliya_hazir": 7,
+  "devam_eden": 49,
+  "devam_eden_statu": {
+    "Sprinte Alındı": 10,
+    "Sprint Backlog": 3,
+    "In Progress": 13,
+    "Talep Netleştirme": 1,
+    "Hold": 5,
+    "Test": 3,
+    "Tasarım Bekleniyor": 5,
+    "Todo": 2,
+    "Review": 2,
+    "Sprint Planlama": 4,
+    "UAT": 1
+  },
+  "talep_tipi": {
+    "Geliştirme": 146,
+    "PowerBI": 5,
+    "SEO": 28,
+    "Mini Proje": 3,
+    "SalesForce": 11,
+    "Copilot": 5,
+    "SAP": 2,
+    "BYS": 1
+  },
+  "eslesmeyen_son_sprint_talepleri": [
+    "Q4/3 BNext | ASO - Uygulama Dil Bilgisinin Düzeltilmesi (Sprinte Alındı)",
+    "Q4/2 Borusannext.com Franchiselara UTM verisinin gösterilmesi (Sprinte Alındı)",
+    "Q4/2 Copilot üzerinden müşterilere bakım hatırlatma SMS gönderilebilmesi (Sprint Backlog)",
+    "Q4/2 BNext Servis - Randevu Gün ve Saatinin Dijital Olarak Seçilebilmesi (Sprinte Alındı)",
+    "Q4/3 3rd Party Ekspertiz Fİrmaları ile Jarvis Entegrasyonu Yapılması (Sprinte Alındı)",
+    "Q4/2 Kaydettiği Filtreye Yeni Araba geldiğinde Bildirim Alması (Talep Netleştirme)",
+    "Q4/2 Bakım Fiyatlarının Web Sitesi ve Mobil App Üzerinde Gösterimi (Sprinte Alındı)",
+    "Q4/2 Franchise Şubeler İçin İlan, İhale ve Satış Bildirim Geliştirme Talebi; (Tamamlandı)",
+    "Q4/2 BNext | Incadea Araç Teknik Bilgilerin Akmaması Hk Geliştirme Talebi (Sprint Backlog)",
+    "Q4/2 Dropdown Menü Kullanılması | SEO (Hold)",
+    "Q4/2 Borusan Next Servis Data Aktarımı (Sprinte Alındı)",
+    "Q4/3 APP - SearchAI eklenmesi (Tasarım Bekleniyor)",
+    "Q4/3 Jarvis - İlan Süreci Hk. (Sprinte Alındı)",
+    "Q4/3 BNext | Konsinye Olarak Yetkili Olmayan Bayilere Verilen Araçların İlana Alınması (Hold)",
+    "Q4/3 Bnext Araba Liste ve Detay Sayfasında \"x\" Kadar Kişi İlgileniyor - Favoriledi (Tasarım Bekleniyor)",
+    "Q4/3 Karşılaştırma özelliğimize Ekspertiz bilgilerinin de Karşılaştır alanının olması (Tasarım Bekleniyor)",
+    "Q4/3 Araç Detay Sayfası Değişiklik Talebi (Hold)",
+    "Q4/3 Badge Yönetimin Oluşturulması (Hold)",
+    "Q4/3 BNext Servis - Fiyat alan müşterilere Servis'te ücretsiz check up kurgusu (Sprinte Alındı)",
+    "Q4/3 2. El Satış Müşterilerine Özel İlk Bakım Hediye Kurgusu (Sprint Planlama)",
+    "Q4/3 Borusan Next - İlan Ekspertiz Girişi (Sprinte Alındı)",
+    "Q4/3 BNext | App Icon PNG Renk Profili Düzeltmesi (Tamamlandı)",
+    "Q4/3 SEO /metrics/ URLlerinin Robots.txt Üzerinden Taramaya Kapatılması (Sprint Planlama)",
+    "Q4/3 SEO Cloudflare /cdn-cgi/ Endpoint'ini robots.txt ile Engellenme (Sprint Planlama)",
+    "Q4/3 SEO Yazılarının <article>...</article> İçinde Sunulması (Sprint Planlama)",
+    "Q4/3 DATA - View/Select Promotion Event Kurulumları (Sprint Backlog)",
+    "Q4/3 Bnext Filtre ve Sıralamaların İçerik Zenginleştirilmesi | APP (Tasarım Bekleniyor)",
+    "Q4/3 Bnext APP | Araba Liste ve Detay Sayfasında \"x\" Kadar Kişi İlgileniyor - Favoriledi (Tasarım Bekleniyor)",
+    "Q4/3 BNext - Toplu Araç Satışı - Dijital Plaftorm (Hold)",
+    "Q4/3 BNext | Araba Al — Filtresiz sayfada model başlığı ile listelenen araçlar uyuşmuyor (Sprinte Alındı)"
+  ]
+}
