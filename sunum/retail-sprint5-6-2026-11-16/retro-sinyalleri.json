@@ -1,0 +1,161 @@
+{
+  "sprint": "Sprint 6 - (2026-Q4/3)",
+  "toplam_is": 49,
+  "tamamlanan_is": 21,
+  "tamamlanma_pct": 43,
+  "oe_toplam": 325.0,
+  "oe_tamamlanan": 84.0,
+  "oe_bos_is": 11,
+  "acik_isler_statu": {
+    "Todo": {
+      "is": 2,
+      "oe": 18.0
+    },
+    "In Progress": {
+      "is": 1,
+      "oe": 37.0
+    },
+    "Review": {
+      "is": 3,
+      "oe": 46.0
+    },
+    "Test": {
+      "is": 9,
+      "oe": 88.0
+    },
+    "UAT": {
+      "is": 13,
+      "oe": 52.0
+    }
+  },
+  "kisi_yuku": {
+    "hakankayakaya": {
+      "toplam": 1,
+      "acik": 1,
+      "acik_oe": 2.0
+    },
+    "hkecicimay": {
+      "toplam": 1,
+      "acik": 1,
+      "acik_oe": 2.0
+    },
+    "srcnvc": {
+      "toplam": 17,
+      "acik": 9,
+      "acik_oe": 46.0
+    },
+    "alkocman": {
+      "toplam": 9,
+      "acik": 6,
+      "acik_oe": 66.0
+    },
+    "mrcosgun9": {
+      "toplam": 12,
+      "acik": 6,
+      "acik_oe": 54.0
+    },
+    "sedatates": {
+      "toplam": 12,
+      "acik": 7,
+      "acik_oe": 54.0
+    },
+    "hakcaliskan": {
+      "toplam": 14,
+      "acik": 8,
+      "acik_oe": 65.0
+    },
+    "ualyaz": {
+      "toplam": 1,
+      "acik": 0,
+      "acik_oe": 0.0
+    }
+  },
+  "aradan_gelen": {
+    "is": 16,
+    "ilk_planlanan": 33
+  },
+  "altyapisal": {
+    "is": 1,
+    "toplam": 49
+  },
+  "proje": {
+    "BOD- Borusan Next Kisisellestirme": {
+      "is": 1,
+      "tamamlanan": 1,
+      "oe": 0.0,
+      "statuler": [
+        "Released"
+      ]
+    }
+  },
+  "iki_sprintten_uzun_acik": [
+    {
+      "no": "#573",
+      "tema": "Carvak'ın BNext'te Yetkili Satıcı Olarak Tanımlanması",
+      "statu": "Todo",
+      "ilk_sprint": "Sprint 4"
+    },
+    {
+      "no": "#536",
+      "tema": "App FE > 404 Sayfa Tasarım Güncellenmesi",
+      "statu": "Test",
+      "ilk_sprint": "Sprint 4"
+    },
+    {
+      "no": "#527",
+      "tema": "83340168 > BE BNext | Satın Alma Ekranı, Tramer Detay Sorgulama",
+      "statu": "Test",
+      "ilk_sprint": "Sprint 4"
+    },
+    {
+      "no": "#355",
+      "tema": "BNext | Servis Anasayfa – Check-up ve Mobil Uygulama/QR Kart Blokları Frontend Geliştirmesi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    }
+  ],
+  "release_bekleyen": 0,
+  "lead_gelistirme": {
+    "biten": 13,
+    "medyan": 17.4,
+    "en_uzun": 31.4
+  },
+  "lead_proje": {
+    "biten": 1,
+    "medyan": 4.3,
+    "en_uzun": 4.3
+  },
+  "closed_tarihi_eksik": [
+    "#886",
+    "#868",
+    "#845",
+    "#631",
+    "#848",
+    "#828"
+  ],
+  "veri_uyarilari": [
+    "'Xurrent Talep No' boş ama başlıkta numara olan işler başlıktaki numarayla gruplandı: #883 → 82022003"
+  ],
+  "sprint_karsilastirma": [
+    {
+      "sprint": "Sprint 5",
+      "kapsam": 62,
+      "tamamlanan": 42,
+      "tamamlanma_pct": 68,
+      "aradan_gelen": 2,
+      "sonraki_sprinte_aktarilan": 20,
+      "acik_kalan": 0,
+      "lead_gelistirme_medyan": 8.4
+    },
+    {
+      "sprint": "Sprint 6",
+      "kapsam": 52,
+      "tamamlanan": 24,
+      "tamamlanma_pct": 46,
+      "aradan_gelen": 16,
+      "sonraki_sprinte_aktarilan": 0,
+      "acik_kalan": 28,
+      "lead_gelistirme_medyan": 17.4
+    }
+  ]
+}

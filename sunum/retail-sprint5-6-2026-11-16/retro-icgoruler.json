@@ -1,0 +1,28 @@
+{
+  "subtitle": "Retail · Sprint 5 & Sprint 6 · metriklerden çıkan konular",
+  "cards": [
+    {"tone": "risk", "title": "Sprint ortasında gelen iş patladı",
+     "text": "Sprint 6'da ilk planlanan 33 işe <b>16 iş eklendi (%48)</b>; Sprint 5'te bu oran %3'tü. Eklenenler arasında Araba Sat, satın alma değerleme özeti ve EV işleri öne çıkıyor.",
+     "bullets": ["Aradan gelen işler için kabul kuralı / kapasite payı belirlemek", "Acil olmayanları bir sonraki sprint planlamasına bırakmak"]},
+    {"tone": "risk", "title": "UAT darboğazı",
+     "text": "Açık 28 işin <b>13'ü UAT'de</b> iş biriminin onayını bekliyor; bunların 8'i aynı kişinin onayında. Test'te de 9 iş (88 saat) var.",
+     "bullets": ["UAT için yedek onaycı ve hedef dönüş süresi belirlemek", "UAT'yi sprint sonuna yığmak yerine iş bittikçe yapmak"]},
+    {"tone": "risk", "title": "Tamamlanma %68 → %46",
+     "text": "Sprint 6'da 52 işin 24'ü bitti (Sprint 5'te 62'nin 42'si). Sprint 6 sonunda <b>28 iş (%54)</b> devam ediyor; planlanan eforun yalnız %26'sı tamamlandı."},
+    {"tone": "risk", "title": "Lead time iki katına çıktı",
+     "text": "Geliştirme işlerinde medyan lead time <b>8,4 → 17,4 gün</b>. 4 iş Sprint 3–4'ten beri açık: Carvak yetkili satıcı (Todo), 404 sayfası ve Tramer sorgulama (Test), Servis anasayfa check-up (UAT)."},
+    {"tone": "good", "title": "Canlıya çıkış akışı güçlü",
+     "text": "İki sprintte <b>60 talep canlıya alındı</b>; Done'da bekleyen yalnız 1 talep var. Bitirilen işler hızla release ediliyor."},
+    {"tone": "action", "title": "Sprint 7 için odak",
+     "bullets": ["Yeni işe başlamadan önce UAT ve Test'teki 22 işi kapatmak", "Sprint 3–4'ten kalan 4 işe sahip ve tarih vermek", "Aradan gelen işleri sprint panosunda ayrı izlemek"]},
+    {"tone": "data", "title": "Veri hijyeni",
+     "bullets": ["Released olup Closed tarihi boş: #886, #868, #845, #631, #848, #828", "11 işte Original Estimate boş", "#883 başlığına başka işin metni kopyalanmış (\"#375 Open User Story Parent:\")", "#882 \"Security and quality\" başlığı iş birimine anlamlı değil"]}
+  ],
+  "questions": [
+    "Sprint 6'da 16 iş neden sprint ortasında geldi; hangileri gerçekten acildi?",
+    "UAT'de bekleyen 13 iş için iş biriminden kim, ne zamana kadar onay verecek?",
+    "Sprint 3–4'ten beri açık 4 işi bitirmenin önündeki engel ne?",
+    "Sprint 7'de aradan gelen işler için kapasitenin ne kadarını ayırmalıyız?",
+    "Closed tarihi ve efor alanlarını kim, ne zaman güncelleyecek?"
+  ]
+}

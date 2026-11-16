@@ -394,7 +394,9 @@ def kanban_card(g: dict, hexes: dict, show_status: bool) -> str:
             f'<span class="kt">{esc(g["name"])}{carry}{meta_html}</span></div>')
 
 
-def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
+def kanban(groups: list[dict], hexes: dict, order: dict, collapse_live: str = "") -> str:
+    """collapse_live doluysa ve "Canlıda" kolonu çok kalabalıksa (25+ madde) kolon yalnız iş tipi
+    sayılarını ve bu metni (ör. ayrıntının hangi slaytta olduğu) gösterir."""
     lanes = [(t, {sk(x) for x in st}, []) for t, st in LANES]
     for g in groups:
         st = sk(g["status"])
@@ -408,7 +410,8 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
             return 110
         chars = sum(len(g["name"]) + 22 for g in gs) + 30 * len({g["kind"] for g in gs})
         return max(chars, 240)
-    subs = [weight(l[2]) for l in lanes]
+    collapsed = {"Canlıda"} if collapse_live and len(lanes[-1][2]) > 25 else set()
+    subs = [300 if l[0] in collapsed else weight(l[2]) for l in lanes]
     out = []
     for (title, sts, gs), sub in zip(lanes, subs):
         # Tür grupları sabit sırada: Proje işi → User Story → Task → Bug
@@ -424,11 +427,17 @@ def kanban(groups: list[dict], hexes: dict, order: dict) -> str:
                 parts.append(f'<div class="kgroup"><div class="khead {CAT_CLASS[kind]}">{esc(KIND_TITLE[kind])}'
                              f'<span>{len(kg)}</span></div>'
                              + "".join(kanban_card(g, hexes, len(present) > 1) for g in kg) + '</div>')
+        if title in collapsed:
+            parts = [f'<div class="kgroup"><div class="khead {CAT_CLASS[k]}">{esc(KIND_TITLE[k])}'
+                     f'<span>{sum(1 for g in gs if g["kind"] == k)}</span></div></div>'
+                     for k in KANBAN_KIND_ORDER if any(g["kind"] == k for g in gs)]
+            parts.append(f'<div style="white-space:normal;font-size:calc(var(--kf) * .85);color:var(--muted);'
+                         f'line-height:1.4;margin-top:6px">{esc(collapse_live)}</div>')
         cards = "".join(parts) or '<div class="lempty">—</div>'
         out.append(f'<div class="lane"><div class="lhead" style="--c:{color}"><span>{esc(title)}</span>'
                    f'<b>{len(gs)}</b><small>{items} iş</small></div>'
                    f'<div class="cards">{cards}</div></div>')
-    return (f'<div class="board" style="grid-template-columns:{" ".join(f"minmax({260 if l[2] else 150}px,{w}fr)" for w, l in zip(subs, lanes))}">'
+    return (f'<div class="board" style="grid-template-columns:{" ".join(f"minmax({260 if l[2] else 190}px,{w}fr)" for w, l in zip(subs, lanes))}">'
             + "".join(out) + "</div>")
 
 
@@ -522,6 +531,8 @@ def sprint_compare(a, br_rows, all_groups, snos, start_of, hexes, order, project
                     seen.append(r["theme"])
             out += [f'<li><span class="dot" style="--c:{color}"></span>{esc(nm)} '
                     f'<span class="kmeta">{esc(s["label"])}</span></li>' for nm in seen]
+        if len(out) > 14:  # panel taşmasın: ilk 13 madde + kalan sayısı
+            out = out[:13] + [f'<li class="none">… ve {len(out) - 13} iş daha</li>']
         return "".join(out)
 
     type_rows = []
@@ -799,10 +810,13 @@ def build(a) -> None:
                         "İlk planlanan", "iş")
             + ratio_block(f"{est_label}'a göre", sum(r["est"] for r in mid), sum(r["est"] for r in plan),
                           "Sprint ortasında gelen", "İlk planlanan", unit))
-    def name_list(rs):
+    def name_list(rs, limit=10):
         gs = group_items(rs, order, themes)
-        return "".join(f'<li><span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
-                       f'{esc(g["name"])}</li>' for g in gs)
+        out = [f'<li><span class="dot" style="--c:{hexes.get(g["status"], NO_STATUS_COLOR)}"></span>'
+               f'{esc(g["name"])}</li>' for g in gs]
+        if len(out) > limit:  # panel taşmasın: ilk (limit-1) madde + kalan sayısı
+            out = out[:limit - 1] + [f'<li class="none">… ve {len(out) - limit + 1} iş daha</li>']
+        return "".join(out)
     mid_list = name_list(mid)
     def project_list(rs, empty="Bu sprintte proje işi yok"):
         by: dict[str, list] = {}
@@ -1093,7 +1107,7 @@ def build(a) -> None:
       <div class="sub">{esc(bsub)} · {len(all_groups)} talep ({len(br_rows)} GitHub işi)</div></div>
     <ul class="legend">{legend}<li class="sep"></li>{focus_key}</ul>
   </header>
-  {kanban(all_groups, hexes, order)}
+  {kanban(all_groups, hexes, order, collapse_live="Canlıya alınan taleplerin listesi: Canlıya Çıkmaya Hazır Olan İşler - " + rng + " slaytı")}
 </section></div>
 """
         b_mid = [r for r in br_rows if r["mid"]]
@@ -1130,19 +1144,20 @@ def build(a) -> None:
         b_rel = [r for r in br_rows if sk(r["status"]) in live_st]
         b_rel_g = subset_entries({key_of(r) for r in b_rel}, all_groups)
         b_wide = len(b_rel_g) > 12
+        b_cols = 3 if len(b_rel_g) > 40 else 2 if b_wide else 1
         br_release = f"""
 <div class="frame"><section class="slide" aria-label="Canlıya Çıkmaya Hazır Olan İşler - {esc(rng)}">
   <header>
     <div><h1>Canlıya Çıkmaya Hazır Olan İşler <span>- {esc(rng)}</span></h1><div class="sub">{esc(bsub)} · iki sprintin toplamı</div></div>
     <ul class="legend">{focus_key}</ul>
   </header>
-  <div class="rgrid" style="grid-template-columns:{"minmax(0,1fr) minmax(0,1.9fr)" if b_wide else "1fr 1fr"}">
+  <div class="rgrid" style="grid-template-columns:{"minmax(0,0.8fr) minmax(0,3fr)" if b_cols == 3 else "minmax(0,1fr) minmax(0,1.9fr)" if b_wide else "1fr 1fr"}">
     <div class="rsec"><div class="rtitle">Canlıya çıkmaya hazır <small>(release bekleyen)</small> <b>{len(b_ready_g)}</b></div>
       <ul class="list" style="--cols:1;--max:30">
 {grouped_list(b_ready_g, hexes, a.origin_field, "Bu kriterde iş yok.")}
       </ul></div>
     <div class="rsec done"><div class="rtitle">{esc(rng)} içinde canlıya alınanlar <b>{len(b_rel_g)}</b> <small>({esc(", ".join(sorted({r["status"] for r in b_rel})) or "—")})</small></div>
-      <ul class="list" style="--cols:{2 if b_wide else 1};--max:22">
+      <ul class="list" style="--cols:{b_cols};--max:22">
 {grouped_list(b_rel_g, hexes, a.origin_field, "Yok.")}
       </ul></div>
   </div>
