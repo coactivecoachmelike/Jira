@@ -1,0 +1,28 @@
+{
+  "subtitle": "Auction · Sprint 5 & Sprint 6 · metriklerden çıkan konular",
+  "cards": [
+    {"tone": "good", "title": "One Click Auction geliştirmesi tamamlandı",
+     "text": "Projenin 5 işinin <b>5'i de Done</b> (116 saat) ve release'e hazır. Renk Değişimi'nde 7 işten 3'ü bitti. Sprint 6'da eforun <b>%41'i</b> tamamlandı; iş adedine göre oran (%21) bunu yansıtmıyor."},
+    {"tone": "risk", "title": "UAT darboğazı",
+     "text": "Açık 37 işin <b>20'si UAT'de</b> (110 saat); iş biriminin onayını bekliyor. 3 iş Sprint 3'ten beri UAT'de: Devir kartı noter alanı (BE + FE), Yarı römork şasi kısıtı.",
+     "bullets": ["UAT için iş biriminde sorumlu ve hedef dönüş süresi belirlemek", "UAT'yi sprint sonuna yığmak yerine iş bittikçe yapmak"]},
+    {"tone": "risk", "title": "Release bekleyen iş birikiyor",
+     "text": "<b>8 talep</b> Done ve Ready For Release; One Click Auction ve Renk Değişimi'nin bitmiş parçaları canlıya çıkmayı bekliyor.",
+     "bullets": ["Release tarihini netleştirmek, proje parçalarını birlikte mi ayrı mı çıkaracağımıza karar vermek"]},
+    {"tone": "risk", "title": "Test dönüşleri kapasite kullanıyor",
+     "text": "Sprint 6'da \"One Click Auction - Test Dönüşleri\" ve \"Renk Değişimi Test Dönüşleri\" için <b>32 saat</b> planlandı; ikisi de devam ediyor."},
+    {"tone": "risk", "title": "İş yükü tek kişide yoğunlaşıyor",
+     "text": "Açık 37 işin <b>18'i tek geliştiricide</b>; UAT'deki işlerin de çoğu ona ait. Darboğaz ve bilgi tekeli riski."},
+    {"tone": "good", "title": "Plan disiplini",
+     "text": "Sprint 6'da ilk planlanan 43 işe yalnız <b>4 iş</b> eklendi (%9)."},
+    {"tone": "data", "title": "Veri hijyeni",
+     "bullets": ["#153 UAT'de ama Closed tarihi dolu (yeniden açılmış)", "#152 ve #759'da Xurrent Talep No boş (başlıktaki numarayla gruplandı)", "Satıcı dijital üyelik (#189, #151) Sprint 3'ten beri Todo: hâlâ geçerli mi?"]}
+  ],
+  "questions": [
+    "UAT'deki 20 iş için iş biriminden kim, ne zamana kadar onay verecek?",
+    "One Click Auction ne zaman canlıya çıkacak; release'i ne engelliyor?",
+    "Test dönüşleri neden bu kadar efor aldı; hatalar hangi aşamada yakalanabilirdi?",
+    "Sprint 3'ten beri açık işleri (dijital üyelik, devir kartı, yarı römork) kapatacak mıyız, backlog'a mı alalım?",
+    "Tek geliştiricideki yükü nasıl dağıtabiliriz?"
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "sprint": "Sprint 6 - (2026-Q4/3)",
+  "toplam_is": 47,
+  "tamamlanan_is": 10,
+  "tamamlanma_pct": 21,
+  "oe_toplam": 366.0,
+  "oe_tamamlanan": 150.0,
+  "oe_bos_is": 3,
+  "acik_isler_statu": {
+    "Todo": {
+      "is": 6,
+      "oe": 25.0
+    },
+    "In Progress": {
+      "is": 4,
+      "oe": 39.0
+    },
+    "Review": {
+      "is": 3,
+      "oe": 10.0
+    },
+    "Test": {
+      "is": 4,
+      "oe": 32.0
+    },
+    "UAT": {
+      "is": 20,
+      "oe": 110.0
+    }
+  },
+  "kisi_yuku": {
+    "grknksbr": {
+      "toplam": 23,
+      "acik": 18,
+      "acik_oe": 75.0
+    },
+    "burakkarayakali": {
+      "toplam": 13,
+      "acik": 10,
+      "acik_oe": 77.0
+    },
+    "ualyaz": {
+      "toplam": 9,
+      "acik": 8,
+      "acik_oe": 60.0
+    },
+    "bcakaner": {
+      "toplam": 1,
+      "acik": 0,
+      "acik_oe": 0.0
+    },
+    "sedatates": {
+      "toplam": 1,
+      "acik": 1,
+      "acik_oe": 4.0
+    }
+  },
+  "aradan_gelen": {
+    "is": 4,
+    "ilk_planlanan": 43
+  },
+  "altyapisal": {
+    "is": 1,
+    "toplam": 47
+  },
+  "proje": {
+    "One Click Auction": {
+      "is": 5,
+      "tamamlanan": 5,
+      "oe": 116.0,
+      "statuler": [
+        "Done",
+        "Done",
+        "Done",
+        "Done",
+        "Done"
+      ]
+    },
+    "Renk Değişimi": {
+      "is": 7,
+      "tamamlanan": 3,
+      "oe": 84.0,
+      "statuler": [
+        "Done",
+        "Done",
+        "Done",
+        "In Progress",
+        "UAT",
+        "UAT",
+        "UAT"
+      ]
+    }
+  },
+  "iki_sprintten_uzun_acik": [
+    {
+      "no": "#189",
+      "tema": "Satıcı İçin Dijital Üyelik Geliştirmesi",
+      "statu": "Todo",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#151",
+      "tema": "Satıcı İçin Dijital Üyelik Geliştirmesi",
+      "statu": "Todo",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#759",
+      "tema": "Ekspertiz PDF İçeriğinin Düzenlenmesi",
+      "statu": "Review",
+      "ilk_sprint": "Sprint 4"
+    },
+    {
+      "no": "#382",
+      "tema": "Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#449",
+      "tema": "İhale ekranları renk değişimi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 4"
+    },
+    {
+      "no": "#45",
+      "tema": "Yarı Römork İşlemlerinde Şasi Kısıtlaması",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#153",
+      "tema": "Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 3"
+    },
+    {
+      "no": "#579",
+      "tema": "İhale ekranları renk değişimi",
+      "statu": "UAT",
+      "ilk_sprint": "Sprint 4"
+    }
+  ],
+  "release_bekleyen": 8,
+  "lead_gelistirme": {
+    "biten": 2,
+    "medyan": 14.9,
+    "en_uzun": 18.2
+  },
+  "lead_proje": {
+    "biten": 8,
+    "medyan": 30.4,
+    "en_uzun": 51.4
+  },
+  "closed_tarihi_eksik": [],
+  "veri_uyarilari": [
+    "'Xurrent Talep No' boş ama başlıkta numara olan işler başlıktaki numarayla gruplandı: #152 → 84543341, #759 → 81686517"
+  ],
+  "sprint_karsilastirma": [
+    {
+      "sprint": "Sprint 5",
+      "kapsam": 34,
+      "tamamlanan": 9,
+      "tamamlanma_pct": 26,
+      "aradan_gelen": 1,
+      "sonraki_sprinte_aktarilan": 25,
+      "acik_kalan": 0,
+      "lead_gelistirme_medyan": 17.5
+    },
+    {
+      "sprint": "Sprint 6",
+      "kapsam": 47,
+      "tamamlanan": 10,
+      "tamamlanma_pct": 21,
+      "aradan_gelen": 3,
+      "sonraki_sprinte_aktarilan": 0,
+      "acik_kalan": 37,
+      "lead_gelistirme_medyan": 14.9
+    }
+  ]
+}
