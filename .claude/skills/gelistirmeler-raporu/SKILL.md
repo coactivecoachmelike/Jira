@@ -281,19 +281,24 @@ python3 $S/build_review.py --plan <liste.xlsx> --sheet "Bnext + BO" --export <gi
 python3 $S/build_review.py ... --matches $D/eslesme.json --insights $D/review-icgoruler.json -o $D/retail-review.html
 node $S/export_png.mjs $D/retail-review.html $D/retail-review
 ```
-(Excel'i okumak için `openpyxl` gerekir.) Slaytlar:
-1. **Q4 Talep Planı - Neredeyiz?** Quarter = Q4 talepleri (iptal hariç): tamamlanma; **geçen süre %
-   vs tamamlanan %** (süreye göre beklenen, sprint başına hız, kalan için gereken hız, bu hızla
-   çeyrek sonu); talep durum dağılımı; sprint bazında planlanan/tamamlanan (Q4 talebi + **devreden**
-   = Quarter'ı başka ama Sprint'i Q4/x olan talepler); sonradan gelen ("Sonradan Gelen" = evet) ve
-   **plan dışı iş** (son N sprintteki GitHub işlerinden Q4 talebine bağlanamayanlar: önceki
-   çeyrekten / bug / AddedMidSprint / listede karşılığı yok; adet ve efor payı); içgörüler.
-2. **Son N sprint - Canlıya çıkanlar ve hazır olanlar** (Sprint kolonu son N sprint olan talepler;
-   canlı = işlerin hepsi Released ya da listede Tamamlandı; hazır = hepsi bitmiş, en az biri Done).
-3. **Son N sprint - Devam eden işler** kanbanı: Başlanmadı (Todo / GitHub'da iş yok) · Geliştirmede ·
-   Test · UAT · Bekliyor (hold / tasarım / planlama); sprint alt başlıkları, devreden ve sonradan
-   gelen rozetleri.
-4. **Hesaplama varsayımları** ve GitHub'da işi bulunamayan talepler.
+(Excel'i okumak için `openpyxl` gerekir.) İş birimi için **sade** tutulur. Slaytlar:
+1. **Q4 Talep Planı - Neredeyiz?** (Quarter = Q4, iptal hariç): planlanan / tamamlanan / kalan +
+   tamamlanma %; zamana göre hız (geçen süre % vs tamamlanan %, süreye göre beklenen, sprint başına
+   hız, kalan için gereken hız, bu hızla çeyrek sonu); talep durumu dağılımı; sprint bazında
+   planlanan / tamamlanan (Q4 talebi + devreden); **sonradan gelen talepler** (yalnız liste).
+   Plan dışı GitHub işleri, devreden talep cümlesi ve içgörüler bu slaytta **yer almaz**.
+2. **Q4 İçgörüleri** (ayrı slayt; `--insights` → `{"subtitle", "cards": [{"tone","title","text","bullets"}],
+   "questions": [...]}`): geride/ileride, gereken hız, hazır olmayan talep yükü, listenin büyümesi,
+   plan dışı iş payı, teslimat (iyi giden), veri kalitesi; sayılar sinyallerden.
+3. **Son N sprint - Canlıya çıkanlar ve hazır olanlar** (talep adları ürün listesindeki gibi).
+4. **Son N sprint - Devam eden işler** kanbanı: Başlanmadı · Geliştirmede · Test · UAT · Bekliyor.
+5. **Hesaplama varsayımları**.
+
+**Talep durumu:** talep listesi ile GitHub karşılaştırılır, **hangisi daha ileri durumu gösteriyorsa
+o** kullanılır (listede "Tamamlandı" → canlıda sayılır; GitHub'da birden fazla iş varsa en geride
+olanı). **Sonradan gelen:** listede "Sonradan Gelen" kolonu varsa o; yoksa / ek olarak
+`--previous-plan <önceki liste.xlsx> --previous-label "12.11.2026 listesi"` verilirse önceki listede
+Q4'te olmayan (no ve başlık benzerliğiyle) ya da orada sonradan gelen işaretli talepler.
 
 Eşleşme: 4Me Talep No ↔ GitHub "Xurrent Talep No" veya başlıktaki numara → başlık benzerliği
 (numarasıyla başka talebe ait işler hariç) → kardeş işler (aynı başlığın BE/FE/App parçaları) →

@@ -1,0 +1,25 @@
+{
+  "subtitle": "Retail · Q4 2026 · 24.11.2026 itibarıyla",
+  "cards": [
+    {"tone": "risk", "title": "Plana göre geride",
+     "text": "Çeyreğin <b>%52'si</b> geçti, Q4 taleplerinin <b>%29'u</b> tamamlandı. Süreye göre ~122 talep bitmiş olmalıydı; 68 talep bitti. Bu hızla çeyrek sonunda ~131 talep (%56) tamamlanır."},
+    {"tone": "risk", "title": "Kalan iş için hız yetmiyor",
+     "text": "Şimdiye kadar sprint başına <b>~19 talep</b> tamamlanıyor; kalan 167 talep için sprint başına <b>~50</b> gerekiyor. Q4/5 ve Q4/6'ya 77 talep, sprint'i belirsiz 45 talep var.",
+     "bullets": ["Q4'te bitmesi şart olan talepleri birlikte seçelim; kalanları Q1'e planlayalım"]},
+    {"tone": "risk", "title": "Listenin yarısı geliştirmeye hazır değil",
+     "text": "<b>125 talep</b> (%53) planlama / netleştirme, tasarım bekleniyor, hold / backlog aşamasında ya da durumu girilmemiş.",
+     "bullets": ["Netleştirme ve tasarım bekleyen talepler için iş biriminden tarih almak"]},
+    {"tone": "risk", "title": "Liste büyümeye devam ediyor",
+     "text": "12 Kasım'dan bu yana Q4'e <b>38 yeni talep</b> eklendi (201 → 235); 26'sı Q4/5–Q4/6'ya yazıldı. Sprint'lere yaptığımız işlerin <b>%40'ı</b> da Q4 listesinde yok (sprint ortası işler ve bug'lar)."},
+    {"tone": "good", "title": "Son 2 sprintte teslimat",
+     "text": "Q4/3–Q4/4 kapsamındaki 74 talepten <b>22'si canlıya çıktı</b>, 3'ü canlıya hazır. Q3'ten devreden 29 talebin 23'ü tamamlandı."},
+    {"tone": "data", "title": "Veri kalitesi",
+     "bullets": ["9 Q4 talebinde durum girilmemiş", "\"Meta Lead Reklamları\" ve \"DATA - View/Select Promotion\" aynı 4Me numarasını taşıyor (84435707)", "\"Sonradan Gelen\" kolonu listeden kaldırılmış; sonradan gelenler 12.11 listesiyle karşılaştırılarak bulundu"]}
+  ],
+  "questions": [
+    "Q4 sonuna kadar hangi talepler mutlaka canlıda olmalı?",
+    "Netleştirme / tasarım bekleyen talepler için iş biriminden ne zaman dönüş alabiliriz?",
+    "Çeyreğe yeni talep eklerken hangi talepleri çıkaralım?",
+    "Sprint ortası gelen işler ve bug'lar için kapasitenin ne kadarını ayıralım?"
+  ]
+}

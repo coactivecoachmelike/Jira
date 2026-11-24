@@ -41,11 +41,13 @@ SHEET_GROUPS = [
     ("Planlama / netleştirme", {"sprint planlama", "talep netleştirme", "sprint backlog"}),
     ("Tasarım bekleniyor", {"tasarım bekleniyor"}),
     ("Hold / backlog", {"hold", "backlog"}),
+    ("Durum girilmemiş", {""}),
 ]
 GROUP_COLORS = {"Tamamlandı": GITHUB_COLORS["GREEN"], "Geliştirme / test sürüyor": GITHUB_COLORS["YELLOW"],
                 "Sprint'e alındı (GitHub'da iş yok)": GITHUB_COLORS["ORANGE"],
                 "Planlama / netleştirme": GITHUB_COLORS["PURPLE"], "Tasarım bekleniyor": GITHUB_COLORS["PINK"],
-                "Hold / backlog": GITHUB_COLORS["GRAY"], "Diğer": NO_STATUS_COLOR}
+                "Hold / backlog": GITHUB_COLORS["GRAY"], "Durum girilmemiş": NO_STATUS_COLOR,
+                "Diğer": NO_STATUS_COLOR}
 STOP = set("bnext borusan next app apps web fe be bff mobil jarvis hk ve ile için de da bir olarak olan "
            "the in task yapılması geliştirilmesi geliştirme talebi talep eklenmesi gösterilmesi sayfası "
            "alanının alanında edilmesi seo data".split())
@@ -97,7 +99,7 @@ def load_plan(path: str, sheet: str, a) -> list[dict]:
     col = {}
     for j, h in enumerate(head):
         col.setdefault(h, j)
-    need = [a.col_title, a.col_quarter, a.col_sprint, a.col_state, a.col_no, a.col_later]
+    need = [a.col_title, a.col_quarter, a.col_sprint, a.col_state, a.col_no]
     miss = [c for c in need if c not in col]
     if miss:
         sys.exit(f"Excel'de sütun bulunamadı: {', '.join(miss)}")
@@ -105,6 +107,7 @@ def load_plan(path: str, sheet: str, a) -> list[dict]:
     def g(row, name):
         j = col.get(name)
         return row[j] if j is not None and j < len(row) else None
+    a._has_later_col = a.col_later in col
     out = []
     for i, row in enumerate(it, start=2):
         title = clean(g(row, a.col_title))
@@ -116,7 +119,7 @@ def load_plan(path: str, sheet: str, a) -> list[dict]:
             "sprint": sprint if re.fullmatch(r"Q\d/\d+", sprint) else "",
             "state": clean(g(row, a.col_state)), "nos": nums(g(row, a.col_no)),
             "no": next(iter(sorted(nums(g(row, a.col_no)))), ""),
-            "later": sk(g(row, a.col_later)) in {"evet", "yes", "x", "1"},
+            "later": sk(g(row, a.col_later)) in {"evet", "yes", "x", "1"} if a.col_later in col else False,
             "type": clean(g(row, a.col_type)), "squad": clean(g(row, a.col_squad)),
         })
     return out
@@ -243,6 +246,11 @@ def talep_status(t: dict) -> None:
         t["status"] = t["state"] or "—"
         t["group"] = "Tamamlandı" if t["done"] else next(
             (g for g, keys in SHEET_GROUPS if s in {sk(k) for k in keys}), "Diğer")
+    # Talep listesi GitHub'dan daha ileri bir durum gösteriyorsa (Tamamlandı) o tercih edilir
+    if t["source"] == "github" and sk(t["state"]) in {sk(k) for k in SHEET_DONE} and not t["live"]:
+        t["status"], t["source"] = "Tamamlandı (liste)", "liste"
+        t["done"] = t["live"] = True
+        t["group"] = "Tamamlandı"
     t["ready"] = t["done"] and not t["live"]
 
 
@@ -355,6 +363,27 @@ def build(a) -> None:
     if a.matches and os.path.exists(a.matches):
         with open(a.matches, encoding="utf-8") as fh:
             overrides = json.load(fh)
+    later_how = f'talep listesinde "{a.col_later}" = evet' if getattr(a, "_has_later_col", False) else ""
+    if a.previous_plan:
+        prev = [p for p in load_plan(a.previous_plan, a.sheet, a) if p["quarter"] == q]
+        prev_nos = set().union(*(p["nos"] for p in prev)) if prev else set()
+        prev_titles = {tr_lower(p["title"]) for p in prev}
+        prev_later_nos = set().union(*(p["nos"] for p in prev if p["later"])) if prev else set()
+        prev_later_titles = {tr_lower(p["title"]) for p in prev if p["later"]}
+        prev_toks = [toks(p["title"]) for p in prev]
+
+        def similar(title):
+            A = toks(title)
+            return any(A and B and len(A & B) / len(A | B) >= 0.6 for B in prev_toks)
+        for t in plan:
+            known = (t["nos"] & prev_nos) or tr_lower(t["title"]) in prev_titles or similar(t["title"])
+            flagged = (t["nos"] & prev_later_nos) or tr_lower(t["title"]) in prev_later_titles
+            if flagged or not known:
+                t["later"] = True
+        later_how = ((later_how + " · ") if later_how else "") + (
+            f"önceki listede sonradan gelen olarak işaretli ya da {esc(a.previous_label or 'önceki listeden')} "
+            f"sonra {q}'e eklenen talepler")
+    a._later_how = later_how or "—"
     all_nos = set().union(*(t["nos"] for t in all_rows))
     match(plan + carry, items, overrides, all_nos)
     for t in plan + carry:
@@ -477,10 +506,17 @@ def build(a) -> None:
     team = a.team or ""
     sub = " · ".join(x for x in [team, f"{q} 2026" if not a.year else f"{q} {a.year}",
                                  f"{labels[cur_k - 1]} sonu", today.strftime("%d.%m.%Y")] if x)
-    comp = story_block(f"{q} için planlanan <b>{n_plan}</b> talepten <b>{n_done}</b> talep tamamlandı",
-                       n_done, n_plan, "tamamlanma",
-                       [("Planlanan", n_plan, "talep"), ("Tamamlanan", n_done, "talep"),
-                        ("Kalan", n_plan - n_done, "talep")])
+    pc = pct(n_done, n_plan)
+    comp = f"""
+<div class="comp story">
+  <div class="cnums" style="grid-template-columns:repeat(3,1fr);margin:0 0 18px">
+    <div><span>Planlanan</span><b>{n_plan}<small>talep</small></b></div>
+    <div><span>Tamamlanan</span><b>{n_done}<small>talep</small></b></div>
+    <div><span>Kalan</span><b>{n_plan - n_done}<small>talep</small></b></div>
+  </div>
+  <div class="chero">%{pc:.0f}<span class="hcap">tamamlanma</span></div>
+  <div class="bar"><i style="width:{min(pc, 100):.2f}%"></i></div>
+</div>"""
     diff = n_done - expected
     verdict = ("plana göre <b>ileride</b>" if diff >= 0.5 else "plana göre <b>geride</b>" if diff <= -0.5
                else "plana <b>paralel</b>")
@@ -488,7 +524,7 @@ def build(a) -> None:
 <div class="srows">
   <div class="srow"><div class="sname">Geçen süre</div><div class="shero">%{frac * 100:.0f}</div>
     <div class="sbody"><div class="bar warm"><i style="width:{frac * 100:.2f}%"></i></div>
-    <div class="stext"><b>{elapsed_days}</b> / {total_days} gün · {labels[cur_k - 1]} ({cur_k}/{a.quarter_sprints}. sprint)</div></div></div>
+    <div class="stext"><b>{elapsed_days}</b> / {total_days} gün</div></div></div>
   <div class="srow"><div class="sname">Tamamlanan</div><div class="shero">%{pct(n_done, n_plan):.0f}</div>
     <div class="sbody"><div class="bar"><i style="width:{min(pct(n_done, n_plan), 100):.2f}%"></i></div>
     <div class="stext"><b>{n_done}</b> / {n_plan} talep</div></div></div>
@@ -500,14 +536,25 @@ def build(a) -> None:
     sprint başına <b>{tr1(need_per_sprint)}</b> gerekiyor. Bu hızla çeyrek sonunda <b>~{projection:.0f}</b>
     talep (%{pct(projection, n_plan):.0f}).</div>
 </div>"""
+    later_sorted = sorted(later, key=lambda t: (t["sprint"] or "Q9", tr_lower(t["title"])))
     later_list = "".join(f'<li><span class="dot" style="--c:{hexof(t["status"]) if t["source"] == "github" else GROUP_COLORS.get(t["group"])}"></span>'
                          f'{esc(t["title"])} <span class="kmeta">{esc(t["sprint"] or "—")} · {esc(t["status"])}</span></li>'
-                         for t in later) or '<li class="none">Sonradan gelen talep yok</li>'
-    ins_html = ""
-    if insights.get("bullets"):
-        ins_html = "<ul class='ins'>" + "".join(f"<li>{b}</li>" for b in insights["bullets"]) + "</ul>"
+                         for t in later_sorted[:9 if len(later) <= 9 else 8]) or '<li class="none">Sonradan gelen talep yok</li>'
+    if len(later) > 9:
+        later_list += f'<li class="none">… ve {len(later) - 8} talep daha</li>'
+    tone_lbl = {"risk": "Dikkat", "good": "İyi giden", "action": "Öneri", "data": "Veri kalitesi"}
+    if insights.get("cards"):
+        ins_cards = "".join(
+            f'<div class="rcard {esc(c.get("tone", "risk"))}"><div class="rtag">{esc(tone_lbl.get(c.get("tone", "risk"), ""))}</div>'
+            f'<div class="rhead">{esc(c["title"])}</div>'
+            + (f'<p>{c["text"]}</p>' if c.get("text") else "")
+            + ("<ul>" + "".join(f"<li>{b}</li>" for b in c.get("bullets", [])) + "</ul>" if c.get("bullets") else "")
+            + "</div>" for c in insights["cards"])
+    elif insights.get("bullets"):
+        ins_cards = "".join(f'<div class="rcard action"><p>{b}</p></div>' for b in insights["bullets"])
     else:
-        ins_html = '<div class="emptymsg">İçgörüler için --insights verilmedi.</div>'
+        ins_cards = '<div class="emptymsg">İçgörüler için --insights verilmedi.</div>'
+    qs_html = "".join(f"<li>{x}</li>" for x in insights.get("questions", []))
 
     s1 = f"""
 <div class="frame"><section class="slide" aria-label="{esc(q)} Talep Planı">
@@ -520,20 +567,24 @@ def build(a) -> None:
     <div class="panel"><div class="ptitle">Zamana göre hızımız</div>{pace}
       <div class="pfoot">Çeyrek {qs.strftime("%d.%m.%Y")} başlangıçlı {a.quarter_sprints} sprint × {a.sprint_days} gün</div></div>
     <div class="panel"><div class="ptitle">Talep durumu</div>{status_table}
-      <div class="pfoot">GitHub'da işi olan talep: işlerinin en geride olanının statüsü · olmayan: talep listesindeki durum</div></div>
-    <div class="panel"><div class="ptitle">Sprint bazında planlanan vs tamamlanan</div>
+      <div class="pfoot">Durum: talep listesi ile GitHub'dan hangisi daha ilerideyse o · GitHub'da birden fazla iş varsa en geride olanı</div></div>
+    <div class="panel span2"><div class="ptitle">Sprint bazında planlanan vs tamamlanan</div>
       <div class="pkey"><span style="--k:var(--plan)">Planlanan</span><span style="--k:var(--ink)">Tamamlanan</span></div>
       {sprint_table}
       <div class="pfoot">Listedeki Sprint kolonu · {esc(" · ".join(f"{l} = {re.sub(r' - .*', '', gh_name[l])}" for l in labels if l in gh_name))}</div></div>
-    <div class="panel"><div class="ptitle">Sonradan gelen ve plan dışı işler</div>
+    <div class="panel"><div class="ptitle">Sonradan gelen talepler</div>
       <div class="later"><b>{len(later)}</b> talep çeyreğe sonradan eklendi
         <ul class="names one">{later_list}</ul></div>
-      <div class="later"><b>{len(carry)}</b> önceki çeyrek talebi {esc(q)} sprintlerine alındı ({sum(t["done"] for t in carry)}'i tamamlandı)</div>
-      <div class="later">Son {len(last)} sprintte yapılan <b>{len(last_items)}</b> GitHub işinin <b>{len(outside)}</b>'i
-        (%{out_share:.0f}, eforun %{out_eshare:.0f}'i) {esc(q)} planında yok:</div>
-      {out_table}
-      <div class="pfoot">Sonradan gelen = talep listesinde "{esc(a.col_later)}" = evet</div></div>
-    <div class="panel"><div class="ptitle">İçgörüler</div>{ins_html}</div>
+      <div class="pfoot">Sonradan gelen = {a._later_how}</div></div>
+  </div>
+</section></div>
+<div class="frame"><section class="slide" aria-label="{esc(q)} İçgörüleri">
+  <header>
+    <div><h1>{esc(q)} <span>İçgörüleri</span></h1><div class="sub">{esc(insights.get("subtitle") or sub)}</div></div>
+  </header>
+  <div class="rlayout"{"" if qs_html else ' style="grid-template-columns:1fr"'}>
+    <div class="agrid rgridc">{ins_cards}</div>
+    {f'<div class="rq"><div class="rqt">Konuşalım</div><ol>{qs_html}</ol></div>' if qs_html else ''}
   </div>
 </section></div>"""
 
@@ -584,7 +635,8 @@ def build(a) -> None:
             f"elle: {sum(1 for t in plan if t['how'] == 'elle')}).",
             "Bir talebin birden fazla GitHub işi olabilir; talep, işlerinin en geride olanının statüsünü alır."]),
         ("Tamamlandı / canlı tanımı", [
-            "Tamamlandı: GitHub işlerinin hepsi Done veya Released; GitHub'da işi yoksa talep listesinde \"Tamamlandı\".",
+            "Talep durumu: talep listesi ile GitHub'dan hangisi daha ileri durumu gösteriyorsa o (listede \"Tamamlandı\" ise canlıda sayılır).",
+            "Tamamlandı: GitHub işlerinin hepsi Done veya Released ya da talep listesinde \"Tamamlandı\".",
             "Canlıya çıkan: işlerin hepsi Released (ya da listede Tamamlandı). Canlıya hazır: hepsi bitmiş, en az biri Done.",
             "GitHub export'unda yalnız son sprintler olduğundan önceki sprintlerin talepleri çoğunlukla listedeki duruma göre sayılır."]),
         ("Hız", [f"Geçen süre = çeyrek başından ({qs.strftime('%d.%m.%Y')}) bugüne takvim günü ÷ "
@@ -595,7 +647,7 @@ def build(a) -> None:
             f"Quarter'ı {esc(q)} olmayan ama Sprint kolonu {esc(q)}/x olan talepler devreden sayılır ({len(carry)} talep): "
             f"{esc(q)} tamamlanma oranına girmez, son sprint slaytlarında ve sprint tablosunda ayrı gösterilir."]),
         ("Sonradan gelen / plan dışı", [
-            f"Sonradan gelen talep: listede \"{esc(a.col_later)}\" = evet.",
+            f"Sonradan gelen talep: {a._later_how}.",
             f"Plan dışı iş: son {len(last)} sprintteki GitHub işlerinden {esc(q)} talebine bağlanamayanlar; önceki çeyrek "
             "talebine bağlananlar \"devreden\", [BUG] başlıklılar \"hata\", AddedMidSprint etiketliler \"sprint ortası\" sayılır."]),
     ]
@@ -675,6 +727,8 @@ def main() -> None:
     ap.add_argument("--signals", help="İçgörü yazmak için metrik özetini bu JSON'a yaz")
     ap.add_argument("--insights", help="Claude'un yazdığı içgörüler: {\"bullets\": [\"...\"]}")
     ap.add_argument("--team", default="Retail")
+    ap.add_argument("--previous-plan", help="Önceki talep listesi (xlsx): ondan sonra çeyreğe eklenen talepler sonradan gelen sayılır")
+    ap.add_argument("--previous-label", help="Önceki listenin adı/tarihi, ör. '12.11.2026 listesi'")
     ap.add_argument("--plan-label", help="Varsayımlar slaytında gösterilecek talep listesi dosya adı")
     ap.add_argument("--export-label", help="Varsayımlar slaytında gösterilecek GitHub export dosya adı")
     ap.add_argument("--col-title", default="Talep Başlığı / Konu")
