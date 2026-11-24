@@ -1,0 +1,565 @@
+{
+  "talepler": [
+    {
+      "anahtar": "One Click Auction",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "One Click Auction",
+      "eslesme": "başlık",
+      "github": [
+        "#938 In Progress · One Click Auction Test dönüşleri",
+        "#283 Done · One Click Auction - Araçların İhaleye Eklenmesi",
+        "#289 Done · One Click Auction - İhaleye Eklenen ve Hiç Eklenmeyen Araçların Sistemden Çıkartılması",
+        "#287 Done · One Click Auction - Araç Satıldı Bilgisi",
+        "#286 Done · One Click Auction - İhaleye Eklenen/Çıkartılan Araç Statüleri Hk.",
+        "#279 Done · One Click Auction - Araç Bilgilerinin SmartIq'dan Jarvise İletilmesi",
+        "#824 Done · One Click Auction - Test Dönüşleri",
+        "#150 Done · One Click Auction"
+      ]
+    },
+    {
+      "anahtar": "82650798",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Satıcı için dijital üyelik geliştirmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#151 Todo · 82650798 - Satıcı İçin Dijital Üyelik Geliştirmesi FE",
+        "#189 Test · 82650798 - Satıcı İçin Dijital Üyelik Geliştirmesi BE"
+      ]
+    },
+    {
+      "anahtar": "77351995",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNI - NPS Kurgusu",
+      "eslesme": "başlık",
+      "github": [
+        "#152 Released · 84543341 - BNI - NPS Kurgusu"
+      ]
+    },
+    {
+      "anahtar": "82634159",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Araç Detay Kartında Kaporta Ekspertiz Gösterimi",
+      "eslesme": "talep no",
+      "github": [
+        "#486 Released · +82634159 - Araç Detay Kartında Kaporta Ekspertiz Gösterimi BE",
+        "#175 Released · +82634159 - Araç Detay Kartında Kaporta Ekspertiz Gösterimi"
+      ]
+    },
+    {
+      "anahtar": "84478704",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Canlı İhale Renk Değişimi",
+      "eslesme": "talep no",
+      "github": [
+        "#673 Done · 84478704 - Renk Değişimi - Canlı İhale Renk Değişimi"
+      ]
+    },
+    {
+      "anahtar": "82363163",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Hatalı Lazy Load Kurgusunun Düzeltilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#176 Released · 82363163 - Hatalı Lazy Load Kurgusunun Düzeltilmesi"
+      ]
+    },
+    {
+      "anahtar": "81973500",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Trafik Sigortası için Login Sonrası Pop-Up ile Onay Alınması",
+      "eslesme": "talep no",
+      "github": [
+        "#179 Released · 81973500 - Trafik Sigortası için Onay Vermeyen Müşterilere Pop-up Açılması"
+      ]
+    },
+    {
+      "anahtar": "81846810",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Register Süreçleri Funnel Event Entegrasyonu",
+      "eslesme": "talep no",
+      "github": [
+        "#485 Released · +81846810 - DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis BE",
+        "#188 Released · 81846810 - DATA - Register Süreçleri Funnel Event Entegrasyonu Jarvis İnceleme Taskı",
+        "#47 Released · 81846810 - DATA - Register Süreçleri Funnel Event Entegrasyonu FE - 4h"
+      ]
+    },
+    {
+      "anahtar": "82157476",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması",
+      "eslesme": "talep no",
+      "github": [
+        "#154 Released · 82157476 - Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması BE",
+        "#383 Released · 82157476 - Potansiyel Müşteri Sahibi, Dönüştüren Kullanıcı Bilgisinin Tutulması FE"
+      ]
+    },
+    {
+      "anahtar": "81574867",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Devir kartı ekranında tedariçi noter alanının güncellenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#382 Released · 81574867 - Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi FE",
+        "#153 Released · 81574867 - Devir Kartı Ekranında Tedarikçi Noter Alanının Güncellenmesi BE"
+      ]
+    },
+    {
+      "anahtar": "84482957",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Biİhale Renk Değişimi",
+      "eslesme": "talep no",
+      "github": [
+        "#679 Done · 84482957 - Renk Değişimi - Biİhale Renk Değişimi"
+      ]
+    },
+    {
+      "anahtar": "84482958",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Rezerv Fiyatlı İhale Renk Değişimi",
+      "eslesme": "talep no",
+      "github": [
+        "#675 Done · 84482958 - Renk Değişimi - Rezerv İhale Renk Değişimi"
+      ]
+    },
+    {
+      "anahtar": "82362284",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Critical CSS Uygulaması",
+      "eslesme": "talep no",
+      "github": [
+        "#178 Released · 82362284 - Critical CSS Uygulaması"
+      ]
+    },
+    {
+      "anahtar": "Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#385 Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi FE",
+        "#195 Released · Toplu Ekspertiz Sıralama Fonksiyonu Eklenmesi BE"
+      ]
+    },
+    {
+      "anahtar": "76639980",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "BNI - Birden fazla plakayı aynı anda aratma",
+      "eslesme": "talep no",
+      "github": [
+        "#386 Released · 76639980 - Birden Fazla Plakayı Aynı Anda Aratma"
+      ]
+    },
+    {
+      "anahtar": "82158170",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Yeni Üyelik | Hoş Geldin Araması Takip Alanı ve Raporlama Geliştirmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#678 Released · 82158170 - Yeni Üyelik | Hoş Geldin Araması Takip Alanı ve Raporlama Geliştirmesi",
+        "#155 Released · 82158170 - Yeni Üyelik | Hoş Geldin Araması Takip Alanı ve Raporlama Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "83328817",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "İhale Araç Liste Görünümünden \"Tramer Tutarı\" Kolonunun Kaldırılması",
+      "eslesme": "talep no",
+      "github": [
+        "#461 Released · 83328817 - İhale Araç Liste Görünümünden \"Tramer Tutarı\" Kolonunun Kaldırılması"
+      ]
+    },
+    {
+      "anahtar": "82162937",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili",
+      "eslesme": "talep no",
+      "github": [
+        "#156 Released · 82162937 - Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili BE",
+        "#384 Released · 82162937 - Yeni Üyelik | Evraklarını Tamamlamayan Müşterilere Otomatik Hatırlatma Maili FE"
+      ]
+    },
+    {
+      "anahtar": "84536888",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Başlangıç Fiyatlarının Kaldırılması",
+      "eslesme": "talep no",
+      "github": [
+        "#648 In Progress · 84536888 - Başlangıç Fiyatlarının Kaldırılması"
+      ]
+    },
+    {
+      "anahtar": "85630281",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Borusan Next İhale Jarvis SMS Güncelleme Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#788 Todo · 85630281 - Borusan Next İhale Jarvis SMS Güncelleme Hk. BE",
+        "#786 Todo · 85630281 - Borusan Next İhale Jarvis SMS Güncelleme Hk."
+      ]
+    },
+    {
+      "anahtar": "82634239",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "Yeni Üyelik | Müşteri Aktivasyonu Sonrası Otomatik Hoş Geldiniz Maili Gönderimi",
+      "eslesme": "talep no",
+      "github": [
+        "#157 Released · +82634239 - Yeni Üyelik | Müşteri Aktivasyonu Sonrası Otomatik Hoş Geldiniz Maili Gönderimi"
+      ]
+    },
+    {
+      "anahtar": "82648767",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Ekspertiz Raporlamasında Aynı Plakanın Birden Fazla Listelenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#196 Released · 82648767 - Ekspertiz Raporlamasında Aynı Plakanın Birden Fazla Listelenmesi"
+      ]
+    },
+    {
+      "anahtar": "82634238",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "Yeni Üyelik | Müşteri Aktivasyonu Sonrası Satış Temsilcisine Otomatik Mail Gönderimi",
+      "eslesme": "talep no",
+      "github": [
+        "#158 Released · +82634238 - Yeni Üyelik | Müşteri Aktivasyonu Sonrası Satış Temsilcisine Otomatik Mail Gönderimi"
+      ]
+    },
+    {
+      "anahtar": "84897458",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Satın alma günlük raporu",
+      "eslesme": "talep no",
+      "github": [
+        "#644 Released · 84897458 - Satın Alma Günlük Raporu FE",
+        "#194 Released · 84897458 - Satın Alma Günlük Raporu BE"
+      ]
+    },
+    {
+      "anahtar": "82358530",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Ödemesiz teslimat Mailleri hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#688 Released · Ödemesiz Teslimat Mailleri FE",
+        "#465 Released · 82358530 - Ödemesiz teslimat Mailleri Hk. BE"
+      ]
+    },
+    {
+      "anahtar": "81686517",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Satın Alma Bilgi Belgesi Eksperttiz PDF",
+      "eslesme": "talep no",
+      "github": [
+        "#50 Released · 81686517 - Ekspertiz PDF İçeriğinin Düzenlenmesi",
+        "#759 Released · 81686517 - Ekspertiz PDF İçeriğinin Düzenlenmesi FE"
+      ]
+    },
+    {
+      "anahtar": "81653203",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Yarı römork işlemlerinde şasi kısıtlaması",
+      "eslesme": "talep no",
+      "github": [
+        "#45 UAT · 81653419 - Yarı Römork İşlemlerinde Şasi Kısıtlaması - 8h"
+      ]
+    },
+    {
+      "anahtar": "83329029",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "ihale lokasyon bilgisi hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#552 Released · 83329029 - ihale lokasyon bilgisi hk.",
+        "#754 Released · İhale Listesi Lokasyon Tasarım"
+      ]
+    },
+    {
+      "anahtar": "86138272",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Borusan Next İhale Jarvis Mail Güncellemeleri",
+      "eslesme": "talep no",
+      "github": [
+        "#789 Todo · 86138272 - Borusan Next İhale Jarvis Mail Güncellemeleri BE"
+      ]
+    },
+    {
+      "anahtar": "83528859",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "Ekspertiz Talep Ekranına KM ve Son Ekspertiz Tarihi Bilgilerinin Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#469 Released · 83528859 - Ekspertiz Talep Ekranına KM ve Son Ekspertiz Tarihi Bilgilerinin Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "Borusan Next İhale Segmentasyon Sayfası Hk.",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "Borusan Next İhale Segmentasyon Sayfası Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#790 Done · Borusan Next İhale Segmentasyon Sayfası Hk."
+      ]
+    },
+    {
+      "anahtar": "85031692",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "TÜM İHALE TİPLERİNDE 3RD PARTY EKSPERTİZ RAPORUNUN GÖSTERİLMESİ",
+      "eslesme": "talep no",
+      "github": [
+        "#791 Todo · 85031692 - Tüm İhale Tiplerinde Third Party Ekspertiz Raporunun Gösterimi"
+      ]
+    },
+    {
+      "anahtar": "83329028",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNI - Hızlı İhale Aracı Satıldığında Mail Gönderilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#651 Released · 83329028 - Hızlı İhale Aracı Satıldığında Mail Gönderilmesi"
+      ]
+    },
+    {
+      "anahtar": "76640015",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNI - Anlaşmalı Satış Ekranında Tarih Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#650 Released · 76640015 - Anlaşmalı Satış Ekranında Tarih Seçimi"
+      ]
+    },
+    {
+      "anahtar": "86138676",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Araç Kartı / Model Uzantısı Girişi",
+      "eslesme": "talep no",
+      "github": [
+        "#821 In Progress · 86138676 - İhale Araç Kartı (vites tipi, yakıt tipi güncellemesi)"
+      ]
+    },
+    {
+      "anahtar": "84897890",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "araç kartı / hızlı ihale ve perakende sevk tiki hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#646 Released · 84897890 - Araç Kartı / Hızlı İhale ve Perakende Sevk Tiki Hk. BE",
+        "#647 Released · 84897890 - Araç Kartı / Hızlı İhale ve Perakende Sevk Tiki Hk. FE"
+      ]
+    },
+    {
+      "anahtar": "84897889",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Araç görsel indirme ve stoklar arası görsel transferi hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#645 In Progress · 84897889 - Araç Görsel İndirme ve Stoklar Arası Görsel Transferi Hk. FE",
+        "#825 UAT · 84897889 - Araç Görsel İndirme ve Stoklar Arası Görsel Transferi Hk. BE",
+        "#833 UAT · 84897889 - Araç Fotoğrafları Arasındaki Aktarımların Akışının Düzenlenmesi",
+        "#857 Released · 84897889 - İhaledeki Araç Detay Görsel Servislerinin İçerisinde Ekspertiz Fotoğraflarının Gösterimi"
+      ]
+    },
+    {
+      "anahtar": "80304126",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Beyan hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#52 Done · 80304126 - Araç Beyanı Hk."
+      ]
+    },
+    {
+      "anahtar": "86131046",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Araç Listeleme Ekranlarına Sıralama Fonksiyonu Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#892 In Progress · 86131046 - Araç Listeleme Ekranlarına Sıralama Fonksiyonu Eklenmesi FE",
+        "#891 Test · 86131046 - Araç Listeleme Ekranlarına Sıralama Fonksiyonu Eklenmesi BE"
+      ]
+    },
+    {
+      "anahtar": "84485807",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "İade Araçların Evrak Listesi Ekranında Plaka Gösterimi Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#693 Todo · 84485807 - İade Araçların Evrak Listesi Ekranında Plaka Gösterimi Hk."
+      ]
+    },
+    {
+      "anahtar": "85260127",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Üyelik Bilgilendirme ve Hatırlatma Maillerinin Düzenlenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#794 Todo · 85260127 - Üyelik Bilgilendirme ve Hatırlatma Maillerinin Düzenlenmesi BE"
+      ]
+    },
+    {
+      "anahtar": "Teklif ekranında ekspertiz bilgilerinin gösterimi Hk.",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Teklif ekranında ekspertiz bilgilerinin gösterimi Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#939 In Progress · 86179315 - Teklif Ekranında Ekspertiz Kaporta Bilgilerinin Gösterimi"
+      ]
+    },
+    {
+      "anahtar": "83765407",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Toplu Araç Oluşturma / Veri Güncelleme Ekranı hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#677 Done · 83765407 - Toplu Araç Oluşturma / Veri Güncelleme Ekranı Hk. FE",
+        "#676 Done · 83765407 - Toplu Araç Oluşturma / Veri Güncelleme Ekranı Hk."
+      ]
+    },
+    {
+      "anahtar": "84602762",
+      "sprint": "Q4/5",
+      "durum": "Sprint Backlog",
+      "talep": "JARVİS Satış Sipariş Kart Güncellenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#792 Test · 84602762 - JARVİS Satış Sipariş Kart Güncellenmesi"
+      ]
+    },
+    {
+      "anahtar": "Bnext Araçlarında Noter Kayıt Sözleşmesi İle Mail Gönderim Konusu",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Bnext Araçlarında Noter Kayıt Sözleşmesi İle Mail Gönderim Konusu",
+      "eslesme": "başlık",
+      "github": [
+        "#199 Todo · Bnext Araçlarında Noter Kayıt Sözleşmesi İle Mail Gönderim Konusu"
+      ]
+    },
+    {
+      "anahtar": "84485804",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Toplu PDF Oluşturmada Dosya Boyutu Küçültülmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#793 Todo · 84485804 - Toplu PDF Oluşturmada Dosya Boyutu Küçültülmesi"
+      ]
+    },
+    {
+      "anahtar": "82641228",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Canlı İhale Sırasında Ekranda Scroll",
+      "eslesme": "talep no",
+      "github": [
+        "#197 Done · 82641228 - Canlı İhale Sırasında Ekranda Scroll"
+      ]
+    },
+    {
+      "anahtar": "CMS Renk Değişimi",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "CMS Renk Değişimi",
+      "eslesme": "talep no",
+      "github": [
+        "#701 Done · Renk Değişimi - BNI CMS Renk Değişimi"
+      ]
+    },
+    {
+      "anahtar": "86123944",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Yedek Anahtar Çıkışı / Elden Teslim",
+      "eslesme": "talep no",
+      "github": [
+        "#916 Todo · 86123944 - Yedek Anahtar Çıkışı / Elden Teslim"
+      ]
+    },
+    {
+      "anahtar": "86132091",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "Araç kartı operasyonel bilgiler",
+      "eslesme": "talep no",
+      "github": [
+        "#999 UAT · 86132091 - Araç Kartı Operasyonel Bilgiler"
+      ]
+    },
+    {
+      "anahtar": "85625783",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "SUNUCU EKRANINDAveBNİCOM EKSPERTİZ AÇIKLAMASINA DONANIM LİSTESİNİN GELMESİ HK.",
+      "eslesme": "talep no",
+      "github": [
+        "#826 Released · 85625783 - Sunucu Ekranında ve BNI Ekranında Ekspertiz açıklamasında Donanım Alanının Kaldırılması"
+      ]
+    },
+    {
+      "anahtar": "Sütün güncellemesi hk.",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Sütün güncellemesi hk.",
+      "eslesme": "",
+      "github": []
+    }
+  ],
+  "eslesmeyen_github_isleri": [
+    "#841 [Q4/4] Todo · [BUG]: Sipariş Listesinde Evrak durumu Gösterimi Hk.",
+    "#970 [Q4/4] Todo · [BUG]: Satış İptali Gerçekleştirilen Kayıtların Devir Durumlarının Aynı Şekilde Kalması",
+    "#937 [Q4/4] Todo · Mobil App Aktarımı",
+    "#936 [Q4/4] Review · Renk Değişimi Test",
+    "#958 [Q4/4] Test · BNI Performans İyileştirme",
+    "#991 [Q4/4] Test · BNI.com Metotlarına Cache Desteği Eklenmesi",
+    "#992 [Q4/4] Test · Teslimat Mail Gönderiminin Jarviste Gösterimi ve BNI'da Teslimat Ekranı Servisine Eklenmesi",
+    "#823 [Q4/3] Done · Renk Değişimi Test Dönüşleri",
+    "#449 [Q4/3] Done · 84478703 - İhale ekranları renk değişimi",
+    "#579 [Q4/3] Done · Renk Değişimi - Baicom renk değişimi",
+    "#827 [Q4/3] Released · Mobil App Aktarımları",
+    "#855 [Q4/4] Released · [BUG]: İhalede Bayrak Kodu Hatasının Alınması Hk.",
+    "#681 [Q4/3] Released · Potansiyel Müşterinin Müşteriye Çevrilirken İhale Müşteri Kontrolünün Yapılması",
+    "#557 [Q4/3] Released · [BUG]: Evrak Listesi Alanının İncelenmesi"
+  ]
+}

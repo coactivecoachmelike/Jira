@@ -1,0 +1,25 @@
+{
+  "subtitle": "Auction · Q4 2026 · 24.11.2026 itibarıyla",
+  "cards": [
+    {"tone": "good", "title": "Sprint'e alınan işler bitiyor",
+     "text": "Q4/1–Q4/3'e planlanan <b>30 talebin 30'u da tamamlandı</b>. One Click Auction'ın geliştirme işleri bitti; test dönüşleri sürüyor."},
+    {"tone": "risk", "title": "Çeyrek toplamında geride",
+     "text": "Çeyreğin <b>%52'si</b> geçti, Q4 taleplerinin <b>%35'i</b> tamamlandı (beklenen ~54, gerçekleşen 36). Bu hızla çeyrek sonunda ~69 talep (%67) tamamlanır."},
+    {"tone": "risk", "title": "Yük son sprintlere yığılıyor",
+     "text": "Sprint başına ~10 talep bitiyor; kalan 68 talep için sprint başına <b>~20</b> gerekiyor. Q4/5'e 32 talep yazılmış, 18 talebin sprint'i yok. Şimdiki sprintte (Q4/4) 23 talepten 6'sı bitti.",
+     "bullets": ["Q4/5'e yazılan 32 talepten Q4'te mutlaka bitmesi gerekenleri seçmek"]},
+    {"tone": "risk", "title": "47 talep geliştirmeye hazır değil",
+     "text": "27 talep planlama / netleştirme, 20 talep hold / backlog aşamasında.",
+     "bullets": ["Netleştirme bekleyen talepler için iş biriminden tarih almak"]},
+    {"tone": "risk", "title": "Plan dışı iş ve yeni talepler",
+     "text": "Son 2 sprintteki 70 GitHub işinin <b>14'ü (%20)</b> Q4 listesinde yok (4 bug, test dönüşleri, mobil app aktarımı, cache). 12 Kasım'dan bu yana 11 yeni talep eklendi; 9'u Q4/5–Q4/6'ya yazıldı."},
+    {"tone": "data", "title": "Veri kalitesi",
+     "bullets": ["\"Kapsamda mı?\" = Hayır olan 24 talep çeyrek planından çıkarıldı", "2 Q4 talebinde durum girilmemiş", "\"Sütün güncellemesi hk.\" talebinin GitHub'da işi bulunamadı"]}
+  ],
+  "questions": [
+    "Q4/5'e yazılan 32 talepten hangileri Q4'te mutlaka canlıda olmalı?",
+    "Netleştirme bekleyen 27 talep için iş biriminden ne zaman dönüş alabiliriz?",
+    "One Click Auction ne zaman canlıya çıkacak?",
+    "Plan dışı işler (bug, test dönüşleri) için kapasitenin ne kadarını ayıralım?"
+  ]
+}

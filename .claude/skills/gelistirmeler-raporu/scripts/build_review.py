@@ -34,7 +34,7 @@ from build_slides import TEMPLATE, multi_table, pct, sk, story_block, tr_lower  
 DONE = {"done", "released"}
 LIVE = {"released"}
 SHEET_DONE = {"tamamlandı", "tamamlandi"}
-SHEET_CANCEL = {"iptal edildi", "iptal"}
+SHEET_CANCEL = {"iptal edildi", "iptal", "cancel", "cancelled"}
 # Excel'deki "Sprint Planlama" durumlarının gruplanması (GitHub eşleşmesi olmayan talepler için)
 SHEET_GROUPS = [
     ("Sprint'e alındı (GitHub'da iş yok)", {"sprinte alındı", "sprinte alindi"}),
@@ -116,8 +116,12 @@ def load_plan(path: str, sheet: str, a) -> list[dict]:
         sprint = clean(g(row, a.col_sprint))
         out.append({
             "row": i, "title": title, "quarter": clean(g(row, a.col_quarter)),
-            "sprint": sprint if re.fullmatch(r"Q\d/\d+", sprint) else "",
-            "state": clean(g(row, a.col_state)), "nos": nums(g(row, a.col_no)),
+            # "Q4/3" ya da "Q4-3 2026" biçimleri
+            "sprint": (lambda m: f"Q{m.group(1)}/{m.group(2)}" if m else "")(
+                re.fullmatch(r"Q(\d)\s*[-/]\s*(\d+)(\s+\d{4})?", sprint)),
+            "state": clean(g(row, a.col_state)),
+            "nos": nums(g(row, a.col_no)).union(*(nums(g(row, c)) for c in (a.col_no_extra or []))),
+            "out_of_scope": a.col_scope in col and sk(g(row, a.col_scope)) in {"hayır", "hayir", "no"},
             "no": next(iter(sorted(nums(g(row, a.col_no)))), ""),
             "later": sk(g(row, a.col_later)) in {"evet", "yes", "x", "1"} if a.col_later in col else False,
             "type": clean(g(row, a.col_type)), "squad": clean(g(row, a.col_squad)),
@@ -348,6 +352,8 @@ def build(a) -> None:
     all_rows = load_plan(a.plan, a.sheet, a)
     q = a.quarter
     q_rows = [t for t in all_rows if t["quarter"] == q]
+    out_scope = [t for t in q_rows if t.get("out_of_scope")]
+    q_rows = [t for t in q_rows if not t.get("out_of_scope")]
     cancel = {sk(k) for k in SHEET_CANCEL}
     cancelled = [t for t in q_rows if sk(t["state"]) in cancel]
     plan = [t for t in q_rows if t not in cancelled]
@@ -556,6 +562,7 @@ def build(a) -> None:
         ins_cards = '<div class="emptymsg">İçgörüler için --insights verilmedi.</div>'
     qs_html = "".join(f"<li>{x}</li>" for x in insights.get("questions", []))
 
+    scope_note = f" ve kapsam dışı ({esc(a.col_scope)} = Hayır) {len(out_scope)} talep" if out_scope else ""
     s1 = f"""
 <div class="frame"><section class="slide" aria-label="{esc(q)} Talep Planı">
   <header>
@@ -563,7 +570,7 @@ def build(a) -> None:
   </header>
   <div class="grid">
     <div class="panel"><div class="ptitle">Planlanan talepler</div><div class="comps r one">{comp}</div>
-      <div class="pfoot">Talep listesi ({esc(a.sheet)}), Quarter = {esc(q)} · iptal edilen {len(cancelled)} talep hariç</div></div>
+      <div class="pfoot">Talep listesi ({esc(a.sheet)}), Quarter = {esc(q)} · iptal edilen {len(cancelled)} talep{scope_note} hariç</div></div>
     <div class="panel"><div class="ptitle">Zamana göre hızımız</div>{pace}
       <div class="pfoot">Çeyrek {qs.strftime("%d.%m.%Y")} başlangıçlı {a.quarter_sprints} sprint × {a.sprint_days} gün</div></div>
     <div class="panel"><div class="ptitle">Talep durumu</div>{status_table}
@@ -623,7 +630,9 @@ def build(a) -> None:
     unmatched_scope = [t for t in scope if not t["items"]]
     cards = [
         ("Kapsam", [f"Talep listesi: <b>{esc(a.plan_label or os.path.basename(a.plan))}</b> → \"{esc(a.sheet)}\" sayfası, Quarter = {esc(q)}: "
-                    f"{len(q_rows)} talep; iptal edilen {len(cancelled)} talep hariç <b>{n_plan}</b> talep.",
+                    f"{len(q_rows) + len(out_scope)} talep; iptal edilen {len(cancelled)}"
+                    + (f" ve kapsam dışı ({esc(a.col_scope)} = Hayır) {len(out_scope)}" if out_scope else "")
+                    + f" talep hariç <b>{n_plan}</b> talep.",
                     f"GitHub: {esc(a.export_label or os.path.basename(a.export))} ({len(items)} iş; Backlog / RetroAction hariç: "
                     f"{', '.join('#' + n for n in gh_excluded) or '—'}).",
                     f"Son {len(last)} sprint = {esc(', '.join(last))} (GitHub: {esc(', '.join(re.sub(r' - .*', '', gh_name.get(l, '?')) for l in last))})."]),
@@ -736,6 +745,10 @@ def main() -> None:
     ap.add_argument("--col-sprint", default="Sprint")
     ap.add_argument("--col-state", default="Sprint Planlama")
     ap.add_argument("--col-no", default="4Me Talep No")
+    ap.add_argument("--col-no-extra", action="append",
+                    help="Eşleşmede kullanılacak ek numara sütunu (ör. İhale sayfasında 'İş Birimi Talebi')")
+    ap.add_argument("--col-scope", default="Kapsamda mı?",
+                    help="Varsa 'Hayır' olan talepler çeyrek planı dışında sayılır")
     ap.add_argument("--col-later", default="Sonradan Gelen")
     ap.add_argument("--col-type", default="Talep Tipi")
     ap.add_argument("--col-squad", default="Squad")

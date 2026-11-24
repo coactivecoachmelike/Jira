@@ -1,0 +1,191 @@
+{
+  "ceyrek": "Q4",
+  "bugun": "2026-11-24",
+  "gecen_gun": 51,
+  "toplam_gun": 98,
+  "gecen_sure_pct": 52,
+  "simdiki_sprint": "Q4/4",
+  "planlanan_talep": 104,
+  "iptal": 2,
+  "tamamlanan_talep": 36,
+  "tamamlanma_pct": 35,
+  "sureye_gore_beklenen": 54.1,
+  "bu_hizla_ceyrek_sonu": 69.2,
+  "sprint_basina_tamamlanan": 9.9,
+  "kalan_icin_sprint_basina_gereken": 20.3,
+  "sprint_bazinda": [
+    {
+      "label": "Q4/1",
+      "c": 11,
+      "cd": 11,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/2",
+      "c": 5,
+      "cd": 5,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/3",
+      "c": 14,
+      "cd": 14,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/4 (şimdiki)",
+      "c": 23,
+      "cd": 6,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/5 (ileri)",
+      "c": 32,
+      "cd": 0,
+      "k": 1,
+      "kd": 0
+    },
+    {
+      "label": "Q4/6 (ileri)",
+      "c": 1,
+      "cd": 0,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Q4/7 (ileri)",
+      "c": 0,
+      "cd": 0,
+      "k": 0,
+      "kd": 0
+    },
+    {
+      "label": "Sprint atanmamış",
+      "c": 18,
+      "cd": 0,
+      "k": 0,
+      "kd": 0
+    }
+  ],
+  "durum_dagilimi": {
+    "Geliştirme / test sürüyor": 17,
+    "Tamamlandı": 36,
+    "Planlama / netleştirme": 27,
+    "Hold / backlog": 20,
+    "Sprint'e alındı (GitHub'da iş yok)": 2,
+    "Durum girilmemiş": 2
+  },
+  "sonradan_gelen": [
+    {
+      "talep": "Teklif ekranında ekspertiz bilgilerinin gösterimi Hk.",
+      "durum": "In Progress",
+      "sprint": "Q4/4"
+    },
+    {
+      "talep": "Alıcı tarafından sigorta kesilmesi hk",
+      "durum": "Talep Netleştirme",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Sütün güncellemesi hk.",
+      "durum": "Sprinte Alındı",
+      "sprint": "Q4/4"
+    },
+    {
+      "talep": "İhale Yeni Üye Onboarding Talebi",
+      "durum": "Talep Netleştirme",
+      "sprint": "Q4/6"
+    },
+    {
+      "talep": "Araç Filtrelemede Komisyonsuz ve Satılan Araçların Gösterimi",
+      "durum": "—",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Ön Yüzde İhale Sıralaması Yapılabilmesi",
+      "durum": "Sprint Backlog",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Şikayet Kayıtlarının Neden Seçilerek Silinmesi ve Loglanması",
+      "durum": "Sprint Backlog",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Test ve canlı uygulamanın aynı cihazda yan yana kurulabilmesi",
+      "durum": "Sprint Backlog",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Kolay Al Araçlar için Araç Listesinde Fiyat Gösterimi",
+      "durum": "Sprint Planlama",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "İhale - Şirket Aracını Sat Talebi Geldi mail otomasyonunaUTM bilgisi basılması",
+      "durum": "Sprint Planlama",
+      "sprint": "Q4/5"
+    },
+    {
+      "talep": "Teklif ekranı ekspertiz açıklaması başlığı değişikliği hk.",
+      "durum": "Sprint Planlama",
+      "sprint": "Q4/5"
+    }
+  ],
+  "devreden_talep": 1,
+  "devreden_tamamlanan": 0,
+  "devreden_son_sprintlerde": [],
+  "son_sprintler": [
+    "Q4/3",
+    "Q4/4"
+  ],
+  "son_sprint_isleri": 70,
+  "plan_disi_is": 14,
+  "plan_disi_pct": 20,
+  "plan_disi_efor_pct": 15,
+  "plan_disi_kirilim": {
+    "Bug düzeltmesi": [
+      "#841 [BUG]: Sipariş Listesinde Evrak durumu Gösterimi Hk.",
+      "#970 [BUG]: Satış İptali Gerçekleştirilen Kayıtların Devir Durumlarının Aynı Şekilde Kalması",
+      "#855 [BUG]: İhalede Bayrak Kodu Hatasının Alınması Hk.",
+      "#557 [BUG]: Evrak Listesi Alanının İncelenmesi"
+    ],
+    "Listede karşılığı yok": [
+      "#937 Mobil App Aktarımı",
+      "#936 Renk Değişimi Test",
+      "#991 BNI.com Metotlarına Cache Desteği Eklenmesi",
+      "#992 Teslimat Mail Gönderiminin Jarviste Gösterimi ve BNI'da Teslimat Ekranı Servisine Eklenmesi",
+      "#823 Renk Değişimi Test Dönüşleri",
+      "#579 Renk Değişimi - Baicom renk değişimi",
+      "#827 Mobil App Aktarımları",
+      "#681 Potansiyel Müşterinin Müşteriye Çevrilirken İhale Müşteri Kontrolünün Yapılması"
+    ],
+    "Sprint ortası eklenen": [
+      "#958 BNI Performans İyileştirme",
+      "#449 84478703 - İhale ekranları renk değişimi"
+    ]
+  },
+  "son_sprint_kapsami": 37,
+  "canlida": 18,
+  "canliya_hazir": 2,
+  "devam_eden": 17,
+  "devam_eden_statu": {
+    "In Progress": 6,
+    "Todo": 9,
+    "UAT": 1,
+    "Sprinte Alındı": 1
+  },
+  "talep_tipi": {
+    "Proje": 2,
+    "Mini Proje": 3,
+    "Geliştirme": 87,
+    "SEO": 12
+  },
+  "eslesmeyen_son_sprint_talepleri": [
+    "Q4/4 Sütün güncellemesi hk. (Sprinte Alındı)"
+  ]
+}

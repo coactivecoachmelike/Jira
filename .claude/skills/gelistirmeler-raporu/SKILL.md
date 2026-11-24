@@ -294,6 +294,11 @@ node $S/export_png.mjs $D/retail-review.html $D/retail-review
 4. **Son N sprint - Devam eden işler** kanbanı: Başlanmadı · Geliştirmede · Test · UAT · Bekliyor.
 5. **Hesaplama varsayımları**.
 
+**Auction (İhale) için:** aynı Excel'in **"İhale"** sayfası farklı kolonlar kullanır:
+`--sheet "İhale" --col-state "Durum" --col-no-extra "İş Birimi Talebi" --team Auction`. Sprint
+kolonu "Q4-3 2026" biçimindedir (otomatik çevrilir), "Cancel" iptal sayılır, **"Kapsamda mı?" =
+Hayır** olan talepler çeyrek planından çıkarılır (`--col-scope`).
+
 **Talep durumu:** talep listesi ile GitHub karşılaştırılır, **hangisi daha ileri durumu gösteriyorsa
 o** kullanılır (listede "Tamamlandı" → canlıda sayılır; GitHub'da birden fazla iş varsa en geride
 olanı). **Sonradan gelen:** listede "Sonradan Gelen" kolonu varsa o; yoksa / ek olarak
