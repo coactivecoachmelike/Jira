@@ -299,6 +299,11 @@ node $S/export_png.mjs $D/retail-review.html $D/retail-review
 kolonu "Q4-3 2026" biçimindedir (otomatik çevrilir), "Cancel" iptal sayılır, **"Kapsamda mı?" =
 Hayır** olan talepler çeyrek planından çıkarılır (`--col-scope`).
 
+**Girdi saklama:** kullanıcının yüklediği talep listelerini `girdi/product-listesi/BNEXT_Product_Talep_Listesi_<yyyy-mm-dd>.xlsx`
+olarak repoya kaydet (geçici klasör silinebilir; sonradan gelen hesabı için eski liste gerekir).
+Kullanıcı "Sonradan Gelen kolonunu dikkate alma, farkı kendin bul" derse `--later-from-diff-only`
+(önceki listedeki işaretler dahil tüm "Sonradan Gelen" kolonları yok sayılır; yalnız liste farkı).
+
 **Talep durumu:** talep listesi ile GitHub karşılaştırılır, **hangisi daha ileri durumu gösteriyorsa
 o** kullanılır (listede "Tamamlandı" → canlıda sayılır; GitHub'da birden fazla iş varsa en geride
 olanı). **Sonradan gelen:** listede "Sonradan Gelen" kolonu varsa o; yoksa / ek olarak

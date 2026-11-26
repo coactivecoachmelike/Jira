@@ -1,0 +1,25 @@
+{
+  "subtitle": "Retail · Q4 2026 · 26.11.2026 itibarıyla",
+  "cards": [
+    {"tone": "risk", "title": "Plana göre geride",
+     "text": "Çeyreğin <b>%54'ü</b> geçti, Q4 taleplerinin <b>%34'ü</b> tamamlandı. Süreye göre ~127 talep bitmiş olmalıydı; 79 talep bitti. Bu hızla çeyrek sonunda ~146 talep (%62) tamamlanır."},
+    {"tone": "risk", "title": "Kalan iş için hız yetmiyor",
+     "text": "Şimdiye kadar sprint başına <b>~21 talep</b> tamamlanıyor; kalan 156 talep için sprint başına <b>~49</b> gerekiyor. Q4/5 ve Q4/6'ya 77 talep, sprint'i belirsiz 45 talep var.",
+     "bullets": ["Q4'te bitmesi şart olan talepleri birlikte seçelim; kalanları Q1'e planlayalım"]},
+    {"tone": "risk", "title": "Listenin yarısı geliştirmeye hazır değil",
+     "text": "<b>125 talep</b> (%53) planlama / netleştirme, tasarım bekleniyor, hold / backlog aşamasında ya da durumu girilmemiş.",
+     "bullets": ["Netleştirme ve tasarım bekleyen talepler için iş biriminden tarih almak"]},
+    {"tone": "risk", "title": "Liste büyümeye devam ediyor",
+     "text": "12 Kasım'dan bu yana Q4'e <b>35 yeni talep</b> eklendi; 26'sı Q4/5–Q4/6'ya yazıldı. Son 2 sprintte yaptığımız işlerin <b>%40'ı</b> da Q4 listesinde yok (16 sprint ortası iş, 12 bug)."},
+    {"tone": "good", "title": "Son 2 sprintte teslimat hızlandı",
+     "text": "Q4/3–Q4/4 kapsamındaki 74 talepten <b>30'u canlıya çıktı</b> (24.11'de 22), 5'i canlıya hazır. Şimdiki sprintte (Q4/4) 44 talepten 20'si tamamlandı."},
+    {"tone": "data", "title": "Veri kalitesi",
+     "bullets": ["9 Q4 talebinde durum girilmemiş", "\"Meta Lead Reklamları\" ve \"DATA - View/Select Promotion\" aynı 4Me numarasını taşıyor (84435707)", "Sonradan gelenler 12.11 listesiyle karşılaştırılarak bulundu"]}
+  ],
+  "questions": [
+    "Q4 sonuna kadar hangi talepler mutlaka canlıda olmalı?",
+    "Netleştirme / tasarım bekleyen talepler için iş biriminden ne zaman dönüş alabiliriz?",
+    "Çeyreğe yeni talep eklerken hangi talepleri çıkaralım?",
+    "Sprint ortası gelen işler ve bug'lar için kapasitenin ne kadarını ayıralım?"
+  ]
+}

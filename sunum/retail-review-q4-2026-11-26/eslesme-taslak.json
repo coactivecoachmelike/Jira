@@ -1,0 +1,1167 @@
+{
+  "talepler": [
+    {
+      "anahtar": "83795481",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Bnext - Finansman Alanında Finans Kuruluşunu kredi Miktarından Sonra Seçmek",
+      "eslesme": "talep no",
+      "github": [
+        "#518 Released · 83795481 FE - Bnext - Finansman Alanında Finans Kuruluşunu Kredi Miktarından Sonra Seçmek",
+        "#631 Released · 83795481 App - Bnext - Finansman Alanında Finans Kuruluşunu Kredi Miktarından Sonra Seçmek",
+        "#623 Released · 83795481 BE bff - Bnext - Finansman Alanında Finans Kuruluşunu Kredi Miktarından Sonra Seçmek"
+      ]
+    },
+    {
+      "anahtar": "83589270",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Borusan Next Randevu Funnel'ı Whatsapp İletişimleri",
+      "eslesme": "talep no",
+      "github": [
+        "#520 Released · 83591934 >Web > Borusan Next Randevu Funnel'ı Whatsapp İletişimleri 4me talebi yok!",
+        "#519 Released · 83589270 App > Borusan Next Randevu Funnel'ı Whatsapp İletişimleri"
+      ]
+    },
+    {
+      "anahtar": "83821727",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "APP Borusan Next Randevu Funnel'ı Whatsapp İletişimleri",
+      "eslesme": "talep no",
+      "github": [
+        "#519 Released · 83589270 App > Borusan Next Randevu Funnel'ı Whatsapp İletişimleri"
+      ]
+    },
+    {
+      "anahtar": "83731817",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Uygulamanın Iphone Duo'ya uyumlu Hale Getirilmesi",
+      "eslesme": "başlık",
+      "github": [
+        "#569 Released · Uygulamanın Iphone Duo'ya uyumlu Hale Geliştirmesi Ön İnceleme Taskı"
+      ]
+    },
+    {
+      "anahtar": "83075358",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "Franchise şubeler için iletilen “Sizi Arayalım” form taleplerinin BOD aktarılmas",
+      "eslesme": "talep no",
+      "github": [
+        "#371 Released · 83075358 - BE Franchise Şube Araçlarına Ait “Sizi Arayalım” Taleplerinin BOD Kuyruğuna Aktarılması"
+      ]
+    },
+    {
+      "anahtar": "81549706",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "Jarvis Ekspertiz Fiyatlama Geçmişi Görüntüleme Yetkisi",
+      "eslesme": "talep no",
+      "github": [
+        "#523 Released · 82435670 - BE Jarvis Ekspertiz Fiyatlama Geçmişi Görüntüleme Yetkisi"
+      ]
+    },
+    {
+      "anahtar": "80296783",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "DATA - APP - Screen View Sorunları",
+      "eslesme": "talep no",
+      "github": [
+        "#524 Released · 83346903 - App > DATA - APP - Screen View Sorunları"
+      ]
+    },
+    {
+      "anahtar": "83025915",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Yandex Captcha Değişimi",
+      "eslesme": "başlık",
+      "github": [
+        "#525 Released · 83081092 - BNext | Yandex Captcha Değişimi Ön İnceleme Taskı"
+      ]
+    },
+    {
+      "anahtar": "83335114",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "Borusannext.com Filtreleri - Borusan Next mobil uygulamasının filtre eşlenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#526 Done · 83700547 > App FE Borusannext.com Filtreleri - Borusan Next mobil uygulamasının filtre eşlenmesi",
+        "#739 Done · 83700547 > App BE bff - Borusannext.com Filtreleri - Borusan Next mobil uygulamasının filtre eşlenmesi"
+      ]
+    },
+    {
+      "anahtar": "83227400",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Satın Alma Ekranı, Tramer Detay Sorgulama",
+      "eslesme": "talep no",
+      "github": [
+        "#527 Test · 83340168 > BE BNext | Satın Alma Ekranı, Tramer Detay Sorgulama"
+      ]
+    },
+    {
+      "anahtar": "83425704",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "SEO | AI Arama Alanından Kaynaklanan CLS Sorununun Giderilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#570 Released · SEO | AI Arama Alanından Kaynaklanan CLS Sorununun Giderilmesi"
+      ]
+    },
+    {
+      "anahtar": "82322401",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext | ASO - Uygulama Dil Bilgisinin Düzeltilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "78638573",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "HSTS Desteğinin Sağlanması | SEO",
+      "eslesme": "talep no",
+      "github": [
+        "#135 Released · 78958052 - BE – HSTS Header Desteğinin Eklenmesi - 8h - BCF-1625"
+      ]
+    },
+    {
+      "anahtar": "83823109",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "404 Sayfa Tasarım Güncellenmesi",
+      "eslesme": "başlık",
+      "github": [
+        "#534 Released · 83823584 - Web CMS / Bff 404 Sayfa Tasarım Güncellenmesi",
+        "#535 Released · 83823584 - Web FE > 404 Sayfa Tasarım Güncellenmesi"
+      ]
+    },
+    {
+      "anahtar": "83823247",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "App - 404 Sayfa Tasarım Güncellenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#536 Done · 83823585 - App FE > 404 Sayfa Tasarım Güncellenmesi"
+      ]
+    },
+    {
+      "anahtar": "83701817",
+      "sprint": "Q4/1",
+      "durum": "Sprint Planlama",
+      "talep": "Hata Kaydı - borusannext.com Filtre Hatası",
+      "eslesme": "talep no",
+      "github": [
+        "#572 Released · borusannext.com Filtre Kontrolü"
+      ]
+    },
+    {
+      "anahtar": "83091091",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis Randevu Adım 2 — Servis Noktası, Tarih ve Saat Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "83091289",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis Randevu Adım 3 — Randevu Özeti",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "79756450",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "BNext - Araç Değerleme Ekranına Checklist Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#658 Released · Jarvis FE Task | Müşteri Beyanı Alanında Araç Alım Kriterlerinin Gösterilmesi",
+        "#657 Released · FE | Araba Sat Araç Alım Kriterleri Alanının Eklenmesi",
+        "#656 Released · BE - bff | Araç Alım Kriterleri ve Müşteri Onayının Kaydedilmesi"
+      ]
+    },
+    {
+      "anahtar": "84813799",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Aracınızı Ne Zaman Satmak İstiyorsunuz Ekranına Bilgilendirme Metni",
+      "eslesme": "talep no",
+      "github": [
+        "#659 Released · FE Task | Aracınızı Ne Zaman Satmak İstiyorsunuz? Bilgilendirme Metni"
+      ]
+    },
+    {
+      "anahtar": "83423458",
+      "sprint": "Q4/5",
+      "durum": "Sprinte Alındı",
+      "talep": "3rd Party Ekspertiz Fİrmaları ile Jarvis Entegrasyonu Yapılması",
+      "eslesme": "talep no",
+      "github": [
+        "#778 In Progress · 3rd Party Ekspertiz Fİrmaları ile Jarvis Entegrasyonu Yapılması"
+      ]
+    },
+    {
+      "anahtar": "84816196",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "BNext APP| Aracınızı Ne Zaman Satmak İstiyorsunuz Ekranına Bilgilendirme Metni",
+      "eslesme": "talep no",
+      "github": [
+        "#660 Released · FE App | Aracınızı Ne Zaman Satmak İstiyorsunuz? Bilgilendirme Metni"
+      ]
+    },
+    {
+      "anahtar": "85887831",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Kişiselleştirme Fırsat ve SUV Araçların Takibi",
+      "eslesme": "talep no",
+      "github": [
+        "#895 Released · Bnext Web FE > Kişiselleştirme Fırsat Araçlar ve SUV Araçların Takibi"
+      ]
+    },
+    {
+      "anahtar": "81100320",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis İkonu Yönlendirme Akışının İyileştirilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "82594639",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis Randevu Adım 1 — Araç Bilgileri & Servis Kategorisi Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi",
+        "#654 Test · BE - bff Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "82594957",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis Randevu Adım 1 — Ruhsat Yükleme & Kayıtlı Araç Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "83960236",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "Borusan Next Favori Araç Fiyat Düşüşü İletişimi Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#663 Released · BNext BE | Favoriden Çıkarılan Araçlarda Soft Delete Uygulanması"
+      ]
+    },
+    {
+      "anahtar": "84139603",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "Araba AI - SEO Meta Verilerinin ve İçerik Alanlarının Stabil Hale Getirilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#671 Released · Araba AI - SEO Meta Verilerinin ve İçerik Alanlarının Stabil Hale Getirilmesi"
+      ]
+    },
+    {
+      "anahtar": "82104056",
+      "sprint": "Q4/4",
+      "durum": "Sprint Planlama",
+      "talep": "SEO | Blog İçeriklerine İçerik Yazar Kartı Eklenmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "84264175",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Giriş: Süresi dolmamış doğrulama kodu varken kod giriş ekranına geri dönülemiyor",
+      "eslesme": "talep no",
+      "github": [
+        "#664 Released · BNext | Geçerli SMS Doğrulama Kodu Bulunması Durumunda Kod Giriş Ekranına Yönlendirme",
+        "#810 Released · BNext BE | Geçerli SMS Doğrulama Kodu Bulunması Durumunda Kod Giriş Ekranına Yönlendirme"
+      ]
+    },
+    {
+      "anahtar": "84331918",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "DMS 101: Şubeler İçin İlan, İhale ve Satış Bildirim Merkezi Geliştirme Talebi;",
+      "eslesme": "talep no",
+      "github": [
+        "#665 Released · BE | Franchise Bildirim Merkezi Ekranı"
+      ]
+    },
+    {
+      "anahtar": "Randevu akışında URL üzerinden funnel hazırlanması",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "Randevu akışında URL üzerinden funnel hazırlanması",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "84100478",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "DATA - Enhanced Conversions - User Data Eventinin Tetiklenmesi (82097625 devamı)",
+      "eslesme": "talep no",
+      "github": [
+        "#667 Released · SEO DATA - Enhanced Conversions - User Data Eventinin Tetiklenmesi (82097625 devamı)"
+      ]
+    },
+    {
+      "anahtar": "84100483",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "DATA - Login & Sign Up & Forgot Password Funnel Entegrasyonu (82007091 devamı)",
+      "eslesme": "talep no",
+      "github": [
+        "#668 Released · SEO DATA - Login & Sign Up & Forgot Password Funnel Entegrasyonu (82007091 devamı)"
+      ]
+    },
+    {
+      "anahtar": "84100486",
+      "sprint": "Q4/2",
+      "durum": "Sprinte Alındı",
+      "talep": "DATA - GTM'in Geç Tetiklenmesi (80157285 devamı)",
+      "eslesme": "talep no",
+      "github": [
+        "#669 Released · SEO DATA - GTM'in Geç Tetiklenmesi (80157285 devamı)"
+      ]
+    },
+    {
+      "anahtar": "86514782",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "App - Karşılaştırma özelliğimize Ekspertiz bilgilerinin de Karşılaştır alanının olması",
+      "eslesme": "elle",
+      "github": [
+        "#897 Done · App FE > Karşılaştırma özelliğimize Ekspertiz bilgilerinin de Karşılaştır alanının olması"
+      ]
+    },
+    {
+      "anahtar": "84100767",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "SEO | Preload Edilen LCP Görsellerine Fetchpriority=\"high\" Eklenmesi",
+      "eslesme": "elle",
+      "github": [
+        "#670 Released · SEO | Preload Edilen LCP Görsellerine Fetchpriority=\"high\" Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "84665808",
+      "sprint": "Q4/2",
+      "durum": "Tamamlandı",
+      "talep": "BNext App | Araç Değerleme Ekranına Checklist Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#691 Released · APP | FE | Araba Sat Araç Alım Kriterleri Alanının Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "84899648",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "Araç görselleri 360 derece / video tur gösterim - AI Agent Tarafından (APP)",
+      "eslesme": "elle",
+      "github": [
+        "#783 UAT · App FE | Araç Detay Görsel Alanının Yenilenmesi, 360° Sanal Tur ve Video Gösterimi",
+        "#782 UAT · App BE bff | Car Studio 360 Spin ve Video AI Entegrasyonunun Yapılması"
+      ]
+    },
+    {
+      "anahtar": "83221553",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "Jarvis - İlan Süreci Hk.",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83228279",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "BNext | Jarvis, Satış Kanalı Önerisi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "86514870",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Karşılaştırma özelliğimize Ekspertiz bilgilerinin de Karşılaştır alanının olması",
+      "eslesme": "elle",
+      "github": [
+        "#896 Released · WEB FE > Karşılaştırma özelliğimize Ekspertiz bilgilerinin de Karşılaştır alanının olması"
+      ]
+    },
+    {
+      "anahtar": "76796148",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "URL Büyük Küçük Harf Duyarlılığı | SEO",
+      "eslesme": "talep no",
+      "github": [
+        "#930 Released · URL Büyük Küçük Harf Duyarlılığı | SEO"
+      ]
+    },
+    {
+      "anahtar": "80837176",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "BNext - App üzerinde bildirim sertifikasının güncellemesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "86515010",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Bnext Filtre ve Sıralamaların Redesign Edilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "81894079",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | https://borusannext.com/teklif-al sayfası için schema düzenlemesi",
+      "eslesme": "talep no",
+      "github": [
+        "#929 Released · BNext | https://borusannext.com/teklif-al sayfası için schema düzenlemesi"
+      ]
+    },
+    {
+      "anahtar": "83744633",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "Carvak'ın BNext'te Yetkili Satıcı Olarak Tanımlanması",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "81426929",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Uygulama içi puanlama (In App Rating) yapısının kurulması",
+      "eslesme": "elle",
+      "github": [
+        "#784 Done · App FE | Uygulama İçi Puanlama (In App Rating) Yapısının Kurulması",
+        "#785 Done · App BE | In App Rating Trigger ve NPS Fallback Altyapısının Oluşturulması"
+      ]
+    },
+    {
+      "anahtar": "BNext | Konsinye Olarak Yetkili Olmayan Bayilere Verilen Araçların İlana Alınması",
+      "sprint": "Q4/3",
+      "durum": "Hold",
+      "talep": "BNext | Konsinye Olarak Yetkili Olmayan Bayilere Verilen Araçların İlana Alınması",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "86515088",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Bnext Filtre ve Sıralamaların Redesign Edilmesi | APP",
+      "eslesme": "elle",
+      "github": [
+        "#928 In Progress · App FE | Filtre ve Sıralamaların İçerik Zenginleştirilmesi"
+      ]
+    },
+    {
+      "anahtar": "86515155",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Ekspertiz Randevularım Tasarım Düzenlemesi",
+      "eslesme": "talep no",
+      "github": [
+        "#894 Done · BNext Web | Ekspertiz Randevularım Tasarım Düzenlemesi"
+      ]
+    },
+    {
+      "anahtar": "86515230",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext App| Ekspertiz Randevularım Tasarım Düzenlemesi",
+      "eslesme": "elle",
+      "github": [
+        "#898 Done · App FE | Ekspertiz Randevularım Tasarım Düzenlemesi"
+      ]
+    },
+    {
+      "anahtar": "67041335",
+      "sprint": "Q4/3",
+      "durum": "Hold",
+      "talep": "Araç Detay Sayfası Değişiklik Talebi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "Badge Yönetimin Oluşturulması",
+      "sprint": "Q4/3",
+      "durum": "Hold",
+      "talep": "Badge Yönetimin Oluşturulması",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83092673",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Servis Randevu Adım 1 — Araç Bilgileri & Servis Kategorisi Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "84430643",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "Araç görselleri 360 derece / video tur gösterim - AI Agent Tarafından",
+      "eslesme": "elle",
+      "github": [
+        "#780 UAT · Web FE | Araç Detay Görsel Alanının Yenilenmesi, 360° Sanal Tur ve Video Gösterimi",
+        "#781 UAT · BE | Car Studio 360 Spin ve Video AI Entegrasyonunun Yapılması",
+        "#858 UAT · Jarvis FE > 360 resim görüntüleme ve video"
+      ]
+    },
+    {
+      "anahtar": "81530534",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext Servis - Fiyat alan müşterilere Servis'te ücretsiz check up kurgusu",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83093115",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Servis Randevu Adım 1 — Ruhsat Yükleme & Kayıtlı Araç Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "81920913",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "2. El Satış Müşterilerine Özel İlk Bakım Hediye Kurgusu",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83093211",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Servis Randevu Adım 2 — Servis Noktası, Tarih ve Saat Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "83093304",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Servis Randevu Adım 3 — Randevu Özeti",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "83354974",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "Borusan Next - İlan Ekspertiz Girişi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83768543",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext Servis| Girişte telefon numarasının şifre ile girişe taşınması",
+      "eslesme": "talep no",
+      "github": [
+        "#813 Released · BNext Servis| Girişte telefon numarasının şifre ile girişe taşınması",
+        "#575 Released · BNext | Girişte telefon numarasının şifre ile girişe taşınması"
+      ]
+    },
+    {
+      "anahtar": "85365462",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Kişiselleştirme Projesi - Data | Kişiselleştirilmiş Alanların Event Takipleri",
+      "eslesme": "talep no",
+      "github": [
+        "#899 Released · Kişiselleştirme Projesi - Data | Kişiselleştirilmiş Alanların Event Takipleri"
+      ]
+    },
+    {
+      "anahtar": "84912390",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "APP - Borusan Next Jarvis Pazarlama Link Oluşturma DeepLink Hk.",
+      "eslesme": "elle",
+      "github": [
+        "#798 Released · APP | Jarvis Pazarlama Linklerinin Deep Link ile Araç Listesine Yönlendirilmesi",
+        "#797 Released · App BE bff | Pazarlama Deep Link Campaign Key Desteği"
+      ]
+    },
+    {
+      "anahtar": "84936284",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "XML feed - Fırsat Aracı Parametresi Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#799 Released · FE | Google XML Feed’e Fırsat Aracı Bilgisinin Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "85012913",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext | App Icon PNG Renk Profili Düzeltmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "85185486",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "Bnext App - Randevu Düzenleme Fonksiyonun Geliştirilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#800 Done · Bnext App - Randevu Düzenleme Fonksiyonun Geliştirilmesi"
+      ]
+    },
+    {
+      "anahtar": "App | Android Mobil Web – Uygulama İndirme Yönlendirmesinin Entegrasyonu",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "App | Android Mobil Web – Uygulama İndirme Yönlendirmesinin Entegrasyonu",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "85106940",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Fırsat araçlarında opsiyonlu araçları en altta göstermek",
+      "eslesme": "başlık",
+      "github": [
+        "#802 Released · Web BE | Fırsat Araçlarında Opsiyonlu Araçların En Altta Gösterilmesi"
+      ]
+    },
+    {
+      "anahtar": "65135005",
+      "sprint": "Q4/4",
+      "durum": "Backlog",
+      "talep": "Aydınlatma Metni Onay Sayfasının Güncellenmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "Takas Ön Fiyatlama Alanı Araç Görseli Ekleme",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "Takas Ön Fiyatlama Alanı Araç Görseli Ekleme",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "Kampanya Modelinin Kurgulanması",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "Kampanya Modelinin Kurgulanması",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "82736486",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "BNext SSH - Kampanya Kodu Geliştirmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "Özel Fiyat Talebi Web Sitesinde Süreci Düzenlemek",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "Özel Fiyat Talebi Web Sitesinde Süreci Düzenlemek",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "82836877",
+      "sprint": "Q4/4",
+      "durum": "Tasarım Bekleniyor",
+      "talep": "SEO | Back to Top Butonunun Eklenmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83185585",
+      "sprint": "Q4/4",
+      "durum": "Hold",
+      "talep": "Kullanılmış Oto Ekiplerinin Copilot Kullanımına Dahil Edilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83770196",
+      "sprint": "",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Kampanyalar -> \"Kampanya Detayı\" butonunda ok ikonunun siyah yapılması",
+      "eslesme": "talep no",
+      "github": [
+        "#537 Released · BNext Kampanya Sayfalarında Görsel Düzenlemeler"
+      ]
+    },
+    {
+      "anahtar": "83771156",
+      "sprint": "",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Kampanya detay sayfasında \"Araba Al\" butonunun marka yeşiline çevrilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#537 Released · BNext Kampanya Sayfalarında Görsel Düzenlemeler"
+      ]
+    },
+    {
+      "anahtar": "83771930",
+      "sprint": "",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Kampanya detay sayfasında metin fontunun site fontuna çevrilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#537 Released · BNext Kampanya Sayfalarında Görsel Düzenlemeler"
+      ]
+    },
+    {
+      "anahtar": "82836565",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext | App giriş ekranlarının değiştirilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83608783",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "Toplu Araç Oluşturma / Veri Güncelleme Ekranı hk.",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "84179166",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Jarvis Geçişi \"Değerleme Uzmanı\" Rol içeriği",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83960236",
+      "sprint": "Q4/6",
+      "durum": "Tamamlandı",
+      "talep": "Borusan Next Favori Araç Fiyat Düşüşü İletişimi Hk.",
+      "eslesme": "talep no",
+      "github": [
+        "#663 Released · BNext BE | Favoriden Çıkarılan Araçlarda Soft Delete Uygulanması"
+      ]
+    },
+    {
+      "anahtar": "85185609",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext - WIS Araba sat akışında giriş yapan kullanıcı contact-key parametresi",
+      "eslesme": "elle",
+      "github": [
+        "#801 Released · Web | Araba Sat | Telefon Doğrulama Girişinde Contact Key Aktarımı"
+      ]
+    },
+    {
+      "anahtar": "85172743",
+      "sprint": "Q4/4",
+      "durum": "Talep Netleştirme",
+      "talep": "KVKK Metni SMS Gönderimi/Voice AI",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "85185678",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext - BFF servisleri için geliştirme ve dokümantasyon",
+      "eslesme": "elle",
+      "github": [
+        "#803 Released · BNext | BFF Randevu Servislerinin SF a Servis Edilmesi ve Dokümantasyonu"
+      ]
+    },
+    {
+      "anahtar": "85125209",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "SEO Infinite Scroll Pagination Kurgulanması",
+      "eslesme": "talep no",
+      "github": [
+        "#904 UAT · SEO Infinite Scroll Pagination Kurgulanması"
+      ]
+    },
+    {
+      "anahtar": "85980306",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Borusan Next Servis Sayfası Geliştirme / Aktarım",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "81892014",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "CMS - Blog içerikleri tarih-saat sorunu",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "84435707",
+      "sprint": "Q4/4",
+      "durum": "Sprint Planlama",
+      "talep": "Meta Lead Reklamları - Salesforce Entegrasyonu",
+      "eslesme": "elle (eşleşme yok)",
+      "github": []
+    },
+    {
+      "anahtar": "85287488",
+      "sprint": "Q4/4",
+      "durum": "Sprint Planlama",
+      "talep": "Araç Arama Servisi – Model Filtrelerinde Contains Eşleşme Geliştirmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "85632946",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Araba Sat App: Metin ve İkon Düzeltmeleri",
+      "eslesme": "talep no",
+      "github": [
+        "#900 Test · BNext App FE | Araba Sat: Metin ve İkon Düzeltmeleri"
+      ]
+    },
+    {
+      "anahtar": "85633356",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Araba Sat App: Form Kaydırma ve Kroki Seçimi",
+      "eslesme": "talep no",
+      "github": [
+        "#901 Review · BNext App | Araba Sat: Form Kaydırma ve Kroki Seçimi"
+      ]
+    },
+    {
+      "anahtar": "Mobil Web'in Google A. Entegrasyonu",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "Mobil Web'in Google A. Entegrasyonu",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "Web'de araç hasar fotoğraflarının zoomlanabilmesi",
+      "sprint": "Q4/3",
+      "durum": "tamamlandı",
+      "talep": "Web'de araç hasar fotoğraflarının zoomlanabilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "86515334",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Anlaşmalı Banka Logolarının Altına Banka Adı Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#906 Test · BNext App FE | Anlaşmalı Banka Logolarının Altına Banka Adı Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "BNext App | Araba Sat Akış Eksik Giderilmesi",
+      "sprint": "Q4/4",
+      "durum": "Sprint Planlama",
+      "talep": "BNext App | Araba Sat Akış Eksik Giderilmesi",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "86007617",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Anlaşmalı Banka Logolarının Altına Banka Adı Eklenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#884 Released · BNext FE | Anlaşmalı Banka Logolarının Altına Banka Adı Eklenmesi"
+      ]
+    },
+    {
+      "anahtar": "84100759",
+      "sprint": "Q4/4",
+      "durum": "Tamamlandı",
+      "talep": "SEO | Mobilde Araç ve Ekspertiz Görsellerinde Yakınlaştırma/Küçültme Özelliğini",
+      "eslesme": "elle (eşleşme yok)",
+      "github": []
+    },
+    {
+      "anahtar": "85875827",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext App - Pazarlama Linki Üzerinden Gidilen Sayfadan Size Özelin Kaldırılması",
+      "eslesme": "elle",
+      "github": [
+        "#846 Done · Borusan Next App | Size Özel Araçlar Alanının Kaldırılması"
+      ]
+    },
+    {
+      "anahtar": "85875756",
+      "sprint": "Q4/3",
+      "durum": "Tamamlandı",
+      "talep": "BNext - Pazarlama Linki Üzerinden Gidilen Sayfadan Size Özelin Kaldırılması",
+      "eslesme": "elle",
+      "github": [
+        "#845 Released · Borusan Next Web | Size Özel Araçlar Alanının Kaldırılması"
+      ]
+    },
+    {
+      "anahtar": "83671322",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Data - Homepage Vehicle Search Module Event Entegrasyonu",
+      "eslesme": "talep no",
+      "github": [
+        "#571 Released · Data - Homepage Vehicle Search Module Event Entegrasyonu"
+      ]
+    },
+    {
+      "anahtar": "84435707",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "DATA - View/Select Promotion Event Kurulumları",
+      "eslesme": "talep no",
+      "github": [
+        "#903 Released · DATA - View/Select Promotion Event Kurulumları"
+      ]
+    },
+    {
+      "anahtar": "86211755",
+      "sprint": "Q4/4",
+      "durum": "Sprinte Alındı",
+      "talep": "Tüm servislerde Pricing-> GetPrice kullanılan yerlerin tespit edilme",
+      "eslesme": "talep no",
+      "github": [
+        "#983 In Progress · GetDisplayPrice Geliştirmeleri",
+        "#902 Released · BE Tüm servislerde Pricing-> GetPrice kullanılan yerlerin tespit edilmesi"
+      ]
+    },
+    {
+      "anahtar": "83414602",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "Androidte bnext'in uygulama indirmeye yönlendirme alanı olması",
+      "eslesme": "talep no",
+      "github": [
+        "#454 Released · App | Android Mobil Web – Uygulama İndirme Yönlendirmesinin Entegrasyonu"
+      ]
+    },
+    {
+      "anahtar": "83075072",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "Franchise şubeler için iletilen “Sizi Arayalım” form taleplerinin BOD aktarılmas",
+      "eslesme": "talep no",
+      "github": [
+        "#371 Released · 83075358 - BE Franchise Şube Araçlarına Ait “Sizi Arayalım” Taleplerinin BOD Kuyruğuna Aktarılması"
+      ]
+    },
+    {
+      "anahtar": "82464407",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Araba Geçmişi – Hasar Fotoğrafı Büyütülemiyor",
+      "eslesme": "talep no",
+      "github": [
+        "#352 Released · 82493834 - BNext App | Araba Geçmişi – Ekspertiz Hasar Fotoğraflarının Büyütülmesi"
+      ]
+    },
+    {
+      "anahtar": "83145704",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Araç Alım Kriterleri Alanının CMS Üzerinden Yönetilmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#373 Released · 83196170 - App bff BNext | Araç Alım Kriterlerinin App Tarafında Dinamik Olarak Yönetilmesi",
+        "#372 Released · 83196170 - App FE BNext | Araç Alım Kriterlerinin App Tarafında Dinamik Olarak Yönetilmesi"
+      ]
+    },
+    {
+      "anahtar": "82436597",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "Tekrarlanan Ekspertizlerde Kaporta-Boya Farklılıklarının Otomatik Tespiti",
+      "eslesme": "talep no",
+      "github": [
+        "#362 Released · 82436597 - FE Ardışık satın alma ekspertizlerinin Kaporta-Boya bilgilerinin karşılaştırılması"
+      ]
+    },
+    {
+      "anahtar": "81748994",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Üstü çizili fiyat",
+      "eslesme": "talep no",
+      "github": [
+        "#207 Released · BE - Elastic v2 üzerinden araç bazlı üstü çizili fiyat hesaplaması - BCF-1648"
+      ]
+    },
+    {
+      "anahtar": "82015779",
+      "sprint": "Q4/1",
+      "durum": "Tamamlandı",
+      "talep": "BNext | Araba Sat Akışı APP Tasarım Güncellenmesi",
+      "eslesme": "talep no",
+      "github": [
+        "#307 Released · 82022003 - App Araba Sat Akışının Yeni UX/UI Tasarımına Uyarlanması"
+      ]
+    },
+    {
+      "anahtar": "83414999",
+      "sprint": "Q4/1",
+      "durum": "Sprinte Alındı",
+      "talep": "BE Araba Sat Başvurusu > OCR ile Ruhsat Okuma Entegrasyon Revizesi",
+      "eslesme": "talep no",
+      "github": [
+        "#374 Released · BE Araba Sat Başvurusu > OCR ile Ruhsat Okuma Entegrasyon Revizesi",
+        "#686 Released · FE Araba Sat Başvurusu > OCR ile Ruhsat Okuma Entegrasyon Revizesi"
+      ]
+    },
+    {
+      "anahtar": "82003727",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Servis APP Tasarım Güncellemeleri",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi",
+        "#353 Done · 82004621 - Mobil FE : CMS kaynaklı servis alanlarının tasarıma uygun gösterilmesi"
+      ]
+    },
+    {
+      "anahtar": "82594083",
+      "sprint": "Q4/2",
+      "durum": "sprinte alındı",
+      "talep": "BNext | Servis Anasayfa — Check-up & Mobil Uygulama/QR Kart Bloğu",
+      "eslesme": "talep no",
+      "github": [
+        "#355 Done · 82595318 - BNext | Servis Anasayfa – Check-up ve Mobil Uygulama/QR Kart Blokları Frontend Geliştirmesi"
+      ]
+    },
+    {
+      "anahtar": "82237192",
+      "sprint": "Q4/3",
+      "durum": "Hold",
+      "talep": "BNext - Toplu Araç Satışı - Dijital Plaftorm",
+      "eslesme": "",
+      "github": []
+    },
+    {
+      "anahtar": "83595458",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext | Araba Al — Filtresiz sayfada model başlığı ile listelenen araçlar uyuşmuyor",
+      "eslesme": "talep no",
+      "github": [
+        "#212 Released · Araba Al sayfasında seçim yapılmadan değişen marka/model bilgisinin düzeltilmesi - BCF-1653"
+      ]
+    },
+    {
+      "anahtar": "83092480",
+      "sprint": "Q4/3",
+      "durum": "Sprinte Alındı",
+      "talep": "BNext APP | Servis Anasayfa — Check-up CMS ile yönetilebilen kart bloğu (APP)",
+      "eslesme": "talep no",
+      "github": [
+        "#682 Test · FE App > Servis Sayfa Geliştirmesi"
+      ]
+    }
+  ],
+  "eslesmeyen_github_isleri": [
+    "#957 [Q4/4] Todo · Bug: Lead Kaydı İptal Edildiğinde Araç ve Satın Alma Kayıtlarının İptal Olmaması",
+    "#933 [Q4/4] Test · [BUG] App Crash Durumlarının Genel incelenmesi",
+    "#987 [Q4/4] Done · APP | Araç Alım Kriterleri adımının kaldırılması",
+    "#1065 [Q4/4] Released · [BUG]: Motosiklet Al Hata",
+    "#982 [Q4/4] Released · [BUG]: Borusan Next Fırsat Araçlar VE Opsiyyonsuz Araç Filtre Hatası",
+    "#990 [Q4/4] Released · Borusan Next Fırsat Araçlar VE Opsiyyonsuz Araç Filtre Hatası",
+    "#883 [Q4/4] Released · 82022003 - FE - Araba Sat Akışı Randevu Loaksyonlarının Tümüne İstek Atılmadan Listeleme Geliştirmesi #375 Open User Story Parent:",
+    "#968 [Q4/4] Released · App Test Ortamı SSL Sertifika Güncelleme İşlemleri",
+    "#989 [Q4/4] Released · OrganizerId OrganizerCityId Alanlarının eklenmesi",
+    "#973 [Q4/4] Released · Araba Al Sayfası Default SEO Metin Alanının Eklenmesi",
+    "#956 [Q4/4] Released · Satın Alma Kaydında Datada Aramayı case-insensitive Yapılması",
+    "#994 [Q4/4] Released · Üstü Çizili Fiyat Kural Revizesi",
+    "#931 [Q4/4] Released · SmartIQ Entegrasyon Düzenlemeleri",
+    "#776 [Q4/3] Released · [BUG]: Blog Yazısı Start Data Alanının Çalışmaması",
+    "#885 [Q4/3] Released · Ana Sayfa – Motosiklet Sekmesi Slider ve Başlık Düzenlemesi",
+    "#882 [Q4/3] Released · Security and quality",
+    "#880 [Q4/3] Released · BE Satın Alma Süreci > Değerleme Özeti Alanının Gösterimi",
+    "#876 [Q4/3] Released · FE Satın Alma Süreci > Değerleme Özeti Alanının Gösterimi",
+    "#839 [Q4/3] Released · App > Araba Sat Akışı Alım Kriterlerinin İlk Sıraya Mevcut Kurallar ile Taşınması",
+    "#886 [Q4/3] Released · [BUG]: Togg kayıtlarında KaynakMecra Alanının Gönderilmesi",
+    "#868 [Q4/3] Released · [BUG]: Logosu Detayda Görünütlenemeyen Marka",
+    "#838 [Q4/3] Released · Web > Araba Sat Akışı Alım Kriterlerinin İlk Sıraya Mevcut Kurallar ile Taşınması",
+    "#881 [Q4/3] Released · IOS Android Bildirim Merkezi Farklılıklarının İncelenmesi",
+    "#847 [Q4/3] Released · EV (Elektrikli Araç) Projesi – FE Canlıya Geçiş Hazırlıkları",
+    "#848 [Q4/3] Released · EV Elektirikli Araç > Araba Al Sayfası – Batarya Kontrol Filtresi ve EV İkon Revizyonu",
+    "#828 [Q4/3] Released · [BUG]: BNext | Araba Bilgi Formu PDF’inde Kaporta Ekspertiz alanları dolmuyor",
+    "#844 [Q4/3] Released · Kişiselleştirme Projesi -Opsiyonlu Araçlar",
+    "#854 [Q4/3] Released · [BUG] Karşılaştır Ekranında Checkbox Çiftlenme Sorununun Giderilmesi",
+    "#976 [Q4/4] Released · [BUG]: Araba Detay İmage Yönlendirme İconları Çiftleme Sorunu",
+    "#986 [Q4/4] Released · [BUG]: EV için de landing page de araçlar gelmiyor",
+    "#865 [Q4/4] Released · Batarya Kontrol Durumu – Test Edilmemiş Filtresinin Elektrikli Araçlarla Sınırlandırılması",
+    "#985 [Q4/4] Released · [BUG]: ElasticSearch Güncellenmeme Sorunu",
+    "#988 [Q4/4] Released · Web |Araç Alım Kriterleri adımının kaldırılması",
+    "#996 [Q4/4] Released · [BUG]: Satın Alma Kaydı Hatası hk."
+  ]
+}
