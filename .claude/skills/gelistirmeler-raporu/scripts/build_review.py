@@ -369,11 +369,18 @@ def build(a) -> None:
     if a.matches and os.path.exists(a.matches):
         with open(a.matches, encoding="utf-8") as fh:
             overrides = json.load(fh)
-    later_how = f'talep listesinde "{a.col_later}" = evet' if getattr(a, "_has_later_col", False) else ""
+    later_how = (f'talep listesinde "{a.col_later}" = evet'
+                 if getattr(a, "_has_later_col", False) and not a.later_from_diff_only else "")
+    if a.later_from_diff_only:
+        for t in all_rows:
+            t["later"] = False
     if a.previous_plan:
         prev = [p for p in load_plan(a.previous_plan, a.sheet, a) if p["quarter"] == q]
         prev_nos = set().union(*(p["nos"] for p in prev)) if prev else set()
         prev_titles = {tr_lower(p["title"]) for p in prev}
+        if a.later_from_diff_only:
+            for p in prev:
+                p["later"] = False
         prev_later_nos = set().union(*(p["nos"] for p in prev if p["later"])) if prev else set()
         prev_later_titles = {tr_lower(p["title"]) for p in prev if p["later"]}
         prev_toks = [toks(p["title"]) for p in prev]
@@ -387,6 +394,8 @@ def build(a) -> None:
             if flagged or not known:
                 t["later"] = True
         later_how = ((later_how + " · ") if later_how else "") + (
+            f"{esc(a.previous_label or 'önceki liste')} ile karşılaştırıldığında sonradan {q}'e eklenen talepler"
+            if a.later_from_diff_only else
             f"önceki listede sonradan gelen olarak işaretli ya da {esc(a.previous_label or 'önceki listeden')} "
             f"sonra {q}'e eklenen talepler")
     a._later_how = later_how or "—"
@@ -737,6 +746,8 @@ def main() -> None:
     ap.add_argument("--insights", help="Claude'un yazdığı içgörüler: {\"bullets\": [\"...\"]}")
     ap.add_argument("--team", default="Retail")
     ap.add_argument("--previous-plan", help="Önceki talep listesi (xlsx): ondan sonra çeyreğe eklenen talepler sonradan gelen sayılır")
+    ap.add_argument("--later-from-diff-only", action="store_true",
+                    help="Sonradan gelen = yalnız önceki listeyle fark (\"Sonradan Gelen\" kolonları yok sayılır)")
     ap.add_argument("--previous-label", help="Önceki listenin adı/tarihi, ör. '12.11.2026 listesi'")
     ap.add_argument("--plan-label", help="Varsayımlar slaytında gösterilecek talep listesi dosya adı")
     ap.add_argument("--export-label", help="Varsayımlar slaytında gösterilecek GitHub export dosya adı")
